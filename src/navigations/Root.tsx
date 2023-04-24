@@ -9,11 +9,15 @@ import type {
   RouteConfig,
   StackNavigationState
 } from '@react-navigation/core';
-import { OpeningParamList } from './OpeningRouter';
+import OpeningRouter, { OpeningParamList } from './OpeningRouter';
+import AuthRouter, { AuthParamList } from './AuthRouter';
 
 export type RootParamList = {
-  OpeningScreen: NavigatorScreenParams<OpeningParamList>;
+  OpeningRouter: NavigatorScreenParams<OpeningParamList>;
+  AuthRouter: NavigatorScreenParams<AuthParamList>;
 };
+
+const RootStack = createStackNavigator<RootParamList>();
 
 type router = RouteConfig<
   RootParamList,
@@ -23,4 +27,28 @@ type router = RouteConfig<
   StackNavigationEventMap
 >;
 
-const routes: router[] = [{ name: 'OpeningScreen' }];
+const routes: router[] = [
+  { name: 'OpeningRouter', component: OpeningRouter },
+  {
+    name: 'AuthRouter',
+    component: AuthRouter
+  }
+];
+
+const Root = () => {
+  return (
+    <RootStack.Navigator
+      initialRouteName="OpeningRouter"
+      screenOptions={{
+        headerShown: false,
+        ...TransitionPresets.SlideFromRightIOS
+      }}
+    >
+      {routes.map((route) => (
+        <RootStack.Screen key={route.name} {...route} />
+      ))}
+    </RootStack.Navigator>
+  );
+};
+
+export default Root;

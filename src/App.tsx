@@ -6,13 +6,14 @@
  */
 
 import React from 'react';
-import {StyleSheet} from 'react-native';
-
-import {Buffer} from '@craftzdog/react-native-buffer';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import {Provider} from 'jotai';
-import {NativeBaseProvider} from 'native-base';
-import {NavigationContainer} from '@react-navigation/native';
+import { StatusBar, StyleSheet } from 'react-native';
+import { Buffer } from '@craftzdog/react-native-buffer';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Provider } from 'jotai';
+import { NativeBaseProvider } from 'native-base';
+import { NavigationContainer } from '@react-navigation/native';
+import Root from './navigations/Root';
+import { Colors } from './Colors';
 
 // @ts-ignore
 
@@ -22,8 +23,11 @@ function App(): JSX.Element {
   return (
     <GestureHandlerRootView style={styles.main}>
       <Provider>
+        <StatusBar backgroundColor={Colors.black} />
         <NativeBaseProvider>
-          <NavigationContainer></NavigationContainer>
+          <NavigationContainer>
+            <Root />
+          </NavigationContainer>
         </NativeBaseProvider>
       </Provider>
     </GestureHandlerRootView>
@@ -32,8 +36,8 @@ function App(): JSX.Element {
 
 const styles = StyleSheet.create({
   main: {
-    flex: 1,
-  },
+    flex: 1
+  }
 });
 
 export default App;

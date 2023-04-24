@@ -33,7 +33,12 @@ const openings: opening[] = [
 
 const OpeningRouter = () => {
   return (
-    <OpeningStack.Navigator>
+    <OpeningStack.Navigator
+      screenOptions={{
+        headerShown: false,
+        ...TransitionPresets.SlideFromRightIOS
+      }}
+    >
       {openings.map((opening) => (
         <OpeningStack.Screen key={opening.name} {...opening} />
       ))}
