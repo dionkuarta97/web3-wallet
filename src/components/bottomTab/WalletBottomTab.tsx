@@ -1,4 +1,4 @@
-import { Text } from 'native-base';
+import { Text, useDisclose } from 'native-base';
 import React, { useEffect, useRef } from 'react';
 import { TouchableOpacity, ImageSourcePropType, Image, View } from 'react-native';
 import { Animated } from 'react-native';
@@ -10,6 +10,7 @@ import { height, width } from '../../Helpers';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { BottomTabParamList } from '../../navigations/BottomTabRouter';
+import WalletBottomSheet from '../bottomSheet/WalletBottomSheet';
 
 type menu = {
   screen: any;
@@ -24,6 +25,7 @@ const WalletBottomTab = (
     image: ImageSourcePropType;
   }
 ) => {
+  const { isOpen, onClose, onOpen } = useDisclose();
   const [bottom, dispatch] = useAtom(bottomReducer);
   const navigation = useNavigation<StackNavigationProp<BottomTabParamList>>();
   const isFocused: boolean = props.accessibilityState.selected;
@@ -151,13 +153,17 @@ const WalletBottomTab = (
               borderBottomRightRadius: idx + 1 === props.menus.length ? 10 : 0,
               justifyContent: 'center',
               alignItems: 'center',
-              backgroundColor: Colors.green,
+              backgroundColor: bottom.tabActive === el.screen ? Colors.lightGreen : Colors.green,
               paddingVertical: 5
             }}
             onPress={() => {
-              dispatch({ type: 'setTabActive', payload: el.screen });
+              if (el.screen === 'AllWalletScreen') {
+                dispatch({ type: 'setTabActive', payload: el.screen });
+                navigation.navigate('WalletRouter', { screen: 'AllWalletScreen' });
+              } else {
+                onOpen();
+              }
               dispatch({ type: 'setShowWallet', payload: false });
-              navigation.navigate('WalletRouter', { screen: el.screen });
             }}
           >
             <Image
@@ -175,6 +181,7 @@ const WalletBottomTab = (
           </TouchableOpacity>
         ))}
       </Animated.View>
+      <WalletBottomSheet isOpen={isOpen} onClose={onClose} />
     </>
   );
 };

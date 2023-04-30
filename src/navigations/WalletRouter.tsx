@@ -6,26 +6,12 @@ import {
 } from '@react-navigation/stack';
 import { type RouteConfig, type StackNavigationState } from '@react-navigation/core';
 import CustomHeader from '../components/CustomHeader';
-
-const AllWalletScreen = () => {
-  return (
-    <Center justifyContent={'center'} alignItems={'center'}>
-      <Text>AllWallet</Text>
-    </Center>
-  );
-};
-
-const ConnectWalletScreen = () => {
-  return (
-    <Center justifyContent={'center'} alignItems={'center'}>
-      <Text>ConnectWallet</Text>
-    </Center>
-  );
-};
+import AllWalletScreen from '../screens/wallet/AllWalletScreen';
+import CreateWalletScreen from '../screens/wallet/CreateWalletScreen';
 
 export type WalletParamList = {
   AllWalletScreen: undefined;
-  ConnectScreen: undefined;
+  CreateWalletScreen: undefined;
 };
 
 const WalletStack = createStackNavigator<WalletParamList>();
@@ -47,8 +33,8 @@ const wallets: wallet[] = [
     }
   },
   {
-    name: 'ConnectScreen',
-    component: ConnectWalletScreen,
+    name: 'CreateWalletScreen',
+    component: CreateWalletScreen,
     options: {
       header: () => <CustomHeader />
     }
