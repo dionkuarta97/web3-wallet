@@ -2,26 +2,32 @@ import { Image, ImageBackground, StyleSheet } from 'react-native';
 import { width } from '../../Helpers';
 import { Colors } from '../../Colors';
 import { useAtom } from 'jotai';
-import { firstOpenAtomWithPersistence, isLoginAtomWithPersistence } from '../../state/auth';
 import { useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootParamList } from '../../navigations/Root';
+import { authReducer } from '../../state/auth/authReducer';
 
 const SplashScreen = () => {
-  const [isLogin] = useAtom(isLoginAtomWithPersistence);
-  const [firstOpen] = useAtom(firstOpenAtomWithPersistence);
+  const [auth] = useAtom(authReducer);
 
   const navigation = useNavigation<StackNavigationProp<RootParamList>>();
 
   const init = () => {
     setTimeout(() => {
-      if (!isLogin) {
-        if (firstOpen) {
+      if (!auth?.isLogin) {
+        if (auth?.firstOpen) {
           navigation.replace('OpeningRouter', { screen: 'OnBoardingScreen' });
         } else {
           navigation.replace('AuthRouter', { screen: 'OpeningScreen' });
         }
+      } else {
+        navigation.replace('BottomTabRouter', {
+          screen: 'HomeRouter',
+          params: {
+            screen: 'HomeScreen'
+          }
+        });
       }
     }, 2000);
   };

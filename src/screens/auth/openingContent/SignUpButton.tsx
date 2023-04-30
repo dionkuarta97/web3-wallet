@@ -1,5 +1,5 @@
 import { Button, Text } from 'native-base';
-import { height, width } from '../../../Helpers';
+import { width } from '../../../Helpers';
 import { GradientBorderView } from '@good-react-native/gradient-border';
 
 const SignUpButton = () => {

@@ -14,7 +14,7 @@ import { NativeBaseProvider } from 'native-base';
 import { NavigationContainer } from '@react-navigation/native';
 import Root from './navigations/Root';
 import { Colors } from './Colors';
-
+import 'react-native-gesture-handler';
 // @ts-ignore
 
 (global as any).window.Buffer = Buffer;

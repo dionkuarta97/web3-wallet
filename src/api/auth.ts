@@ -25,8 +25,6 @@ const login = async (loginProvider: string) => {
     curve: 'secp256k1'
   });
 
-  console.log(redirectUrl);
-
   return response;
 };
 

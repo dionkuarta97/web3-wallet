@@ -1,4 +1,7 @@
 {
   "extends": "@tsconfig/react-native/tsconfig.json",
-  
+  "compilerOptions": {
+    "strict": true,
+    "strictNullChecks": false
+  },
 }

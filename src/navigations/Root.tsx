@@ -11,10 +11,12 @@ import type {
 } from '@react-navigation/core';
 import OpeningRouter, { OpeningParamList } from './OpeningRouter';
 import AuthRouter, { AuthParamList } from './AuthRouter';
+import BottomTabRouter, { BottomTabParamList } from './BottomTabRouter';
 
 export type RootParamList = {
   OpeningRouter: NavigatorScreenParams<OpeningParamList>;
   AuthRouter: NavigatorScreenParams<AuthParamList>;
+  BottomTabRouter: NavigatorScreenParams<BottomTabParamList>;
 };
 
 const RootStack = createStackNavigator<RootParamList>();
@@ -32,6 +34,10 @@ const routes: router[] = [
   {
     name: 'AuthRouter',
     component: AuthRouter
+  },
+  {
+    name: 'BottomTabRouter',
+    component: BottomTabRouter
   }
 ];
 

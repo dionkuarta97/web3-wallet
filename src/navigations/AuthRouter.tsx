@@ -8,10 +8,16 @@ import type { RouteConfig, StackNavigationState } from '@react-navigation/core';
 import OpeningScreen from '../screens/auth/OpeningScreen';
 import SignInScreen from '../screens/auth/SignInScreen';
 import DefaultHeader from '../components/DefaultHeader';
+import SetupPinScreen from '../screens/auth/SetupPinScreen';
+import ReenterPinScreen from '../screens/auth/ReenterPinScreen';
+import InputPinScreen from '../screens/auth/InputPinScreen';
 
 export type AuthParamList = {
   OpeningScreen: undefined;
   SignInScreen: undefined;
+  SetupPinScreen: undefined;
+  ReenterPinScreen: undefined;
+  InputPinScreen: undefined;
 };
 
 const AuthStack = createStackNavigator<AuthParamList>();
@@ -35,6 +41,27 @@ const auths: auth[] = [
   {
     name: 'SignInScreen',
     component: SignInScreen,
+    options: {
+      header: () => <DefaultHeader />
+    }
+  },
+  {
+    name: 'SetupPinScreen',
+    component: SetupPinScreen,
+    options: {
+      header: () => <DefaultHeader />
+    }
+  },
+  {
+    name: 'ReenterPinScreen',
+    component: ReenterPinScreen,
+    options: {
+      header: () => <DefaultHeader />
+    }
+  },
+  {
+    name: 'InputPinScreen',
+    component: InputPinScreen,
     options: {
       header: () => <DefaultHeader />
     }

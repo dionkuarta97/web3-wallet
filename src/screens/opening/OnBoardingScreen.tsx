@@ -5,7 +5,7 @@ import { HStack } from 'native-base';
 import { useEffect, useRef } from 'react';
 import ScrollPage from './onBoardingContent/ScrollPage';
 import { useAtom } from 'jotai';
-import { firstOpenAtomWithPersistence } from '../../state/auth';
+import { authReducer } from '../../state/auth/authReducer';
 
 const pages: { title: string; decs: string }[] = [
   {
@@ -34,10 +34,10 @@ const pages: { title: string; decs: string }[] = [
 const OnBoardingScreen = () => {
   const scrollX = useRef(new Animated.Value(0)).current;
 
-  const [, SetFirstOpen] = useAtom(firstOpenAtomWithPersistence);
+  const [, dispatch] = useAtom(authReducer);
 
   useEffect(() => {
-    SetFirstOpen(false);
+    dispatch({ type: 'setFirstOpen', payload: false });
   }, []);
 
   return (
