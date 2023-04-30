@@ -10,7 +10,6 @@
     "test": "jest"
   },
   "dependencies": {
-    "@babel/plugin-proposal-private-methods": "^7.18.6",
     "@craftzdog/react-native-buffer": "^6.0.5",
     "@ethersproject/shims": "^5.7.0",
     "@good-react-native/gradient-border": "^1.0.2",
