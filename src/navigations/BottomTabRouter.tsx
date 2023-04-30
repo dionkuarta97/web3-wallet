@@ -1,10 +1,12 @@
-import { Center, Text } from 'native-base';
+import { Button, Center, Text } from 'native-base';
 
-import type {
-  NavigatorScreenParams,
-  RouteConfig,
-  StackNavigationState
+import {
+  type NavigatorScreenParams,
+  type RouteConfig,
+  type StackNavigationState
 } from '@react-navigation/core';
+
+import { useNavigation } from '@react-navigation/native';
 
 import {
   BottomTabNavigationEventMap,
@@ -16,6 +18,10 @@ import WalletRouter, { WalletParamList } from './WalletRouter';
 import DefaultBottomTab from '../components/bottomTab/DefaultBottomTab';
 import { height } from '../Helpers';
 import WalletBottomTab from '../components/bottomTab/WalletBottomTab';
+import { useAtom } from 'jotai';
+import { authReducer } from '../state/auth/authReducer';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootParamList } from './Root';
 
 export type BottomTabParamList = {
   HomeRouter: NavigatorScreenParams<HomeParamList>;
@@ -52,9 +58,18 @@ const ChatScreen = () => {
 };
 
 const MeScreen = () => {
+  const [, dispatch] = useAtom(authReducer);
+  const navigation = useNavigation<StackNavigationProp<RootParamList>>();
   return (
-    <Center justifyContent={'center'} alignItems={'center'}>
-      <Text>Me</Text>
+    <Center flex={1} justifyContent={'center'} alignItems={'center'}>
+      <Button
+        onPress={() => {
+          dispatch({ type: 'setIsLogin', payload: false });
+          navigation.replace('AuthRouter', { screen: 'OpeningScreen' });
+        }}
+      >
+        Log out
+      </Button>
     </Center>
   );
 };
