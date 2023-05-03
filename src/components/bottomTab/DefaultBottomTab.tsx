@@ -3,13 +3,13 @@ import React from 'react';
 import { ImageSourcePropType, TouchableOpacity, Image } from 'react-native';
 import { Animated } from 'react-native';
 import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
-import { useNavigation } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { BottomTabParamList } from '../../navigations/BottomTabRouter';
 import { width } from '../../Helpers';
 import { Colors } from '../../Colors';
 import { useAtom } from 'jotai';
 import { bottomReducer } from '../../state/bottom/bottomReducer';
+import { RootParamList } from '../../navigations/Root';
 
 const DefaultBottomTab = (
   props: BottomTabBarButtonProps & {
@@ -20,7 +20,10 @@ const DefaultBottomTab = (
   }
 ) => {
   const [bottom, dispatch] = useAtom(bottomReducer);
-  const navigation = useNavigation<StackNavigationProp<BottomTabParamList>>();
+  const navigation = useNavigation<StackNavigationProp<RootParamList>>();
+
+  const route = useRoute<RouteProp<RootParamList>>();
+
   const isFocused: boolean = props.accessibilityState.selected;
 
   return (
@@ -37,9 +40,12 @@ const DefaultBottomTab = (
         dispatch({ type: 'setShowWallet', payload: false });
         dispatch({ type: 'setTabActive', payload: null });
         if (props.screen) {
-          navigation.navigate(props.router, { screen: props.screen });
+          navigation.navigate('BottomTabRouter', {
+            screen: props.router,
+            params: { screen: props.screen }
+          });
         } else {
-          navigation.navigate(props.router);
+          navigation.navigate('BottomTabRouter', { screen: props.router });
         }
       }}
     >

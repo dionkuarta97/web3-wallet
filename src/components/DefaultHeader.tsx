@@ -4,9 +4,9 @@ import { Pressable, View } from 'native-base';
 import { StyleSheet, Image, StatusBar } from 'react-native';
 import { RootParamList } from '../navigations/Root';
 import { width } from '../Helpers';
-
 const DefaultHeader = () => {
   const navigation = useNavigation<StackNavigationProp<RootParamList>>();
+
   return (
     <View padding={5} bg={'white'}>
       <StatusBar barStyle="dark-content" backgroundColor={'white'} />

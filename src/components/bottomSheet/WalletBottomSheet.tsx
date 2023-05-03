@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { Actionsheet, Button, HStack, Heading, Text } from 'native-base';
 import { Dimensions } from 'react-native';
 import { Image } from 'react-native';
@@ -7,8 +6,10 @@ import { Colors } from '../../Colors';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useAtom } from 'jotai';
-import { BottomTabParamList } from '../../navigations/BottomTabRouter';
 import { bottomReducer } from '../../state/bottom/bottomReducer';
+import BackgroundFetch from 'react-native-background-fetch';
+import { walletReducer } from '../../state/wallet/walletReducer';
+import { RootParamList } from '../../navigations/Root';
 
 type Props = {
   onClose: () => void;
@@ -16,8 +17,18 @@ type Props = {
 };
 
 const WalletBottomSheet = ({ onClose = () => {}, isOpen = false }: Props) => {
-  const navigation = useNavigation<StackNavigationProp<BottomTabParamList>>();
+  const navigation = useNavigation<StackNavigationProp<RootParamList>>();
   const [, dispatch] = useAtom(bottomReducer);
+  const [wallet] = useAtom(walletReducer);
+  const scheduleTask = () => {
+    BackgroundFetch.scheduleTask({
+      taskId: 'com.arise',
+      delay: 100,
+      forceAlarmManager: true
+    })
+      .then(() => {})
+      .catch((error) => {});
+  };
   return (
     <Actionsheet
       isOpen={isOpen}
@@ -49,7 +60,16 @@ const WalletBottomSheet = ({ onClose = () => {}, isOpen = false }: Props) => {
             onPress={() => {
               onClose();
               dispatch({ type: 'setTabActive', payload: 'ConnectScreen' });
-              navigation.navigate('WalletRouter', { screen: 'CreateWalletScreen' });
+              dispatch({ type: 'setShowWallet', payload: false });
+              if (!wallet.newWallet) {
+                scheduleTask();
+              }
+              navigation.navigate('BottomTabRouter', {
+                screen: 'WalletRouter',
+                params: {
+                  screen: 'CreateWalletScreen'
+                }
+              });
             }}
             width={Dimensions.get('screen').width / 2.4}
           >
@@ -60,6 +80,13 @@ const WalletBottomSheet = ({ onClose = () => {}, isOpen = false }: Props) => {
             borderColor={'black'}
             borderWidth={1}
             onPress={() => {
+              dispatch({ type: 'setShowWallet', payload: false });
+              navigation.navigate('BottomTabRouter', {
+                screen: 'WalletRouter',
+                params: {
+                  screen: 'ImportWalletScreen'
+                }
+              });
               onClose();
             }}
             _pressed={{

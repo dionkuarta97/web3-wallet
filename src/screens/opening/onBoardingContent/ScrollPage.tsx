@@ -27,7 +27,6 @@ const ScrollPage = ({ title, desc, last }: Props) => {
           <Button
             onPress={() => navigation.replace('AuthRouter', { screen: 'OpeningScreen' })}
             borderRadius={18}
-            alignSelf={'center'}
             marginTop={height / 20}
             bg={'rgba(4, 38, 38, 0)'}
             _pressed={{

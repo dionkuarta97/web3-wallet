@@ -9,8 +9,8 @@ import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 import { height, width } from '../../Helpers';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { BottomTabParamList } from '../../navigations/BottomTabRouter';
 import WalletBottomSheet from '../bottomSheet/WalletBottomSheet';
+import { RootParamList } from '../../navigations/Root';
 
 type menu = {
   screen: any;
@@ -27,7 +27,8 @@ const WalletBottomTab = (
 ) => {
   const { isOpen, onClose, onOpen } = useDisclose();
   const [bottom, dispatch] = useAtom(bottomReducer);
-  const navigation = useNavigation<StackNavigationProp<BottomTabParamList>>();
+  const navigation = useNavigation<StackNavigationProp<RootParamList>>();
+
   const isFocused: boolean = props.accessibilityState.selected;
 
   const scaleAnimated = useRef(new Animated.Value(0)).current;
@@ -130,57 +131,66 @@ const WalletBottomTab = (
           }}
         />
       </TouchableOpacity>
-      <Animated.View
-        style={{
-          flex: 1,
-          position: 'absolute',
-          flexDirection: 'row',
-          opacity: interpolateOpacity,
-          left: width / 9.6,
-          width: props.menus.length > 0 ? width / (5.2 / props.menus.length) : width / (5.2 / 1),
-          transform: [{ translateY: interpolateBottom }, { scaleX: interpolateWidth }]
-        }}
-      >
-        {props.menus.map((el: menu, idx: number) => (
-          <TouchableOpacity
-            key={el.screen}
-            activeOpacity={1}
-            style={{
-              flex: 1,
-              borderTopLeftRadius: idx === 0 ? 10 : 0,
-              borderBottomLeftRadius: idx === 0 ? 10 : 0,
-              borderTopRightRadius: idx + 1 === props.menus.length ? 10 : 0,
-              borderBottomRightRadius: idx + 1 === props.menus.length ? 10 : 0,
-              justifyContent: 'center',
-              alignItems: 'center',
-              backgroundColor: bottom.tabActive === el.screen ? Colors.lightGreen : Colors.green,
-              paddingVertical: 5
-            }}
-            onPress={() => {
-              if (el.screen === 'AllWalletScreen') {
-                dispatch({ type: 'setTabActive', payload: el.screen });
-                navigation.navigate('WalletRouter', { screen: 'AllWalletScreen' });
-              } else {
-                onOpen();
-              }
-              dispatch({ type: 'setShowWallet', payload: false });
-            }}
-          >
-            <Image
-              source={el.image}
+      {bottom.showWallet && (
+        <Animated.View
+          style={{
+            flex: 1,
+            position: 'absolute',
+            flexDirection: 'row',
+            opacity: interpolateOpacity,
+            left: width / 9.6,
+            width: props.menus.length > 0 ? width / (5.2 / props.menus.length) : width / (5.2 / 1),
+            transform: [{ translateY: interpolateBottom }, { scaleX: interpolateWidth }]
+          }}
+        >
+          {props.menus.map((el: menu, idx: number) => (
+            <TouchableOpacity
+              disabled={!bottom.showWallet ? true : false}
+              key={el.screen}
+              activeOpacity={1}
               style={{
-                width: width / 15,
-                height: width / 15,
-                resizeMode: 'contain',
-                transform: [{ scale: isFocused ? 1.1 : 1 }]
+                flex: 1,
+                borderTopLeftRadius: idx === 0 ? 10 : 0,
+                borderBottomLeftRadius: idx === 0 ? 10 : 0,
+                borderTopRightRadius: idx + 1 === props.menus.length ? 10 : 0,
+                borderBottomRightRadius: idx + 1 === props.menus.length ? 10 : 0,
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: Colors.green,
+                paddingVertical: 5
               }}
-            />
-            <Text fontSize={12} color={'white'}>
-              {el.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </Animated.View>
+              onPress={() => {
+                if (el.screen === 'AllWalletScreen') {
+                  dispatch({ type: 'setTabActive', payload: el.screen });
+                  navigation.navigate('BottomTabRouter', {
+                    screen: 'WalletRouter',
+                    params: {
+                      screen: 'AllWalletScreen'
+                    }
+                  });
+                } else {
+                  onOpen();
+                }
+                dispatch({ type: 'setShowWallet', payload: false });
+              }}
+            >
+              <Image
+                source={el.image}
+                style={{
+                  width: width / 15,
+                  height: width / 15,
+                  resizeMode: 'contain',
+                  transform: [{ scale: isFocused ? 1.1 : 1 }]
+                }}
+              />
+              <Text fontSize={12} color={'white'}>
+                {el.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </Animated.View>
+      )}
+
       <WalletBottomSheet isOpen={isOpen} onClose={onClose} />
     </>
   );

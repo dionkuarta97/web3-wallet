@@ -8,5 +8,6 @@ export enum Colors {
   gray = 'rgba(124, 124, 124, 1)',
   green = 'rgba(4, 38, 38, 1)',
   lightGreen = 'rgba(4, 38, 38, 0.8)',
-  lightGray = 'rgba(229, 229, 229, 1)'
+  lightGray = 'rgba(229, 229, 229, 1)',
+  greenGray = 'rgba(205, 212, 212, 1)'
 }

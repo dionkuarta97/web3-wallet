@@ -10,8 +10,14 @@ module.exports = {
     getTransformOptions: async () => ({
       transform: {
         experimentalImportSupport: false,
-        inlineRequires: true,
-      },
-    }),
+        inlineRequires: true
+      }
+    })
   },
+  resolver: {
+    extraNodeModules: {
+      crypto: require.resolve('react-native-quick-crypto'),
+      stream: require.resolve('stream-browserify')
+    }
+  }
 };

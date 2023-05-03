@@ -168,6 +168,8 @@ const BottomTabRouter = () => {
   return (
     <Bottom.Navigator
       screenOptions={{
+        tabBarHideOnKeyboard: true,
+
         tabBarStyle: {
           height: height / 10,
           zIndex: 10,
