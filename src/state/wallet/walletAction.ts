@@ -16,8 +16,12 @@ export const walletAction = (prev: any, action: Action) => {
     newVal = { ...prev, walletName: action.payload };
     return newVal;
   } else if (action.type === 'setWallets') {
-    newVal = { ...prev, wallets: action.payload };
-    setStorageWallet('wallets', JSON.stringify(action.payload));
+    let sort = action.payload;
+    newVal = {
+      ...prev,
+      wallets: sort
+    };
+    setStorageWallet('wallets', JSON.stringify(sort));
     return newVal;
   }
 };

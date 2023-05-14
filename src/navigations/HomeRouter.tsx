@@ -33,7 +33,7 @@ const homes: home[] = [
 
 const HomeRouter = () => {
   return (
-    <HomeStack.Navigator initialRouteName="HomeScreen">
+    <HomeStack.Navigator>
       {homes.map((el) => (
         <HomeStack.Screen {...el} key={el.name} />
       ))}

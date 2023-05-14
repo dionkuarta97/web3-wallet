@@ -1,11 +1,9 @@
 import { Button, Center, HStack, Text, VStack, View } from 'native-base';
 import DefaultBody from '../../components/DefaultBody';
-import { Animated, TextInput } from 'react-native';
+import { TextInput } from 'react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import BackgroundFetch from 'react-native-background-fetch';
 import { useAtom } from 'jotai';
 import { walletReducer } from '../../state/wallet/walletReducer';
-import { createWallet } from '../../api/wallet';
 import LoadingModal from '../../components/modal/LoadingModal';
 import { height, width } from '../../Helpers';
 import { Colors } from '../../Colors';
@@ -16,7 +14,7 @@ import { useFocusEffect } from '@react-navigation/core';
 import { useNavigation } from '@react-navigation/native';
 import DefaultModal from '../../components/modal/DefaultModal';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { WalletParamList } from '../../navigations/WalletRouter';
+import { BottomTabParamList } from '../../navigations/BottomTabRouter';
 
 const textBody: string[] = [
   'Save your 12 words carefully. Avoid saving them on online storage, mobile phones or andy digital register',
@@ -29,54 +27,12 @@ const CreateWalletScreen = () => {
   const [loading, setLoading] = useState(true);
   const [wallet, dispatch] = useAtom(walletReducer);
   const [bottom, disBottom] = useAtom(bottomReducer);
-  const [keyboardShow, setKeyboardShow] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const animatedButton = useRef(new Animated.Value(0)).current;
-  const navigation = useNavigation<StackNavigationProp<WalletParamList>>();
+
+  const navigation = useNavigation<StackNavigationProp<BottomTabParamList>>();
   const refInput = useRef<TextInput>();
-  const interpolate = animatedButton.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, -height / 9]
-  });
-  const initBackgroundFetch = async () => {
-    const status: number = await BackgroundFetch.configure(
-      {
-        minimumFetchInterval: 15, // <-- minutes (15 is minimum allowed)
-        stopOnTerminate: false,
-        enableHeadless: true,
-        startOnBoot: true,
-        // Android options
-        forceAlarmManager: true, // <-- Set true to bypass JobScheduler.
-        requiredNetworkType: BackgroundFetch.NETWORK_TYPE_NONE, // Default
-        requiresCharging: false, // Default
-        requiresDeviceIdle: false, // Default
-        requiresBatteryNotLow: false, // Default
-        requiresStorageNotLow: false // Default
-      },
-      async (taskId: string) => {
-        console.log('[BackgroundFetch] taskId', taskId);
-        // Create an Event record.
-        createWallet()
-          .then((val) => {
-            dispatch({ type: 'setNewWallet', payload: val });
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-        // Finish.
-        BackgroundFetch.finish(taskId);
-      },
-      (taskId: string) => {
-        // Oh No!  Our task took too long to complete and the OS has signalled
-        // that this task must be finished immediately.
-        console.log('[Fetch] TIMEOUT taskId:', taskId);
-        BackgroundFetch.finish(taskId);
-      }
-    );
-  };
 
   useEffect(() => {
-    initBackgroundFetch();
     if (!wallet.newWallet) {
       setLoading(true);
     } else {
@@ -89,22 +45,6 @@ const CreateWalletScreen = () => {
       dispatch({ type: 'setWalletName', payload: '' });
     }, [])
   );
-
-  useEffect(() => {
-    if (!keyboardShow) {
-      Animated.timing(animatedButton, {
-        toValue: 1,
-        duration: 400,
-        useNativeDriver: true
-      }).start();
-    } else {
-      Animated.timing(animatedButton, {
-        toValue: 0,
-        duration: 400,
-        useNativeDriver: true
-      }).start();
-    }
-  }, [keyboardShow]);
 
   return (
     <DefaultBody
@@ -147,7 +87,7 @@ const CreateWalletScreen = () => {
                 }}
                 onPress={() => {
                   setShowModal(false);
-                  navigation.navigate('PrivateKeyPhraseShowContent');
+                  navigation.navigate('WalletRouter', { screen: 'PrivateKeyPhraseShowContent' });
                 }}
                 borderRadius={15}
                 width={width * 0.5}
@@ -180,9 +120,7 @@ const CreateWalletScreen = () => {
           </Text>
           <InputWalletName
             refInput={refInput}
-            onFocused={(val) => {
-              setKeyboardShow(val);
-            }}
+            onFocused={(val) => {}}
             value={wallet.walletName}
             onChange={(val) => {
               dispatch({ type: 'setWalletName', payload: val });
@@ -195,36 +133,26 @@ const CreateWalletScreen = () => {
           </Text>
           <InputWalletAdress value={wallet.newWallet?.address} />
         </View>
+        <Center marginTop={height * 0.3}>
+          <Button
+            disabled={wallet.walletName === '' ? true : false}
+            borderRadius={15}
+            _text={{
+              color: wallet.walletName === '' ? 'black' : 'white',
+              fontWeight: 'semibold'
+            }}
+            onPress={() => {
+              setShowModal(true);
+              refInput.current.blur();
+            }}
+            _pressed={{ bg: Colors.lightGreen }}
+            bg={wallet.walletName === '' ? Colors.neutral50 : Colors.green}
+            width={width / 1.5}
+          >
+            Continue
+          </Button>
+        </Center>
       </View>
-      <Animated.View
-        style={{
-          padding: 15,
-          alignItems: 'center',
-          transform: [
-            {
-              translateY: interpolate
-            }
-          ]
-        }}
-      >
-        <Button
-          disabled={wallet.walletName === '' ? true : false}
-          borderRadius={15}
-          _text={{
-            color: wallet.walletName === '' ? 'black' : 'white',
-            fontWeight: 'semibold'
-          }}
-          onPress={() => {
-            setShowModal(true);
-            refInput.current.blur();
-          }}
-          _pressed={{ bg: Colors.lightGreen }}
-          bg={wallet.walletName === '' ? Colors.neutral50 : Colors.green}
-          width={width / 1.5}
-        >
-          Continue
-        </Button>
-      </Animated.View>
     </DefaultBody>
   );
 };

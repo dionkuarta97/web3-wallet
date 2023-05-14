@@ -1,8 +1,11 @@
 import '@ethersproject/shims';
+const Moralis = require('moralis').default;
 import { ethers } from 'ethers';
 const bip39 = require('bip39');
 import HDKey from 'hdkey';
-import { ERC20ABI } from './abi';
+import { networks } from './wallet/network';
+import coinGecko from './apiUrl/coinGecko';
+import { NetworkType, TokenType } from '../state/wallet/walletTypes';
 
 export type NewWallet = {
   mnemonic: string;
@@ -10,13 +13,9 @@ export type NewWallet = {
   address: string;
 };
 
-const providerUrl =
-  'https://rpc.ankr.com/bsc_testnet_chapel/fb4f7a26ae85817a02296a531e0eae5a92e45a3b61601c6670f80506c816762a';
-export const createWallet = () => {
+export const createWallet = (phrase = '') => {
   return new Promise<NewWallet>(async (resolved, rejected) => {
     try {
-      const ethersProvider = ethers.getDefaultProvider(providerUrl);
-
       const entropy = ethers.utils.randomBytes(16);
       const mnemonic = ethers.utils.entropyToMnemonic(entropy);
 
@@ -26,30 +25,159 @@ export const createWallet = () => {
 
       const privateKey = ethers.utils.hexlify(derivedNode.privateKey);
 
-      let wallet = new ethers.Wallet(privateKey, ethersProvider);
+      let wallet = [];
+
+      for (const key in networks) {
+        let temp = null;
+        const ethersProvider = ethers.getDefaultProvider(networks[key].rpcUrl);
+        temp = new ethers.Wallet(privateKey, ethersProvider);
+        wallet.push(temp);
+        temp = null;
+      }
 
       let result: NewWallet = {
         mnemonic,
         privateKey,
-        address: wallet.address
+        address: wallet[0].address
       };
       resolved(result);
     } catch (error) {
+      console.log(error);
       rejected(error);
     }
   });
 };
 
-function bigNumberFormatUnits(value: ethers.BigNumberish, decims = 18) {
-  return ethers.utils.formatUnits(value, decims);
-}
+const getNativeBalance = async (address: string, chainId: string) => {
+  try {
+    const response = await Moralis.EvmApi.balance.getNativeBalance({
+      chain: chainId,
+      address: address
+    });
+    return response.raw;
+  } catch (err) {
+    throw err;
+  }
+};
 
-export const getBalance = (address: string) => {
-  return new Promise(async (resolved, rejected) => {
+const getToken = async (address: string, chainId: string) => {
+  try {
+    const response = await Moralis.EvmApi.token.getWalletTokenBalances({
+      chain: chainId,
+      address: address
+    });
+    return response.raw;
+  } catch (err) {
+    throw err;
+  }
+};
+
+const getPrice = async (coinGeckoId: string, tokenAddress: string) => {
+  try {
+    const { data } = await coinGecko({
+      method: 'get',
+      url: `/coins/${coinGeckoId}/contract/${tokenAddress}`
+    });
+
+    return data;
+  } catch (error) {
+    return {
+      error: true
+    };
+  }
+};
+
+export const detectBalance = (address: string, isNew: boolean = false) => {
+  return new Promise(async (reolved, rejected) => {
     try {
-      const provider = new ethers.providers.JsonRpcProvider(providerUrl);
+      if (isNew) {
+        const response = await newWallet();
+        reolved(response);
+      } else {
+        let tempNetworks: NetworkType[] = [];
+        let idrAsset = 0;
+        for (const key in networks) {
+          let nativeBalance = await getNativeBalance(address, networks[key].chainId);
+
+          let temp: any = {
+            networkName: networks[key].name,
+            name: networks[key].nativeCurrency.name,
+            slug: networks[key].slug,
+            balance: bigNumberFormatUnits(
+              nativeBalance.balance,
+              networks[key].nativeCurrency.decimals
+            ),
+            symbol: networks[key].nativeCurrency.symbol
+          };
+
+          if (temp.balance > 0 && networks[key].coinGeckoId !== 'testnet') {
+            let nativePrice = await getPrice(
+              networks[key].coinGeckoId,
+              networks[key].nativeCurrency.wrappedTokenAddress
+            );
+            temp['idrPrice'] = nativePrice.error ? 0 : nativePrice.market_data.current_price.idr;
+          } else {
+            temp['idrPrice'] = 0;
+          }
+
+          idrAsset += Number(temp['balance']) * temp['idrPrice'];
+
+          let tokens: TokenType[] = [];
+          let token = await getToken(address, networks[key].chainId);
+          for (const i in token) {
+            let tem: any = {
+              token_address: token[i].token_address,
+              name: token[i].name,
+              possible_spam: token[i].possible_spam,
+              symbol: token[i].symbol,
+              balance: bigNumberFormatUnits(token[i].balance, token[i].decimals)
+            };
+            if (networks[key].coinGeckoId !== 'testnet') {
+              let tokenPrice = await getPrice(networks[key].coinGeckoId, token[i].token_address);
+              tem['idrPrice'] = tokenPrice.error ? 0 : tokenPrice.market_data.current_price.idr;
+              tem['logo'] = tokenPrice.error ? null : tokenPrice.image.large;
+            } else {
+              tem['idrPrice'] = 0;
+              tem['logo'] = null;
+            }
+
+            idrAsset += Number(tem['balance']) * tem['idrPrice'];
+            tokens.push(tem);
+          }
+          temp['tokens'] = tokens;
+
+          tempNetworks.push(temp);
+        }
+        let response: { idrAsset: number; tempNetworks: NetworkType[] } = {
+          tempNetworks,
+          idrAsset
+        };
+        reolved(response);
+      }
     } catch (err) {
       rejected(err);
     }
   });
+};
+
+const newWallet = async () => {
+  let tempNetworks: NetworkType[] = [];
+  let idrAsset = 0;
+  for (const key in networks) {
+    tempNetworks.push({
+      networkName: networks[key].name,
+      name: networks[key].nativeCurrency.name,
+      slug: networks[key].slug,
+      balance: '0',
+      symbol: networks[key].nativeCurrency.symbol,
+      idrPrice: 0,
+      tokens: []
+    });
+  }
+  let response: { idrAsset: number; tempNetworks: NetworkType[] } = { tempNetworks, idrAsset };
+  return response;
+};
+
+const bigNumberFormatUnits = (value: string, decims = 18) => {
+  return ethers.utils.formatUnits(value, decims);
 };

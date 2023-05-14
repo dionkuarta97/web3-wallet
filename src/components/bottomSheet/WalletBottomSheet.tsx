@@ -3,13 +3,14 @@ import { Actionsheet, Button, HStack, Heading, Text } from 'native-base';
 import { Dimensions } from 'react-native';
 import { Image } from 'react-native';
 import { Colors } from '../../Colors';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useAtom } from 'jotai';
 import { bottomReducer } from '../../state/bottom/bottomReducer';
 import BackgroundFetch from 'react-native-background-fetch';
 import { walletReducer } from '../../state/wallet/walletReducer';
-import { RootParamList } from '../../navigations/Root';
+import { createWallet } from '../../api/wallet';
+import { BottomTabParamList } from '../../navigations/BottomTabRouter';
 
 type Props = {
   onClose: () => void;
@@ -17,13 +18,53 @@ type Props = {
 };
 
 const WalletBottomSheet = ({ onClose = () => {}, isOpen = false }: Props) => {
-  const navigation = useNavigation<StackNavigationProp<RootParamList>>();
+  const navigation = useNavigation<StackNavigationProp<BottomTabParamList>>();
   const [, dispatch] = useAtom(bottomReducer);
-  const [wallet] = useAtom(walletReducer);
+  const [wallet, disWallet] = useAtom(walletReducer);
+  const initBackgroundFetch = async () => {
+    const status: number = await BackgroundFetch.configure(
+      {
+        minimumFetchInterval: 15, // <-- minutes (15 is minimum allowed)
+        stopOnTerminate: false,
+        enableHeadless: true,
+        startOnBoot: true,
+        // Android options
+        forceAlarmManager: true, // <-- Set true to bypass JobScheduler.
+        requiredNetworkType: BackgroundFetch.NETWORK_TYPE_NONE, // Default
+        requiresCharging: false, // Default
+        requiresDeviceIdle: false, // Default
+        requiresBatteryNotLow: false, // Default
+        requiresStorageNotLow: false // Default
+      },
+      async (taskId: string) => {
+        console.log('[BackgroundFetch] taskId', taskId);
+        // Create an Event record.
+        createWallet()
+          .then((val) => {
+            disWallet({ type: 'setNewWallet', payload: val });
+          })
+          .catch((err) => {
+            console.log(err);
+          })
+          .finally(() => {
+            BackgroundFetch.finish(taskId);
+            BackgroundFetch.stop(taskId);
+          });
+        // Finish.
+      },
+      (taskId: string) => {
+        // Oh No!  Our task took too long to complete and the OS has signalled
+        // that this task must be finished immediately.
+        console.log('[Fetch] TIMEOUT taskId:', taskId);
+        BackgroundFetch.finish(taskId);
+      }
+    );
+  };
   const scheduleTask = () => {
     BackgroundFetch.scheduleTask({
       taskId: 'com.arise',
-      delay: 100,
+      delay: 0,
+      periodic: true,
       forceAlarmManager: true
     })
       .then(() => {})
@@ -62,14 +103,16 @@ const WalletBottomSheet = ({ onClose = () => {}, isOpen = false }: Props) => {
               dispatch({ type: 'setTabActive', payload: 'ConnectScreen' });
               dispatch({ type: 'setShowWallet', payload: false });
               if (!wallet.newWallet) {
+                initBackgroundFetch();
                 scheduleTask();
               }
-              navigation.navigate('BottomTabRouter', {
-                screen: 'WalletRouter',
-                params: {
-                  screen: 'CreateWalletScreen'
-                }
-              });
+
+              navigation.dispatch(
+                CommonActions.reset({
+                  index: 0,
+                  routes: [{ name: 'WalletRouter', params: { screen: 'CreateWalletScreen' } }]
+                })
+              );
             }}
             width={Dimensions.get('screen').width / 2.4}
           >
@@ -81,16 +124,17 @@ const WalletBottomSheet = ({ onClose = () => {}, isOpen = false }: Props) => {
             borderWidth={1}
             onPress={() => {
               dispatch({ type: 'setShowWallet', payload: false });
-              navigation.navigate('BottomTabRouter', {
-                screen: 'WalletRouter',
-                params: {
-                  screen: 'ImportWalletScreen'
-                }
-              });
+              navigation.dispatch(
+                CommonActions.reset({
+                  index: 0,
+                  routes: [{ name: 'WalletRouter', params: { screen: 'ImportWalletScreen' } }]
+                })
+              );
+
               onClose();
             }}
             _pressed={{
-              bg: Colors.gray
+              bg: Colors.neutral25
             }}
             _text={{
               color: 'black'

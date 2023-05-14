@@ -9,9 +9,13 @@ import { HStack, Text } from 'native-base';
 import { Colors } from '../../Colors';
 import { ScrollView } from 'react-native';
 import AppPress from './homeContent/AppPress';
+import { useEffect } from 'react';
+import { walletReducer } from '../../state/wallet/walletReducer';
 
 const HomeScreen = () => {
   const [bottom, dispatch] = useAtom(bottomReducer);
+  const [wallet, setWallet] = useAtom(walletReducer);
+
   return (
     <DefaultBody
       tapHandler={() => {

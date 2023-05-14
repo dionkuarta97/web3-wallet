@@ -9,7 +9,7 @@ import PhraseBox from './PrivateKeyPhraseShowContents/PhraseBox';
 import { bottomReducer } from '../../state/bottom/bottomReducer';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { WalletParamList } from '../../navigations/WalletRouter';
+import { BottomTabParamList } from '../../navigations/BottomTabRouter';
 
 const text: string[] = [
   'Write down your passphrase in a safe place',
@@ -23,7 +23,7 @@ const PrivateKeyPhraseShowScreen = () => {
   const [wallet] = useAtom(walletReducer);
   const [bottom, disBottom] = useAtom(bottomReducer);
 
-  const navigation = useNavigation<StackNavigationProp<WalletParamList>>();
+  const navigation = useNavigation<StackNavigationProp<BottomTabParamList>>();
 
   return (
     <DefaultBody
@@ -78,8 +78,12 @@ const PrivateKeyPhraseShowScreen = () => {
           </Text>
           {text.map((el, idx) => (
             <HStack key={idx} space={2}>
-              <Text color={Colors.grayText}>{idx + 1 + '.'}</Text>
-              <Text color={Colors.grayText}>{el}</Text>
+              <Text fontSize={width / 30} color={Colors.grayText}>
+                {idx + 1 + '.'}
+              </Text>
+              <Text fontSize={width / 30} color={Colors.grayText}>
+                {el}
+              </Text>
             </HStack>
           ))}
         </View>
@@ -92,7 +96,7 @@ const PrivateKeyPhraseShowScreen = () => {
             fontWeight: 'semibold'
           }}
           onPress={() => {
-            navigation.navigate('PrivateKeyPhraseInputScreen');
+            navigation.navigate('WalletRouter', { screen: 'PrivateKeyPhraseInputScreen' });
           }}
           _pressed={{ bg: Colors.lightGreen }}
           bg={Colors.green}

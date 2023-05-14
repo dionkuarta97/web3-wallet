@@ -1,6 +1,6 @@
 import { Pressable, View } from 'native-base';
 import React from 'react';
-import { StyleSheet, Image } from 'react-native';
+import { StyleSheet, Image, StatusBar } from 'react-native';
 import list from '../../assets/icon/list.png';
 import global from '../../assets/icon/global.png';
 import search from '../../assets/icon/search.png';
@@ -27,6 +27,7 @@ const CustomHeader = () => {
 
   return (
     <View alignItems={'center'} padding={5} bg={'white'} flexDirection={'row'}>
+      <StatusBar barStyle="dark-content" backgroundColor={'white'} />
       <View style={style.right}>
         <Pressable alignSelf="flex-start" onPress={() => {}}>
           {({ isPressed }) => {
@@ -73,7 +74,7 @@ const style = StyleSheet.create({
     alignItems: 'center'
   },
   image: {
-    width: 30,
-    height: 30
+    width: 31,
+    height: 31
   }
 });

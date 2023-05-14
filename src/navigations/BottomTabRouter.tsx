@@ -79,7 +79,6 @@ const menus: menu[] = [
     name: 'HomeRouter',
     component: HomeRouter,
     options: {
-      headerShown: false,
       tabBarButton: (props) => (
         <DefaultBottomTab
           {...props}
@@ -95,7 +94,6 @@ const menus: menu[] = [
     name: 'WalletRouter',
     component: WalletRouter,
     options: {
-      headerShown: false,
       tabBarButton: (props) => (
         <WalletBottomTab
           {...props}
@@ -121,7 +119,6 @@ const menus: menu[] = [
     name: 'ActionScreen',
     component: ActionScreen,
     options: {
-      headerShown: false,
       tabBarButton: (props) => (
         <DefaultBottomTab
           {...props}
@@ -136,7 +133,6 @@ const menus: menu[] = [
     name: 'ChatScreen',
     component: ChatScreen,
     options: {
-      headerShown: false,
       tabBarButton: (props) => (
         <DefaultBottomTab
           {...props}
@@ -151,7 +147,6 @@ const menus: menu[] = [
     name: 'MeScreen',
     component: MeScreen,
     options: {
-      headerShown: false,
       tabBarButton: (props) => (
         <DefaultBottomTab
           {...props}
@@ -169,7 +164,7 @@ const BottomTabRouter = () => {
     <Bottom.Navigator
       screenOptions={{
         tabBarHideOnKeyboard: true,
-
+        headerShown: false,
         tabBarStyle: {
           height: height / 10,
           zIndex: 10,

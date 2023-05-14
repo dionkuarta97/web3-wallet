@@ -7,10 +7,10 @@ import { useAtom } from 'jotai';
 import { bottomReducer } from '../../state/bottom/bottomReducer';
 import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 import { height, width } from '../../Helpers';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import WalletBottomSheet from '../bottomSheet/WalletBottomSheet';
-import { RootParamList } from '../../navigations/Root';
+import { BottomTabParamList } from '../../navigations/BottomTabRouter';
 
 type menu = {
   screen: any;
@@ -27,7 +27,7 @@ const WalletBottomTab = (
 ) => {
   const { isOpen, onClose, onOpen } = useDisclose();
   const [bottom, dispatch] = useAtom(bottomReducer);
-  const navigation = useNavigation<StackNavigationProp<RootParamList>>();
+  const navigation = useNavigation<StackNavigationProp<BottomTabParamList>>();
 
   const isFocused: boolean = props.accessibilityState.selected;
 
@@ -162,12 +162,12 @@ const WalletBottomTab = (
               onPress={() => {
                 if (el.screen === 'AllWalletScreen') {
                   dispatch({ type: 'setTabActive', payload: el.screen });
-                  navigation.navigate('BottomTabRouter', {
-                    screen: 'WalletRouter',
-                    params: {
-                      screen: 'AllWalletScreen'
-                    }
-                  });
+                  navigation.dispatch(
+                    CommonActions.reset({
+                      index: 0,
+                      routes: [{ name: 'WalletRouter', params: { screen: 'AllWalletScreen' } }]
+                    })
+                  );
                 } else {
                   onOpen();
                 }

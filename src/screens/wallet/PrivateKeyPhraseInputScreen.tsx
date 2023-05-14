@@ -6,48 +6,27 @@ import InputPrivateKey from './PrivateKeyPhraseShowContents/InputPrivateKey';
 import { useAtom } from 'jotai';
 import { walletReducer } from '../../state/wallet/walletReducer';
 import InputPhrase from './PrivateKeyPhraseInputContents/InputPhrase';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Image, TextInput } from 'react-native';
-import { Animated } from 'react-native';
 import { bottomReducer } from '../../state/bottom/bottomReducer';
 import DefaultModal from '../../components/modal/DefaultModal';
-import { useNavigation } from '@react-navigation/native';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { WalletParamList } from '../../navigations/WalletRouter';
+import LoadingModal from '../../components/modal/LoadingModal';
+import { BottomTabParamList } from '../../navigations/BottomTabRouter';
+import { detectBalance } from '../../api/wallet';
 
 const PrivateKeyPhraseInputScreen = () => {
-  const [phrase, setPhrase] = useState('');
   const [wallet, disWallet] = useAtom(walletReducer);
   const [bottom, disBottom] = useAtom(bottomReducer);
-  const [keyboardShow, setKeyboardShow] = useState(false);
   const [showModal, setShowModal] = useState(false);
-
-  const navigation = useNavigation<StackNavigationProp<WalletParamList>>();
-
+  const [phrase, setPhrase] = useState(wallet.newWallet?.mnemonic);
+  const navigation = useNavigation<StackNavigationProp<BottomTabParamList>>();
+  const [loading, setLoading] = useState(false);
   const refInput = useRef<TextInput>();
-  const animatedButton = useRef(new Animated.Value(0)).current;
-  const [error, setError] = useState('');
-  const interpolate = animatedButton.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, -height / 9]
-  });
-  console.log(wallet.newWallet?.mnemonic);
 
-  useEffect(() => {
-    if (!keyboardShow) {
-      Animated.timing(animatedButton, {
-        toValue: 1,
-        duration: 400,
-        useNativeDriver: true
-      }).start();
-    } else {
-      Animated.timing(animatedButton, {
-        toValue: 0,
-        duration: 400,
-        useNativeDriver: true
-      }).start();
-    }
-  }, [keyboardShow]);
+  const [error, setError] = useState('');
+
   return (
     <DefaultBody
       tapHandler={() => {
@@ -57,6 +36,7 @@ const PrivateKeyPhraseInputScreen = () => {
         }
       }}
     >
+      {loading && <LoadingModal text={'Create New Wallet'} />}
       {showModal && (
         <DefaultModal
           header={
@@ -87,23 +67,18 @@ const PrivateKeyPhraseInputScreen = () => {
               bg={Colors.green}
               _pressed={{ bg: Colors.lightGreen }}
               onPress={() => {
-                disWallet({
-                  type: 'setWallets',
-                  payload: [
-                    ...wallet.wallets,
-                    {
-                      walletName: wallet.walletName,
-                      walletAddress: wallet.newWallet.address,
-                      walletPhrase: wallet.newWallet.mnemonic,
-                      walletPrivateKey: wallet.newWallet.privateKey,
-                      isNew: true
-                    }
-                  ]
-                });
-                disWallet({ type: 'setNewWallet', payload: null });
-                disWallet({ type: 'setWalletName', payload: '' });
-                disBottom({ type: 'setTabActive', payload: 'AllWalletScreen' });
-                navigation.navigate('AllWalletScreen');
+                setShowModal(false);
+                navigation.dispatch(
+                  CommonActions.reset({
+                    index: 0,
+                    routes: [
+                      {
+                        name: 'WalletRouter',
+                        params: { screen: 'AllWalletScreen', params: { new: true } }
+                      }
+                    ]
+                  })
+                );
               }}
             >
               Done
@@ -142,9 +117,7 @@ const PrivateKeyPhraseInputScreen = () => {
             }}
             refInput={refInput}
             value={phrase}
-            onFocused={(val) => {
-              setKeyboardShow(val);
-            }}
+            onFocused={(val) => {}}
           />
           {error !== '' && (
             <Text mt={1} color="red.600">
@@ -152,41 +125,76 @@ const PrivateKeyPhraseInputScreen = () => {
             </Text>
           )}
         </View>
+        <Center marginTop={height * 0.3}>
+          <Button
+            disabled={phrase === '' ? true : false}
+            borderRadius={15}
+            _text={{
+              color: phrase === '' ? 'black' : 'white',
+              fontWeight: 'semibold'
+            }}
+            onPress={async () => {
+              refInput.current.blur();
+              if (wallet.newWallet?.mnemonic !== phrase) {
+                setError('Wrong Passphrase, try again !!');
+              } else {
+                if (
+                  wallet.wallets.filter((value) =>
+                    value.walletName.toLowerCase().includes(wallet.walletName.toLowerCase())
+                  ).length > 0
+                ) {
+                  setError('you have a wallet with the same name / wallet cannot number');
+                } else {
+                  setLoading(true);
+                  detectBalance(wallet.newWallet?.address, true)
+                    .then((data: any) => {
+                      setError('');
+                      let payload = [
+                        {
+                          walletName: wallet.walletName,
+                          walletAddress: wallet.newWallet?.address,
+                          walletPhrase: wallet.newWallet?.mnemonic,
+                          walletPrivateKey: wallet.newWallet?.privateKey,
+                          idrAsset: data.idrAsset,
+                          networks: data.tempNetworks,
+                          isNew: true,
+                          createdAt: Date.now()
+                        },
+                        ...wallet.wallets
+                      ];
+
+                      return payload;
+                    })
+                    .then((payload) => {
+                      disWallet({
+                        type: 'setWallets',
+                        payload: payload
+                      });
+                      disWallet({ type: 'setNewWallet', payload: null });
+                      disWallet({ type: 'setWalletName', payload: '' });
+                    })
+                    .then(() => {
+                      setShowModal(true);
+                    })
+                    .catch((err) => {
+                      console.log(err);
+
+                      setError('Request time out');
+                    })
+                    .finally(() => {
+                      setLoading(false);
+                    });
+                }
+              }
+            }}
+            _pressed={{ bg: Colors.lightGreen }}
+            bg={phrase === '' ? Colors.neutral50 : Colors.green}
+            width={width / 1.5}
+          >
+            Create Wallet
+          </Button>
+        </Center>
       </View>
-      <Animated.View
-        style={{
-          padding: 15,
-          alignItems: 'center',
-          transform: [
-            {
-              translateY: interpolate
-            }
-          ]
-        }}
-      >
-        <Button
-          disabled={phrase === '' ? true : false}
-          borderRadius={15}
-          _text={{
-            color: phrase === '' ? 'black' : 'white',
-            fontWeight: 'semibold'
-          }}
-          onPress={() => {
-            refInput.current.blur();
-            if (wallet.newWallet?.mnemonic !== phrase) {
-              setError('Wrong Passphrase, try again !!');
-            } else {
-              setError('');
-              setShowModal(true);
-            }
-          }}
-          _pressed={{ bg: Colors.lightGreen }}
-          bg={phrase === '' ? Colors.neutral50 : Colors.green}
-          width={width / 1.5}
-        >
-          Create Wallet
-        </Button>
-      </Animated.View>
     </DefaultBody>
   );
 };

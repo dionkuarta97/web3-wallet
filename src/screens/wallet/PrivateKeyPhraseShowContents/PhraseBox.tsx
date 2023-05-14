@@ -1,5 +1,6 @@
 import { Text, View } from 'native-base';
 import { Colors } from '../../../Colors';
+import { width } from '../../../Helpers';
 
 type Props = {
   no: number & {};
@@ -18,7 +19,7 @@ const PhraseBox = ({ no, text }: Props) => {
         borderRadius: 10
       }}
     >
-      <Text color={Colors.green}>
+      <Text fontSize={width / 30} color={Colors.green}>
         {no}. {text}
       </Text>
     </View>
