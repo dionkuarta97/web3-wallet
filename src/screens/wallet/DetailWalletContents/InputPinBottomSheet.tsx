@@ -40,6 +40,7 @@ const InputPinBottomSheet = ({ onClose, isOpen, buttonText, onTrue, desc }: Prop
 
   return (
     <Actionsheet
+      bottom={keyboardHeight}
       isOpen={isOpen}
       onClose={() => {
         setError(null);
