@@ -45,12 +45,9 @@ const WalletBottomSheet = ({ onClose = () => {}, isOpen = false }: Props) => {
           })
           .catch((err) => {
             console.log(err);
-          })
-          .finally(() => {
-            BackgroundFetch.finish(taskId);
-            BackgroundFetch.stop(taskId);
           });
-        // Finish.
+        BackgroundFetch.finish(taskId);
+        BackgroundFetch.stop(taskId);
       },
       (taskId: string) => {
         // Oh No!  Our task took too long to complete and the OS has signalled

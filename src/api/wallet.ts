@@ -17,7 +17,10 @@ export const createWallet = (phrase = '') => {
   return new Promise<NewWallet>(async (resolved, rejected) => {
     try {
       const entropy = ethers.utils.randomBytes(16);
-      const mnemonic = ethers.utils.entropyToMnemonic(entropy);
+      let mnemonic = phrase;
+      if (mnemonic === '') {
+        mnemonic = ethers.utils.entropyToMnemonic(entropy);
+      }
 
       const hdkey = HDKey.fromMasterSeed(bip39.mnemonicToSeedSync(mnemonic));
 
@@ -87,7 +90,10 @@ const getPrice = async (coinGeckoId: string, tokenAddress: string) => {
   }
 };
 
-export const detectBalance = (address: string, isNew: boolean = false) => {
+export const detectBalance = (
+  address: string,
+  isNew: boolean = false
+): Promise<{ idrAsset: number; tempNetworks: NetworkType[] }> => {
   return new Promise(async (reolved, rejected) => {
     try {
       if (isNew) {

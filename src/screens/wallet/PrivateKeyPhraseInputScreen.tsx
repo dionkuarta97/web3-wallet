@@ -20,7 +20,7 @@ const PrivateKeyPhraseInputScreen = () => {
   const [wallet, disWallet] = useAtom(walletReducer);
   const [bottom, disBottom] = useAtom(bottomReducer);
   const [showModal, setShowModal] = useState(false);
-  const [phrase, setPhrase] = useState(wallet.newWallet?.mnemonic);
+  const [phrase, setPhrase] = useState('');
   const navigation = useNavigation<StackNavigationProp<BottomTabParamList>>();
   const [loading, setLoading] = useState(false);
   const refInput = useRef<TextInput>();

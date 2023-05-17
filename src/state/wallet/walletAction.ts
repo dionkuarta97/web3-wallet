@@ -16,7 +16,9 @@ export const walletAction = (prev: any, action: Action) => {
     newVal = { ...prev, walletName: action.payload };
     return newVal;
   } else if (action.type === 'setWallets') {
-    let sort = action.payload;
+    let sort = action.payload.sort((a, b) =>
+      b.createdAt.valueOf() > a.createdAt.valueOf() ? 1 : -1
+    );
     newVal = {
       ...prev,
       wallets: sort

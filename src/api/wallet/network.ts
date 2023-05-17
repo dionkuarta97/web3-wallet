@@ -167,19 +167,5 @@ export const networks: Network[] = [
       decimals: 18,
       wrappedTokenAddress: 'tesnet'
     }
-  },
-  {
-    name: 'Avalanche Fuji Testnet',
-    slug: 'avalanche_testnet',
-    chainId: '0xa869',
-    coinGeckoId: 'tesnet',
-    rpcUrl: 'https://endpoints.omniatech.io/v1/avax/fuji/public',
-    blockExplorerUrl: 'https://cchain.explorer.avax-test.network/',
-    nativeCurrency: {
-      name: 'Avalanche',
-      symbol: 'AVAX',
-      decimals: 18,
-      wrappedTokenAddress: 'tesnet'
-    }
   }
 ];

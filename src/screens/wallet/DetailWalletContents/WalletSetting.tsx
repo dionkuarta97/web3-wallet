@@ -6,9 +6,16 @@ import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-g
 type Props = {
   onPressDisconnect: (val: boolean) => void;
   setShowSetting: (val: boolean) => void;
+  onPressPhrase: () => void;
+  onOpenPrivateKey: () => void;
 };
 
-const WalletSetting = ({ onPressDisconnect, setShowSetting }: Props) => {
+const WalletSetting = ({
+  onPressDisconnect,
+  setShowSetting,
+  onPressPhrase,
+  onOpenPrivateKey
+}: Props) => {
   const tap = Gesture.Tap().onStart(() => {
     setShowSetting(false);
   });
@@ -89,7 +96,9 @@ const WalletSetting = ({ onPressDisconnect, setShowSetting }: Props) => {
             </HStack>
           </Pressable>
           <Pressable
-            onPress={() => {}}
+            onPress={() => {
+              onPressPhrase();
+            }}
             style={({ pressed }) => [
               {
                 marginBottom: 3,
@@ -113,7 +122,9 @@ const WalletSetting = ({ onPressDisconnect, setShowSetting }: Props) => {
             </HStack>
           </Pressable>
           <Pressable
-            onPress={() => {}}
+            onPress={() => {
+              onOpenPrivateKey();
+            }}
             style={({ pressed }) => [
               {
                 marginBottom: 3,

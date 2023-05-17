@@ -1,4 +1,4 @@
-import { HStack, Text, View, useToast } from 'native-base';
+import { HStack, Text, View, useDisclose, useToast } from 'native-base';
 import React, { useCallback, useState } from 'react';
 import {
   Image,
@@ -23,6 +23,11 @@ import Topup from '../../../../assets/icon/topup.png';
 import WalletSetting from './WalletSetting';
 import DisconnectWallet from './DisconnectWallet';
 import ModalSuccessDisconnect from './ModalSuccessDisconnect';
+import InputPinBottomSheet from './InputPinBottomSheet';
+import ModalShow from './ModalShow';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { BottomTabParamList } from '../../../navigations/BottomTabRouter';
 
 type Props = {
   activeSlide: number;
@@ -42,6 +47,10 @@ const TokenContent = ({ showSetting, activeSlide, setActiveSlide, setShowSetting
   const itemWidth = Math.round(width * 0.85);
   const [swipe, setSwipe] = useState(false);
   const [showModalSuccessDisconnect, setShowModalSuccessDisconnect] = useState(false);
+  const [modalShow, setModalShow] = useState(false);
+  const [modalShowSecret, setModalShowSecret] = useState(false);
+  const phrase = useDisclose();
+  const privatKey = useDisclose();
   const pressSwipe = useCallback(() => {
     setSwipe(!swipe);
   }, [swipe]);
@@ -60,15 +69,56 @@ const TokenContent = ({ showSetting, activeSlide, setActiveSlide, setShowSetting
     setShowModalSuccessDisconnect(param);
   }, []);
 
+  const handleModalShow = useCallback((param: boolean) => {
+    setModalShow(param);
+  }, []);
+  const handleModalShowSecret = useCallback((param: boolean) => {
+    setModalShowSecret(param);
+  }, []);
+
+  const navigation = useNavigation<StackNavigationProp<BottomTabParamList>>();
+
   return (
     <View style={{ marginTop: 15, flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <InputPinBottomSheet
+        desc={'If someone know your secret phrase,\nthey can stolen your wallet'}
+        onTrue={(val) => handleModalShow(val)}
+        buttonText="See Passphrase"
+        isOpen={phrase.isOpen}
+        onClose={phrase.onClose}
+      />
+      <InputPinBottomSheet
+        desc={'If someone know your secret key,\nthey can stolen your wallet'}
+        onTrue={(val) => handleModalShowSecret(val)}
+        buttonText="See Secret Key"
+        isOpen={privatKey.isOpen}
+        onClose={privatKey.onClose}
+      />
+      {modalShow && (
+        <ModalShow
+          secret={wallet.wallets[activeSlide].walletPhrase}
+          title={'Your Passphrase Recovery'}
+          desc={
+            'DO NOT share this phrase with anyone! These words can be used to steal all your accounts.'
+          }
+          tapHandler={() => handleModalShow(false)}
+        />
+      )}
+      {modalShowSecret && (
+        <ModalShow
+          secret={wallet.wallets[activeSlide].walletPrivateKey}
+          title={'Your Private Key Recovery'}
+          desc={
+            'DO NOT share this secret key with anyone! These words can be used to steal all your accounts.'
+          }
+          tapHandler={() => handleModalShowSecret(false)}
+        />
+      )}
       {showModalSuccessDisconnect && (
         <ModalSuccessDisconnect
-          tapHandler={() => {
-            handlePressDoneDisconnect(false);
-          }}
           onPressDone={() => {
             handlePressDoneDisconnect(false);
+            navigation.goBack();
           }}
         />
       )}
@@ -98,6 +148,8 @@ const TokenContent = ({ showSetting, activeSlide, setActiveSlide, setShowSetting
             swipe={swipe}
             setShowSetting={setShowSetting}
             setWallet={handleSetWallet}
+            onOpenPhrase={phrase.onOpen}
+            onOpenPrivateKey={privatKey.onOpen}
           />
         )}
         enableMomentum={true}
@@ -118,6 +170,8 @@ type PropsRender = {
   swipe: boolean;
   setShowSetting: (val: boolean) => void;
   setWallet: (param: string, val: boolean) => void;
+  onOpenPhrase: () => void;
+  onOpenPrivateKey: () => void;
 };
 
 const RenderItem = ({
@@ -127,7 +181,9 @@ const RenderItem = ({
   pressSwipe,
   swipe,
   setShowSetting,
-  setWallet
+  setWallet,
+  onOpenPrivateKey,
+  onOpenPhrase
 }: PropsRender) => {
   const toast = useToast();
   let wallet: Wallet = item.item;
@@ -148,6 +204,14 @@ const RenderItem = ({
     >
       {showSetting && activeSlide === item.index && (
         <WalletSetting
+          onOpenPrivateKey={() => {
+            onOpenPrivateKey();
+            setShowSetting(false);
+          }}
+          onPressPhrase={() => {
+            onOpenPhrase();
+            setShowSetting(false);
+          }}
           setShowSetting={setShowSetting}
           onPressDisconnect={handleModalShowDisconnect}
         />

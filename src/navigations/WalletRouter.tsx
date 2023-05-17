@@ -12,6 +12,7 @@ import DefaultHeader from '../components/DefaultHeader';
 import PrivateKeyPhraseShowScreen from '../screens/wallet/PrivateKeyPhraseShowScreen';
 import PrivateKeyPhraseInputScreen from '../screens/wallet/PrivateKeyPhraseInputScreen';
 import DetailWalletScreen from '../screens/wallet/DetailWalletScreen';
+import ImportWalletScreen from '../screens/wallet/ImportWalletScreen';
 
 export type WalletParamList = {
   AllWalletScreen: { new: boolean } | undefined;
@@ -36,14 +37,6 @@ export type WalletRouteProps<RouteName extends keyof WalletParamList> = RoutePro
   WalletParamList,
   RouteName
 >;
-
-const ImportWalletScreen = () => {
-  return (
-    <Center justifyContent={'center'} alignItems={'center'}>
-      <Text>ImportWallet</Text>
-    </Center>
-  );
-};
 
 const wallets: wallet[] = [
   {
