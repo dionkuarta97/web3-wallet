@@ -22,6 +22,7 @@ import { useAtom } from 'jotai';
 import { authReducer } from '../state/auth/authReducer';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootParamList } from './Root';
+import SideMenuRouter, { SideMenuParamList } from './SideMenuRouter';
 
 export type BottomTabParamList = {
   HomeRouter: NavigatorScreenParams<HomeParamList>;
@@ -29,6 +30,7 @@ export type BottomTabParamList = {
   ActionScreen: undefined;
   ChatScreen: undefined;
   MeScreen: undefined;
+  SideMenuRouter: NavigatorScreenParams<SideMenuParamList>;
 };
 
 const Bottom = createBottomTabNavigator<BottomTabParamList>();
@@ -155,6 +157,13 @@ const menus: menu[] = [
           label="Me"
         />
       )
+    }
+  },
+  {
+    name: 'SideMenuRouter',
+    component: SideMenuRouter,
+    options: {
+      tabBarButton: (props) => null
     }
   }
 ];

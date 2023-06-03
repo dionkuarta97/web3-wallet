@@ -1,6 +1,6 @@
 import { Button, Center, HStack, Text, VStack, View } from 'native-base';
 import DefaultBody from '../../components/DefaultBody';
-import { TextInput } from 'react-native';
+import { TextInput, TouchableWithoutFeedback } from 'react-native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useAtom } from 'jotai';
 import { walletReducer } from '../../state/wallet/walletReducer';
@@ -47,112 +47,114 @@ const CreateWalletScreen = () => {
   );
 
   return (
-    <DefaultBody
-      tapHandler={() => {
-        refInput.current?.blur();
-        if (bottom.showWallet) {
-          disBottom({ type: 'setShowWallet', payload: false });
-        }
-      }}
-    >
-      {loading && <LoadingModal text={'Generate New Wallet'} />}
-      {showModal && (
-        <DefaultModal
-          header={
-            <View paddingY={4}>
-              <Text fontSize={26} color={'white'}>
-                Read carefully
+    <DefaultBody>
+      <TouchableWithoutFeedback
+        onPress={() => {
+          refInput.current?.blur();
+        }}
+      >
+        <>
+          {loading && <LoadingModal text={'Generate New Wallet'} />}
+          {showModal && (
+            <DefaultModal
+              header={
+                <View paddingY={4}>
+                  <Text fontSize={26} color={'white'}>
+                    Read carefully
+                  </Text>
+                </View>
+              }
+              body={
+                <VStack marginY={5}>
+                  {textBody.map((el, idx) => (
+                    <HStack key={idx} space={3} width={width * 0.7}>
+                      <Text color={Colors.grayText}>{idx + 1 + '.'}</Text>
+                      <Text color={Colors.grayText}>{el}</Text>
+                    </HStack>
+                  ))}
+                </VStack>
+              }
+              footer={
+                <View>
+                  <Button
+                    _text={{
+                      fontWeight: 'semibold'
+                    }}
+                    bg={Colors.green}
+                    _pressed={{
+                      bg: Colors.lightGreen
+                    }}
+                    onPress={() => {
+                      setShowModal(false);
+                      navigation.navigate('WalletRouter', {
+                        screen: 'PrivateKeyPhraseShowContent'
+                      });
+                    }}
+                    borderRadius={15}
+                    width={width * 0.5}
+                  >
+                    I Agree
+                  </Button>
+                </View>
+              }
+            />
+          )}
+          <View flex={1}>
+            <Center>
+              <Text fontSize={width / 20} fontWeight={'bold'} color={Colors.green}>
+                Create New Wallet
               </Text>
+              <View
+                style={{
+                  borderTopWidth: 4,
+                  width: width / 2.2,
+                  borderRadius: 15,
+                  marginTop: 3,
+                  borderTopColor: Colors.green
+                }}
+              />
+            </Center>
+            <View marginTop={height / 14}>
+              <Text marginBottom={2} color={Colors.green}>
+                Wallet Name
+              </Text>
+              <InputWalletName
+                refInput={refInput}
+                onFocused={(val) => {}}
+                value={wallet.walletName}
+                onChange={(val) => {
+                  dispatch({ type: 'setWalletName', payload: val });
+                }}
+              />
             </View>
-          }
-          body={
-            <VStack marginY={5}>
-              {textBody.map((el, idx) => (
-                <HStack key={idx} space={3} width={width * 0.7}>
-                  <Text color={Colors.grayText}>{idx + 1 + '.'}</Text>
-                  <Text color={Colors.grayText}>{el}</Text>
-                </HStack>
-              ))}
-            </VStack>
-          }
-          footer={
-            <View>
+            <View marginTop={height / 30}>
+              <Text marginBottom={2} color={Colors.green}>
+                Wallet Addres
+              </Text>
+              <InputWalletAdress value={wallet.newWallet?.address} />
+            </View>
+            <Center marginTop={height * 0.3}>
               <Button
+                disabled={wallet.walletName === '' ? true : false}
+                borderRadius={15}
                 _text={{
+                  color: wallet.walletName === '' ? 'black' : 'white',
                   fontWeight: 'semibold'
                 }}
-                bg={Colors.green}
-                _pressed={{
-                  bg: Colors.lightGreen
-                }}
                 onPress={() => {
-                  setShowModal(false);
-                  navigation.navigate('WalletRouter', { screen: 'PrivateKeyPhraseShowContent' });
+                  setShowModal(true);
+                  refInput.current.blur();
                 }}
-                borderRadius={15}
-                width={width * 0.5}
+                _pressed={{ bg: Colors.lightGreen }}
+                bg={wallet.walletName === '' ? Colors.neutral50 : Colors.green}
+                width={width / 1.5}
               >
-                I Agree
+                Continue
               </Button>
-            </View>
-          }
-          tapHandler={() => setShowModal(false)}
-        />
-      )}
-      <View flex={1}>
-        <Center>
-          <Text fontSize={width / 20} fontWeight={'bold'} color={Colors.green}>
-            Create New Wallet
-          </Text>
-          <View
-            style={{
-              borderTopWidth: 4,
-              width: width / 2.2,
-              borderRadius: 15,
-              marginTop: 3,
-              borderTopColor: Colors.green
-            }}
-          />
-        </Center>
-        <View marginTop={height / 14}>
-          <Text marginBottom={2} color={Colors.green}>
-            Wallet Name
-          </Text>
-          <InputWalletName
-            refInput={refInput}
-            onFocused={(val) => {}}
-            value={wallet.walletName}
-            onChange={(val) => {
-              dispatch({ type: 'setWalletName', payload: val });
-            }}
-          />
-        </View>
-        <View marginTop={height / 30}>
-          <Text marginBottom={2} color={Colors.green}>
-            Wallet Addres
-          </Text>
-          <InputWalletAdress value={wallet.newWallet?.address} />
-        </View>
-        <Center marginTop={height * 0.3}>
-          <Button
-            disabled={wallet.walletName === '' ? true : false}
-            borderRadius={15}
-            _text={{
-              color: wallet.walletName === '' ? 'black' : 'white',
-              fontWeight: 'semibold'
-            }}
-            onPress={() => {
-              setShowModal(true);
-              refInput.current.blur();
-            }}
-            _pressed={{ bg: Colors.lightGreen }}
-            bg={wallet.walletName === '' ? Colors.neutral50 : Colors.green}
-            width={width / 1.5}
-          >
-            Continue
-          </Button>
-        </Center>
-      </View>
+            </Center>
+          </View>
+        </>
+      </TouchableWithoutFeedback>
     </DefaultBody>
   );
 };

@@ -101,7 +101,7 @@ const TokenContent = ({ showSetting, activeSlide, setActiveSlide, setShowSetting
           desc={
             'DO NOT share this phrase with anyone! These words can be used to steal all your accounts.'
           }
-          tapHandler={() => handleModalShow(false)}
+          onClose={() => handleModalShow(false)}
         />
       )}
       {modalShowSecret && (
@@ -111,7 +111,7 @@ const TokenContent = ({ showSetting, activeSlide, setActiveSlide, setShowSetting
           desc={
             'DO NOT share this secret key with anyone! These words can be used to steal all your accounts.'
           }
-          tapHandler={() => handleModalShowSecret(false)}
+          onClose={() => handleModalShowSecret(false)}
         />
       )}
       {showModalSuccessDisconnect && (
@@ -224,7 +224,6 @@ const RenderItem = ({
           onPressCancel={() => {
             setShowModalDisconnect(false);
           }}
-          tapHandler={() => handleModalShowDisconnect(false)}
         />
       )}
       <Pressable
@@ -344,9 +343,6 @@ const RenderItem = ({
               paddingHorizontal: 16
             }}
           >
-            <View alignItems={'center'}>
-              <Text>Don't see your token?</Text>
-            </View>
             {wallet.networks.map(
               (el, idx) =>
                 Number(el.balance) > 0 && (

@@ -48,11 +48,7 @@ const AllWalletScreen = () => {
   );
 
   return (
-    <DefaultBody
-      tapHandler={() => {
-        if (bottom.showWallet) setBottom({ type: 'setShowWallet', payload: false });
-      }}
-    >
+    <DefaultBody>
       <Center
         style={{
           backgroundColor: Colors.green,

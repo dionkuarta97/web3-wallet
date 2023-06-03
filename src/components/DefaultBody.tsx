@@ -3,34 +3,41 @@ import React, { PropsWithChildren } from 'react';
 
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import FadeInView from './animated/FadeInView';
+import { TouchableWithoutFeedback } from 'react-native';
 
 type DefaultAppProps = PropsWithChildren<{
-  tapHandler?: () => void;
   animasi?: boolean;
   p?: number & {};
+  tapBackdor?: () => void;
 }>;
 
 const DefaultBody = ({
+  tapBackdor = () => {},
   p = 5,
   animasi = true,
-  children,
-  tapHandler = () => {}
+  children
 }: DefaultAppProps) => {
-  const tap = Gesture.Tap().onStart(() => {
-    tapHandler();
-  });
-
   return (
     <View paddingX={p} bg={'white'} flex={1}>
-      <GestureDetector gesture={tap}>
-        {animasi ? (
-          <FadeInView>
+      {animasi ? (
+        <FadeInView>
+          <TouchableWithoutFeedback
+            onPress={() => {
+              tapBackdor();
+            }}
+          >
             <View flex={1}>{children}</View>
-          </FadeInView>
-        ) : (
+          </TouchableWithoutFeedback>
+        </FadeInView>
+      ) : (
+        <TouchableWithoutFeedback
+          onPress={() => {
+            tapBackdor();
+          }}
+        >
           <View flex={1}>{children}</View>
-        )}
-      </GestureDetector>
+        </TouchableWithoutFeedback>
+      )}
     </View>
   );
 };

@@ -1,11 +1,16 @@
 import { Button, Text } from 'native-base';
 import { width } from '../../../Helpers';
 import { GradientBorderView } from '@good-react-native/gradient-border';
+import { useNavigation } from '@react-navigation/core';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { AuthParamList } from '../../../navigations/AuthRouter';
 
 const SignUpButton = () => {
+  const navigation = useNavigation<StackNavigationProp<AuthParamList>>();
   return (
     <Button
       borderRadius={12}
+      onPress={() => navigation.navigate('SignUpScreen')}
       alignSelf={'center'}
       bg={'rgba(4, 38, 38, 1)'}
       _pressed={{

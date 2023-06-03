@@ -1,13 +1,19 @@
 import { Pressable, View } from 'native-base';
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { StyleSheet, Image, StatusBar } from 'react-native';
 import list from '../../assets/icon/list.png';
 import global from '../../assets/icon/global.png';
 import search from '../../assets/icon/search.png';
 import notif from '../../assets/icon/notif.png';
 import { ImageSourcePropType } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import SideMenuModal from './modal/SideMenuModal';
 
 const CustomHeader = () => {
+  const [showSideMenu, setShowSideMenu] = useState(false);
+  const handleShowSideMemu = useCallback((val: boolean) => {
+    setShowSideMenu(val);
+  }, []);
   const renderView = (img: ImageSourcePropType, isPressed: boolean) => {
     return (
       <View
@@ -29,7 +35,12 @@ const CustomHeader = () => {
     <View alignItems={'center'} padding={5} bg={'white'} flexDirection={'row'}>
       <StatusBar barStyle="dark-content" backgroundColor={'white'} />
       <View style={style.right}>
-        <Pressable alignSelf="flex-start" onPress={() => {}}>
+        <Pressable
+          alignSelf="flex-start"
+          onPress={() => {
+            handleShowSideMemu(true);
+          }}
+        >
           {({ isPressed }) => {
             return renderView(list, isPressed);
           }}
@@ -52,6 +63,7 @@ const CustomHeader = () => {
           }}
         </Pressable>
       </View>
+      <SideMenuModal tapHandler={() => handleShowSideMemu(false)} show={showSideMenu} />
     </View>
   );
 };

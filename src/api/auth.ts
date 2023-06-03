@@ -18,14 +18,18 @@ const web3AuthParams: SdkInitParams = {
 const web3auth = new Web3Auth(WebBrowser, web3AuthParams);
 
 const login = async (loginProvider: string) => {
-  const response = await web3auth.login({
-    loginProvider,
-    redirectUrl,
-    mfaLevel: 'default',
-    curve: 'secp256k1'
-  });
+  return new Promise(async (resolve, reject) => {
+    try {
+      const response = await web3auth.login({
+        loginProvider,
+        redirectUrl
+      });
 
-  return response;
+      resolve(response);
+    } catch (err) {
+      reject(err);
+    }
+  });
 };
 
 export const loginGoogle = () => {

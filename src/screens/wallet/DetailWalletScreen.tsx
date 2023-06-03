@@ -26,13 +26,7 @@ const DetailWalletScreen = () => {
   }, []);
 
   return (
-    <DefaultBody
-      tapHandler={() => {
-        if (bottom.showWallet) {
-          setBottom({ type: 'setShowWallet', payload: false });
-        }
-      }}
-    >
+    <DefaultBody>
       <DetailHeader active={active} onPress={handleChangeActive} />
       {active === 'token' && (
         <TokenContent

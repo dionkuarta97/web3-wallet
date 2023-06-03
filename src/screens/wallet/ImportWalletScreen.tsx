@@ -7,6 +7,7 @@ import { Colors } from '../../Colors';
 import SelectChain from './ImportWalletContents/SelectChain';
 import { useCallback, useRef } from 'react';
 import { TextInput } from 'react-native';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
 const ImportWalletScreen = () => {
   const [bottom, setBottom] = useAtom(bottomReducer);
@@ -19,11 +20,8 @@ const ImportWalletScreen = () => {
 
   return (
     <DefaultBody
-      tapHandler={() => {
+      tapBackdor={() => {
         keyboardHide();
-        if (bottom.showWallet) {
-          setBottom({ type: 'setShowWallet', payload: false });
-        }
       }}
     >
       <Center>

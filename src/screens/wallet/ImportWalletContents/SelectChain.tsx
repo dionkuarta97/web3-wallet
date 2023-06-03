@@ -61,9 +61,6 @@ const SelectChain = ({ refInput, refInputPhrase }: Props) => {
       {loading && <LoadingModal text={'Import Your Wallet'} />}
       {showModal && (
         <ModalImportWallet
-          tapHandler={() => {
-            handleModalShow(false);
-          }}
           onPressDone={() => {
             handleModalShow(false);
             navigation.dispatch(

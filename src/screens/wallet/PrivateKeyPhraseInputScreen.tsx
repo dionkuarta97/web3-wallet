@@ -7,7 +7,7 @@ import { useAtom } from 'jotai';
 import { walletReducer } from '../../state/wallet/walletReducer';
 import InputPhrase from './PrivateKeyPhraseInputContents/InputPhrase';
 import { useRef, useState } from 'react';
-import { Image, TextInput } from 'react-native';
+import { Image, TextInput, TouchableWithoutFeedback } from 'react-native';
 import { bottomReducer } from '../../state/bottom/bottomReducer';
 import DefaultModal from '../../components/modal/DefaultModal';
 import { CommonActions, useNavigation } from '@react-navigation/native';
@@ -28,173 +28,174 @@ const PrivateKeyPhraseInputScreen = () => {
   const [error, setError] = useState('');
 
   return (
-    <DefaultBody
-      tapHandler={() => {
-        refInput.current?.blur();
-        if (bottom.showWallet) {
-          disBottom({ type: 'setShowWallet', payload: false });
-        }
-      }}
-    >
-      {loading && <LoadingModal text={'Create New Wallet'} />}
-      {showModal && (
-        <DefaultModal
-          header={
-            <View>
-              <Image
-                source={require('../../../assets/firework.png')}
+    <DefaultBody>
+      <TouchableWithoutFeedback
+        onPress={() => {
+          refInput.current?.blur();
+        }}
+      >
+        <>
+          {loading && <LoadingModal text={'Create New Wallet'} />}
+          {showModal && (
+            <DefaultModal
+              header={
+                <View>
+                  <Image
+                    source={require('../../../assets/firework.png')}
+                    style={{
+                      height: height * 0.2,
+                      resizeMode: 'contain'
+                    }}
+                  />
+                </View>
+              }
+              body={
+                <View alignItems={'center'} mt={5}>
+                  <Text fontWeight={'bold'} fontSize={25}>
+                    Congratulation
+                  </Text>
+                  <Text color={Colors.grayText} mt={5}>
+                    Your Wallet has been Created.
+                  </Text>
+                </View>
+              }
+              footer={
+                <Button
+                  width={width * 0.5}
+                  borderRadius={15}
+                  bg={Colors.green}
+                  _pressed={{ bg: Colors.lightGreen }}
+                  onPress={() => {
+                    setShowModal(false);
+                    navigation.dispatch(
+                      CommonActions.reset({
+                        index: 0,
+                        routes: [
+                          {
+                            name: 'WalletRouter',
+                            params: { screen: 'AllWalletScreen', params: { new: true } }
+                          }
+                        ]
+                      })
+                    );
+                  }}
+                >
+                  Done
+                </Button>
+              }
+            />
+          )}
+          <View flex={1}>
+            <Center>
+              <Text fontSize={width / 18} fontWeight={'bold'} color={Colors.green}>
+                Create New Wallet
+              </Text>
+              <View
                 style={{
-                  height: height * 0.2,
-                  resizeMode: 'contain'
+                  borderTopWidth: 4,
+                  width: width / 2.2,
+                  borderRadius: 15,
+                  marginTop: 3,
+                  borderTopColor: Colors.green
                 }}
               />
-            </View>
-          }
-          body={
-            <View alignItems={'center'} mt={5}>
-              <Text fontWeight={'bold'} fontSize={25}>
-                Congratulation
+            </Center>
+            <View marginTop={height / 20}>
+              <Text marginBottom={2} color={Colors.green}>
+                Private Key
               </Text>
-              <Text color={Colors.grayText} mt={5}>
-                Your Wallet has been Created.
-              </Text>
+              <InputPrivateKey value={wallet.newWallet?.privateKey} />
             </View>
-          }
-          footer={
-            <Button
-              width={width * 0.5}
-              borderRadius={15}
-              bg={Colors.green}
-              _pressed={{ bg: Colors.lightGreen }}
-              onPress={() => {
-                setShowModal(false);
-                navigation.dispatch(
-                  CommonActions.reset({
-                    index: 0,
-                    routes: [
-                      {
-                        name: 'WalletRouter',
-                        params: { screen: 'AllWalletScreen', params: { new: true } }
-                      }
-                    ]
-                  })
-                );
-              }}
-            >
-              Done
-            </Button>
-          }
-        />
-      )}
-      <View flex={1}>
-        <Center>
-          <Text fontSize={width / 18} fontWeight={'bold'} color={Colors.green}>
-            Create New Wallet
-          </Text>
-          <View
-            style={{
-              borderTopWidth: 4,
-              width: width / 2.2,
-              borderRadius: 15,
-              marginTop: 3,
-              borderTopColor: Colors.green
-            }}
-          />
-        </Center>
-        <View marginTop={height / 20}>
-          <Text marginBottom={2} color={Colors.green}>
-            Private Key
-          </Text>
-          <InputPrivateKey value={wallet.newWallet?.privateKey} />
-        </View>
-        <View mt={2}>
-          <Text marginBottom={2} color={Colors.green}>
-            Your Passphrase
-          </Text>
-          <InputPhrase
-            onChange={(val) => {
-              setPhrase(val);
-            }}
-            refInput={refInput}
-            value={phrase}
-            onFocused={(val) => {}}
-          />
-          {error !== '' && (
-            <Text mt={1} color="red.600">
-              {error}
-            </Text>
-          )}
-        </View>
-        <Center marginTop={height * 0.3}>
-          <Button
-            disabled={phrase === '' ? true : false}
-            borderRadius={15}
-            _text={{
-              color: phrase === '' ? 'black' : 'white',
-              fontWeight: 'semibold'
-            }}
-            onPress={async () => {
-              refInput.current.blur();
-              if (wallet.newWallet?.mnemonic !== phrase) {
-                setError('Wrong Passphrase, try again !!');
-              } else {
-                if (
-                  wallet.wallets.filter((value) =>
-                    value.walletName.toLowerCase().includes(wallet.walletName.toLowerCase())
-                  ).length > 0
-                ) {
-                  setError('you have a wallet with the same name / wallet cannot number');
-                } else {
-                  setLoading(true);
-                  detectBalance(wallet.newWallet?.address, true)
-                    .then((data: any) => {
-                      setError('');
-                      let payload = [
-                        {
-                          walletName: wallet.walletName,
-                          walletAddress: wallet.newWallet?.address,
-                          walletPhrase: wallet.newWallet?.mnemonic,
-                          walletPrivateKey: wallet.newWallet?.privateKey,
-                          idrAsset: data.idrAsset,
-                          networks: data.tempNetworks,
-                          isNew: true,
-                          createdAt: Date.now()
-                        },
-                        ...wallet.wallets
-                      ];
+            <View mt={2}>
+              <Text marginBottom={2} color={Colors.green}>
+                Your Passphrase
+              </Text>
+              <InputPhrase
+                onChange={(val) => {
+                  setPhrase(val);
+                }}
+                refInput={refInput}
+                value={phrase}
+                onFocused={(val) => {}}
+              />
+              {error !== '' && (
+                <Text mt={1} color="red.600">
+                  {error}
+                </Text>
+              )}
+            </View>
+            <Center marginTop={height * 0.3}>
+              <Button
+                disabled={phrase === '' ? true : false}
+                borderRadius={15}
+                _text={{
+                  color: phrase === '' ? 'black' : 'white',
+                  fontWeight: 'semibold'
+                }}
+                onPress={async () => {
+                  refInput.current.blur();
+                  if (wallet.newWallet?.mnemonic !== phrase.toLowerCase()) {
+                    setError('Wrong Passphrase, try again !!');
+                  } else {
+                    if (
+                      wallet.wallets.filter((value) =>
+                        value.walletName.toLowerCase().includes(wallet.walletName.toLowerCase())
+                      ).length > 0
+                    ) {
+                      setError('you have a wallet with the same name / wallet cannot number');
+                    } else {
+                      setLoading(true);
+                      detectBalance(wallet.newWallet?.address, true)
+                        .then((data: any) => {
+                          setError('');
+                          let payload = [
+                            {
+                              walletName: wallet.walletName,
+                              walletAddress: wallet.newWallet?.address,
+                              walletPhrase: wallet.newWallet?.mnemonic,
+                              walletPrivateKey: wallet.newWallet?.privateKey,
+                              idrAsset: data.idrAsset,
+                              networks: data.tempNetworks,
+                              isNew: true,
+                              createdAt: Date.now()
+                            },
+                            ...wallet.wallets
+                          ];
 
-                      return payload;
-                    })
-                    .then((payload) => {
-                      disWallet({
-                        type: 'setWallets',
-                        payload: payload
-                      });
-                      disWallet({ type: 'setNewWallet', payload: null });
-                      disWallet({ type: 'setWalletName', payload: '' });
-                    })
-                    .then(() => {
-                      setShowModal(true);
-                    })
-                    .catch((err) => {
-                      console.log(err);
+                          return payload;
+                        })
+                        .then((payload) => {
+                          disWallet({
+                            type: 'setWallets',
+                            payload: payload
+                          });
+                          disWallet({ type: 'setNewWallet', payload: null });
+                          disWallet({ type: 'setWalletName', payload: '' });
+                        })
+                        .then(() => {
+                          setShowModal(true);
+                        })
+                        .catch((err) => {
+                          console.log(err);
 
-                      setError('Request time out');
-                    })
-                    .finally(() => {
-                      setLoading(false);
-                    });
-                }
-              }
-            }}
-            _pressed={{ bg: Colors.lightGreen }}
-            bg={phrase === '' ? Colors.neutral50 : Colors.green}
-            width={width / 1.5}
-          >
-            Create Wallet
-          </Button>
-        </Center>
-      </View>
+                          setError('Request time out');
+                        })
+                        .finally(() => {
+                          setLoading(false);
+                        });
+                    }
+                  }
+                }}
+                _pressed={{ bg: Colors.lightGreen }}
+                bg={phrase === '' ? Colors.neutral50 : Colors.green}
+                width={width / 1.5}
+              >
+                Create Wallet
+              </Button>
+            </Center>
+          </View>
+        </>
+      </TouchableWithoutFeedback>
     </DefaultBody>
   );
 };

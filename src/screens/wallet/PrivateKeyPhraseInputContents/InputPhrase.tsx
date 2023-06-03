@@ -34,7 +34,7 @@ const InputPhrase = ({ onChange, onFocused, value, refInput }: Props) => {
           onFocused(false);
         }}
         onChangeText={(val) => {
-          onChange(val.toLowerCase());
+          onChange(val);
         }}
         style={[
           style.input,

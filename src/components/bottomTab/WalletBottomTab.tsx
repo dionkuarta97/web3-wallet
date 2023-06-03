@@ -11,6 +11,7 @@ import { CommonActions, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import WalletBottomSheet from '../bottomSheet/WalletBottomSheet';
 import { BottomTabParamList } from '../../navigations/BottomTabRouter';
+import MenuWallet from '../bottomSheet/MenuWallet';
 
 type menu = {
   screen: any;
@@ -26,6 +27,7 @@ const WalletBottomTab = (
   }
 ) => {
   const { isOpen, onClose, onOpen } = useDisclose();
+  const menuWallet = useDisclose();
   const [bottom, dispatch] = useAtom(bottomReducer);
   const navigation = useNavigation<StackNavigationProp<BottomTabParamList>>();
 
@@ -98,11 +100,7 @@ const WalletBottomTab = (
         }}
         activeOpacity={1}
         onPress={() => {
-          if (bottom.showWallet) {
-            dispatch({ type: 'setShowWallet', payload: false });
-          } else {
-            dispatch({ type: 'setShowWallet', payload: true });
-          }
+          menuWallet.onOpen();
         }}
       >
         <Animated.View
@@ -131,66 +129,15 @@ const WalletBottomTab = (
           }}
         />
       </TouchableOpacity>
-      {bottom.showWallet && (
-        <Animated.View
-          style={{
-            flex: 1,
-            position: 'absolute',
-            flexDirection: 'row',
-            opacity: interpolateOpacity,
-            left: width / 9.6,
-            width: props.menus.length > 0 ? width / (5.2 / props.menus.length) : width / (5.2 / 1),
-            transform: [{ translateY: interpolateBottom }, { scaleX: interpolateWidth }]
-          }}
-        >
-          {props.menus.map((el: menu, idx: number) => (
-            <TouchableOpacity
-              disabled={!bottom.showWallet ? true : false}
-              key={el.screen}
-              activeOpacity={1}
-              style={{
-                flex: 1,
-                borderTopLeftRadius: idx === 0 ? 10 : 0,
-                borderBottomLeftRadius: idx === 0 ? 10 : 0,
-                borderTopRightRadius: idx + 1 === props.menus.length ? 10 : 0,
-                borderBottomRightRadius: idx + 1 === props.menus.length ? 10 : 0,
-                justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: Colors.green,
-                paddingVertical: 5
-              }}
-              onPress={() => {
-                if (el.screen === 'AllWalletScreen') {
-                  dispatch({ type: 'setTabActive', payload: el.screen });
-                  navigation.dispatch(
-                    CommonActions.reset({
-                      index: 0,
-                      routes: [{ name: 'WalletRouter', params: { screen: 'AllWalletScreen' } }]
-                    })
-                  );
-                } else {
-                  onOpen();
-                }
-                dispatch({ type: 'setShowWallet', payload: false });
-              }}
-            >
-              <Image
-                source={el.image}
-                style={{
-                  width: width / 15,
-                  height: width / 15,
-                  resizeMode: 'contain',
-                  transform: [{ scale: isFocused ? 1.1 : 1 }]
-                }}
-              />
-              <Text fontSize={12} color={'white'}>
-                {el.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </Animated.View>
-      )}
-
+      <MenuWallet
+        onOpen={() => {
+          onOpen();
+        }}
+        isOpen={menuWallet.isOpen}
+        onClose={() => {
+          menuWallet.onClose();
+        }}
+      />
       <WalletBottomSheet isOpen={isOpen} onClose={onClose} />
     </>
   );

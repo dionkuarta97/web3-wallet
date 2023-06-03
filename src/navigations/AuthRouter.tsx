@@ -11,6 +11,7 @@ import DefaultHeader from '../components/DefaultHeader';
 import SetupPinScreen from '../screens/auth/SetupPinScreen';
 import ReenterPinScreen from '../screens/auth/ReenterPinScreen';
 import InputPinScreen from '../screens/auth/InputPinScreen';
+import SignUpScreen from '../screens/auth/SignUpScreen';
 
 export type AuthParamList = {
   OpeningScreen: undefined;
@@ -18,6 +19,7 @@ export type AuthParamList = {
   SetupPinScreen: undefined;
   ReenterPinScreen: undefined;
   InputPinScreen: undefined;
+  SignUpScreen: undefined;
 };
 
 const AuthStack = createStackNavigator<AuthParamList>();
@@ -62,6 +64,13 @@ const auths: auth[] = [
   {
     name: 'InputPinScreen',
     component: InputPinScreen,
+    options: {
+      header: () => <DefaultHeader />
+    }
+  },
+  {
+    name: 'SignUpScreen',
+    component: SignUpScreen,
     options: {
       header: () => <DefaultHeader />
     }

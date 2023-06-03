@@ -26,13 +26,7 @@ const PrivateKeyPhraseShowScreen = () => {
   const navigation = useNavigation<StackNavigationProp<BottomTabParamList>>();
 
   return (
-    <DefaultBody
-      tapHandler={() => {
-        if (bottom.showWallet) {
-          disBottom({ type: 'setShowWallet', payload: false });
-        }
-      }}
-    >
+    <DefaultBody>
       <View flex={1}>
         <Center>
           <Text fontSize={width / 18} fontWeight={'bold'} color={Colors.green}>

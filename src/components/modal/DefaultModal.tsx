@@ -8,27 +8,20 @@ type Props = {
   header: ReactNode;
   body: ReactNode;
   footer: ReactNode;
-  tapHandler?: () => void;
 };
 
-const DefaultModal = ({ header, body, footer, tapHandler = () => {} }: Props) => {
-  const tap = Gesture.Tap().onStart(() => {
-    tapHandler();
-  });
+const DefaultModal = ({ header, body, footer }: Props) => {
   return (
     <Modal transparent={true} animationType="fade">
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <View style={styles.container}>
-          <GestureDetector gesture={tap}>
-            <View style={styles.dimBackground} />
-          </GestureDetector>
-          <View style={styles.header}>{header}</View>
-          <ScrollView showsVerticalScrollIndicator={false} style={styles.body}>
-            {body}
-          </ScrollView>
-          <View style={styles.footer}>{footer}</View>
-        </View>
-      </GestureHandlerRootView>
+      <View style={styles.container}>
+        <View style={styles.dimBackground} />
+
+        <View style={styles.header}>{header}</View>
+        <ScrollView showsVerticalScrollIndicator={false} style={styles.body}>
+          {body}
+        </ScrollView>
+        <View style={styles.footer}>{footer}</View>
+      </View>
     </Modal>
   );
 };

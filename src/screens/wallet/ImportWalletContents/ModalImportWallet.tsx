@@ -7,60 +7,53 @@ import Success from '../../../../assets/success-import-wallet.png';
 
 type Props = {
   onPressDone: () => void;
-  tapHandler?: () => void;
 };
 
-const ModalImportWallet = ({ tapHandler = () => {}, onPressDone }: Props) => {
-  const tap = Gesture.Tap().onStart(() => {
-    tapHandler();
-  });
+const ModalImportWallet = ({ onPressDone }: Props) => {
   return (
     <Modal transparent={true} animationType="fade">
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <View style={styles.container}>
-          <GestureDetector gesture={tap}>
-            <View style={styles.dimBackground} />
-          </GestureDetector>
-          <View style={styles.body}>
-            <Center mb={4}>
-              <Image
-                source={Success}
-                style={{
-                  resizeMode: 'contain',
-                  height: width / 3,
-                  marginTop: width / 8,
-                  marginBottom: width / 11
-                }}
-              />
-              <Text color={Colors.green} fontWeight={'semibold'} fontSize={20}>
-                Congratulation
-              </Text>
-              <Text
-                color={Colors.grayText}
-                textAlign={'center'}
-                margin={width / 18}
-              >{`Your Wallet has been import.`}</Text>
-            </Center>
-            <Pressable
-              onPress={() => {
-                onPressDone();
+      <View style={styles.container}>
+        <View style={styles.dimBackground} />
+
+        <View style={styles.body}>
+          <Center mb={4}>
+            <Image
+              source={Success}
+              style={{
+                resizeMode: 'contain',
+                height: width / 3,
+                marginTop: width / 8,
+                marginBottom: width / 11
               }}
-              style={({ pressed }) => [
-                {
-                  width: width / 2,
-                  alignSelf: 'center',
-                  borderRadius: 8,
-                  padding: 10,
-                  backgroundColor: pressed ? Colors.lightGreen : Colors.green,
-                  alignItems: 'center'
-                }
-              ]}
-            >
-              <Text color={'white'}>Done</Text>
-            </Pressable>
-          </View>
+            />
+            <Text color={Colors.green} fontWeight={'semibold'} fontSize={20}>
+              Congratulation
+            </Text>
+            <Text
+              color={Colors.grayText}
+              textAlign={'center'}
+              margin={width / 18}
+            >{`Your Wallet has been import.`}</Text>
+          </Center>
+          <Pressable
+            onPress={() => {
+              onPressDone();
+            }}
+            style={({ pressed }) => [
+              {
+                width: width / 2,
+                alignSelf: 'center',
+                borderRadius: 8,
+                padding: 10,
+                backgroundColor: pressed ? Colors.lightGreen : Colors.green,
+                alignItems: 'center'
+              }
+            ]}
+          >
+            <Text color={'white'}>Done</Text>
+          </Pressable>
         </View>
-      </GestureHandlerRootView>
+      </View>
     </Modal>
   );
 };

@@ -7,13 +7,10 @@ import Disconnect from '../../../../assets/disconnect.png';
 
 type Props = {
   onPressDone: () => void;
-  tapHandler?: () => void;
 };
 
-const ModalSuccessDisconnect = ({ tapHandler = () => {}, onPressDone }: Props) => {
-  const tap = Gesture.Tap().onStart(() => {
-    tapHandler();
-  });
+const ModalSuccessDisconnect = ({ onPressDone }: Props) => {
+  const tap = Gesture.Tap().onStart(() => {});
   return (
     <Modal transparent={true} animationType="fade">
       <GestureHandlerRootView style={{ flex: 1 }}>

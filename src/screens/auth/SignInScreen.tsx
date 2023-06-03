@@ -14,6 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { AuthParamList } from '../../navigations/AuthRouter';
 import { authReducer } from '../../state/auth/authReducer';
+import { Alert } from 'react-native';
 
 const socials: { image: ImageSourcePropType; handle: () => Promise<any> }[] = [
   {
@@ -99,15 +100,23 @@ const SignInScreen = () => {
           {socials.map((el, idx) => (
             <SocialLogin
               onPress={() => {
-                el.handle().then((val) => {
-                  if (auth?.userInfo?.pin) {
-                    dispatch({ type: 'setUserInfo', payload: { ...val, pin: auth.userInfo.pin } });
-                    navigation.navigate('InputPinScreen');
-                  } else {
-                    dispatch({ type: 'setUserInfo', payload: { ...val, pin: null } });
-                    navigation.navigate('SetupPinScreen');
-                  }
-                });
+                el.handle()
+                  .then((val) => {
+                    if (auth?.userInfo?.pin) {
+                      dispatch({
+                        type: 'setUserInfo',
+                        payload: { ...val, pin: auth.userInfo.pin }
+                      });
+                      navigation.navigate('InputPinScreen');
+                    } else {
+                      dispatch({ type: 'setUserInfo', payload: { ...val, pin: null } });
+                      navigation.navigate('SetupPinScreen');
+                    }
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                    Alert.alert('Error', JSON.stringify(err, null, 2));
+                  });
               }}
               image={el.image}
               key={idx}

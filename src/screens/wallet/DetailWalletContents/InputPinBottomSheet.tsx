@@ -40,7 +40,6 @@ const InputPinBottomSheet = ({ onClose, isOpen, buttonText, onTrue, desc }: Prop
 
   return (
     <Actionsheet
-      bottom={keyboardHeight}
       isOpen={isOpen}
       onClose={() => {
         setError(null);
@@ -50,7 +49,7 @@ const InputPinBottomSheet = ({ onClose, isOpen, buttonText, onTrue, desc }: Prop
         setShowPin(true);
       }}
     >
-      <Actionsheet.Content>
+      <Actionsheet.Content bottom={keyboardHeight}>
         <Center>
           <Text fontWeight={'bold'} fontSize={17} marginBottom={4}>
             Warning

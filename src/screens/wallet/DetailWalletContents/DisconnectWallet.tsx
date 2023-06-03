@@ -6,61 +6,55 @@ import { Center, Text } from 'native-base';
 
 type Props = {
   onPressCancel: () => void;
-  tapHandler?: () => void;
+
   handleSetWallet: () => void;
 };
 
-const DisconnectWallet = ({ tapHandler = () => {}, onPressCancel, handleSetWallet }: Props) => {
-  const tap = Gesture.Tap().onStart(() => {
-    tapHandler();
-  });
+const DisconnectWallet = ({ onPressCancel, handleSetWallet }: Props) => {
   return (
     <Modal transparent={true} animationType="fade">
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <View style={styles.container}>
-          <GestureDetector gesture={tap}>
-            <View style={styles.dimBackground} />
-          </GestureDetector>
-          <View style={styles.body}>
-            <Center mb={4}>
-              <Text>Do you want to disconnect this wallet?</Text>
-            </Center>
-            <Pressable
-              onPress={() => {
-                handleSetWallet();
-                onPressCancel();
-              }}
-              style={({ pressed }) => [
-                {
-                  borderWidth: 0.8,
-                  borderRadius: 8,
-                  padding: 10,
-                  backgroundColor: pressed ? Colors.lightGray : 'white',
-                  marginBottom: 5,
-                  alignItems: 'center'
-                }
-              ]}
-            >
-              <Text>Disconnect</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => {
-                onPressCancel();
-              }}
-              style={({ pressed }) => [
-                {
-                  borderRadius: 8,
-                  padding: 10,
-                  backgroundColor: pressed ? Colors.lightGreen : Colors.green,
-                  alignItems: 'center'
-                }
-              ]}
-            >
-              <Text color={'white'}>Cancel</Text>
-            </Pressable>
-          </View>
+      <View style={styles.container}>
+        <View style={styles.dimBackground} />
+
+        <View style={styles.body}>
+          <Center mb={4}>
+            <Text>Do you want to disconnect this wallet?</Text>
+          </Center>
+          <Pressable
+            onPress={() => {
+              handleSetWallet();
+              onPressCancel();
+            }}
+            style={({ pressed }) => [
+              {
+                borderWidth: 0.8,
+                borderRadius: 8,
+                padding: 10,
+                backgroundColor: pressed ? Colors.lightGray : 'white',
+                marginBottom: 5,
+                alignItems: 'center'
+              }
+            ]}
+          >
+            <Text>Disconnect</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => {
+              onPressCancel();
+            }}
+            style={({ pressed }) => [
+              {
+                borderRadius: 8,
+                padding: 10,
+                backgroundColor: pressed ? Colors.lightGreen : Colors.green,
+                alignItems: 'center'
+              }
+            ]}
+          >
+            <Text color={'white'}>Cancel</Text>
+          </Pressable>
         </View>
-      </GestureHandlerRootView>
+      </View>
     </Modal>
   );
 };

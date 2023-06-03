@@ -12,6 +12,7 @@ import type {
 import OpeningRouter, { OpeningParamList } from './OpeningRouter';
 import AuthRouter, { AuthParamList } from './AuthRouter';
 import BottomTabRouter, { BottomTabParamList } from './BottomTabRouter';
+import SideMenuRouter, { SideMenuParamList } from './SideMenuRouter';
 
 export type RootParamList = {
   OpeningRouter: NavigatorScreenParams<OpeningParamList>;

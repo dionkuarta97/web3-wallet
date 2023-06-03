@@ -16,6 +16,7 @@ import Root from './navigations/Root';
 import { Colors } from './Colors';
 const Moralis = require('moralis').default;
 import 'react-native-gesture-handler';
+
 // @ts-ignore
 
 (global as any).window.Buffer = Buffer;
