@@ -3,10 +3,22 @@ import { StyleSheet, TextInput, Image } from 'react-native';
 import { width } from '../../../Helpers';
 import { Colors } from '../../../Colors';
 
-const InputPassword = ({ disabled = false }: { disabled?: boolean }) => {
+const InputPassword = ({
+  disabled = false,
+  onChangeText = () => {},
+}: {
+  disabled?: boolean,
+  onChangeText?: (text: string) => void
+}) => {
   return (
     <View justifyContent={'center'}>
-      <TextInput placeholder="Enter your Password" editable={!disabled} style={style.input} />
+      <TextInput
+        placeholder="Enter your Password"
+        editable={!disabled}
+        style={style.input}
+        onChangeText={onChangeText}
+        autoCapitalize="none"
+      />
       <Image style={style.imgLeft} source={require('../../../../assets/icon/lock.png')} />
       <Image style={style.imgRight} source={require('../../../../assets/icon/eye.png')} />
     </View>

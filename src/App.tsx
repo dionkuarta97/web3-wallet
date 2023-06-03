@@ -5,7 +5,7 @@
  * @format
  */
 
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { StatusBar, StyleSheet } from 'react-native';
 import { Buffer } from '@craftzdog/react-native-buffer';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';

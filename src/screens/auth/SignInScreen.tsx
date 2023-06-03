@@ -1,4 +1,4 @@
-import { ImageSourcePropType, SafeAreaView, StyleSheet } from 'react-native';
+import { GestureResponderEvent, ImageSourcePropType, SafeAreaView, StyleSheet } from 'react-native';
 import HeaderSignIn from './signInContent/HeaderSignIn';
 import InputEmail from './signInContent/InputEmail';
 import { height, width } from '../../Helpers';
@@ -7,13 +7,14 @@ import { Colors } from '../../Colors';
 import InputPassword from './signInContent/InputPassword';
 import facebook from '../../../assets/icon/facebook.png';
 import google from '../../../assets/icon/google.png';
-import { loginFacebook, loginGoogle } from '../../api/auth';
+import { loginEmailPassword, loginFacebook, loginGoogle } from '../../api/auth';
 import SocialLogin from './signInContent/SocialLogin';
 import { useAtom } from 'jotai';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { AuthParamList } from '../../navigations/AuthRouter';
 import { authReducer } from '../../state/auth/authReducer';
+import { useState } from 'react';
 
 const socials: { image: ImageSourcePropType; handle: () => Promise<any> }[] = [
   {
@@ -48,7 +49,22 @@ const socials: { image: ImageSourcePropType; handle: () => Promise<any> }[] = [
 
 const SignInScreen = () => {
   const [auth, dispatch] = useAtom(authReducer);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const navigation = useNavigation<StackNavigationProp<AuthParamList>>();
+
+  const handleEmailPasswordLogin = async (event: GestureResponderEvent) => {
+    // TODO: Add email & password validation
+    const userInfo: any = await loginEmailPassword(email, password);
+    console.log({ userInfo });
+    if (auth?.userInfo?.pin) {
+      dispatch({ type: 'setUserInfo', payload: { ...userInfo, pin: auth.userInfo.pin } });
+      navigation.navigate('InputPinScreen');
+    } else {
+      dispatch({ type: 'setUserInfo', payload: { ...userInfo, pin: null } });
+      navigation.navigate('SetupPinScreen');
+    }
+  }
 
   return (
     <View style={style.container}>
@@ -58,11 +74,11 @@ const SignInScreen = () => {
           <Text marginBottom={2} color={Colors.green}>
             Email Address
           </Text>
-          <InputEmail />
+          <InputEmail onChangeText={(text) => setEmail(text)} />
           <Text marginBottom={2} mt={5} color={Colors.green}>
             Password
           </Text>
-          <InputPassword />
+          <InputPassword onChangeText={(text) => setPassword(text)} />
         </View>
         <View alignItems={'flex-end'}>
           <Button
@@ -82,6 +98,7 @@ const SignInScreen = () => {
         </View>
         <Center marginTop={8}>
           <Button
+            onPress={handleEmailPasswordLogin}
             bg={Colors.green}
             _pressed={{
               bg: Colors.lightGreen
