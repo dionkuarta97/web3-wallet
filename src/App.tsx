@@ -16,6 +16,8 @@ import Root from './navigations/Root';
 import { Colors } from './Colors';
 const Moralis = require('moralis').default;
 import 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
 // @ts-ignore
 
 (global as any).window.Buffer = Buffer;
@@ -35,9 +37,11 @@ function App(): JSX.Element {
       <Provider>
         <StatusBar backgroundColor={Colors.black} />
         <NativeBaseProvider>
-          <NavigationContainer>
-            <Root />
-          </NavigationContainer>
+          <SafeAreaProvider>
+            <NavigationContainer>
+              <Root />
+            </NavigationContainer>
+          </SafeAreaProvider>
         </NativeBaseProvider>
       </Provider>
     </GestureHandlerRootView>

@@ -51,7 +51,7 @@ const SignInScreen = () => {
   const navigation = useNavigation<StackNavigationProp<AuthParamList>>();
 
   return (
-    <SafeAreaView style={style.container}>
+    <View style={style.container}>
       <View flex={1}>
         <HeaderSignIn />
         <View style={style.input}>
@@ -137,7 +137,7 @@ const SignInScreen = () => {
           Register
         </Button>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -147,7 +147,7 @@ const style = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
-    paddingHorizontal: 20
+    paddingHorizontal: 26
   },
   input: {
     marginTop: height * 0.1

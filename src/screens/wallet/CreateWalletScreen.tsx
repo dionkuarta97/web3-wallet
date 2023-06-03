@@ -107,7 +107,7 @@ const CreateWalletScreen = () => {
                 }}
                 onPress={() => {
                   setShowModal(false);
-                  navigation.navigate('WalletRouter', { screen: 'PrivateKeyPhraseShowContent' });
+                  navigation.navigate('WalletRouter', { screen: 'PrivateKeyPhraseShowScreen' });
                 }}
                 borderRadius={15}
                 width={width * 0.5}

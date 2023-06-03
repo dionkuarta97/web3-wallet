@@ -4,11 +4,14 @@ import { Pressable, View } from 'native-base';
 import { StyleSheet, Image, StatusBar } from 'react-native';
 import { RootParamList } from '../navigations/Root';
 import { width } from '../Helpers';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 const DefaultHeader = () => {
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation<StackNavigationProp<RootParamList>>();
 
   return (
-    <View padding={5} bg={'white'}>
+    <View paddingTop={insets.top} padding={5} bg={'white'}>
       <StatusBar barStyle="dark-content" backgroundColor={'white'} />
       <Pressable
         onPress={() => {

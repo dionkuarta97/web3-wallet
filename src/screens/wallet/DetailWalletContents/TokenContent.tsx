@@ -47,7 +47,7 @@ const TokenContent = ({ showSetting, activeSlide, setActiveSlide, setShowSetting
   const itemWidth = Math.round(width * 0.85);
   const [swipe, setSwipe] = useState(false);
   const [showModalSuccessDisconnect, setShowModalSuccessDisconnect] = useState(false);
-  const [modalShow, setModalShow] = useState(false);
+  const [modalShowPhrase, setModalShowPhrase] = useState(false);
   const [modalShowSecret, setModalShowSecret] = useState(false);
   const phrase = useDisclose();
   const privatKey = useDisclose();
@@ -69,8 +69,8 @@ const TokenContent = ({ showSetting, activeSlide, setActiveSlide, setShowSetting
     setShowModalSuccessDisconnect(param);
   }, []);
 
-  const handleModalShow = useCallback((param: boolean) => {
-    setModalShow(param);
+  const handleModalShowPhrase = useCallback((param: boolean) => {
+    setModalShowPhrase(param);
   }, []);
   const handleModalShowSecret = useCallback((param: boolean) => {
     setModalShowSecret(param);
@@ -82,7 +82,7 @@ const TokenContent = ({ showSetting, activeSlide, setActiveSlide, setShowSetting
     <View style={{ marginTop: 15, flex: 1, alignItems: 'center', justifyContent: 'center' }}>
       <InputPinBottomSheet
         desc={'If someone know your secret phrase,\nthey can stolen your wallet'}
-        onTrue={(val) => handleModalShow(val)}
+        onTrue={(val) => handleModalShowPhrase(val)}
         buttonText="See Passphrase"
         isOpen={phrase.isOpen}
         onClose={phrase.onClose}
@@ -94,14 +94,14 @@ const TokenContent = ({ showSetting, activeSlide, setActiveSlide, setShowSetting
         isOpen={privatKey.isOpen}
         onClose={privatKey.onClose}
       />
-      {modalShow && (
+      {modalShowPhrase && (
         <ModalShow
           secret={wallet.wallets[activeSlide].walletPhrase}
           title={'Your Passphrase Recovery'}
           desc={
             'DO NOT share this phrase with anyone! These words can be used to steal all your accounts.'
           }
-          tapHandler={() => handleModalShow(false)}
+          tapHandler={() => handleModalShowPhrase(false)}
         />
       )}
       {modalShowSecret && (

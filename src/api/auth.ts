@@ -1,6 +1,7 @@
 import * as WebBrowser from '@toruslabs/react-native-web-browser';
 import Web3Auth, {
   LOGIN_PROVIDER,
+  MFA_LEVELS,
   OPENLOGIN_NETWORK,
   SdkInitParams
 } from '@web3auth/react-native-sdk';
@@ -21,7 +22,7 @@ const login = async (loginProvider: string) => {
   const response = await web3auth.login({
     loginProvider,
     redirectUrl,
-    mfaLevel: 'default',
+    mfaLevel: MFA_LEVELS.OPTIONAL,
     curve: 'secp256k1'
   });
 

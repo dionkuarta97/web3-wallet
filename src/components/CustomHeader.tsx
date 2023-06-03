@@ -6,8 +6,11 @@ import global from '../../assets/icon/global.png';
 import search from '../../assets/icon/search.png';
 import notif from '../../assets/icon/notif.png';
 import { ImageSourcePropType } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const CustomHeader = () => {
+  const insets = useSafeAreaInsets();
+
   const renderView = (img: ImageSourcePropType, isPressed: boolean) => {
     return (
       <View
@@ -26,7 +29,7 @@ const CustomHeader = () => {
   };
 
   return (
-    <View alignItems={'center'} padding={5} bg={'white'} flexDirection={'row'}>
+    <View alignItems={'center'} paddingTop={insets.top} padding={5} bg={'white'} flexDirection={'row'}>
       <StatusBar barStyle="dark-content" backgroundColor={'white'} />
       <View style={style.right}>
         <Pressable alignSelf="flex-start" onPress={() => {}}>
