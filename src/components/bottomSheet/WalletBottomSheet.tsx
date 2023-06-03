@@ -67,6 +67,7 @@ const WalletBottomSheet = ({ onClose = () => {}, isOpen = false }: Props) => {
       .then(() => {})
       .catch((error) => {});
   };
+
   return (
     <Actionsheet
       isOpen={isOpen}
@@ -99,10 +100,6 @@ const WalletBottomSheet = ({ onClose = () => {}, isOpen = false }: Props) => {
               onClose();
               dispatch({ type: 'setTabActive', payload: 'ConnectScreen' });
               dispatch({ type: 'setShowWallet', payload: false });
-              if (!wallet.newWallet) {
-                initBackgroundFetch();
-                scheduleTask();
-              }
 
               navigation.dispatch(
                 CommonActions.reset({
