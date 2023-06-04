@@ -84,7 +84,7 @@ const TokenContent = ({ showSetting, activeSlide, setActiveSlide, setShowSetting
   }, []);
 
   const handleSetRefreshing = useCallback(async (val: boolean) => {
-    detectBalance('0xAA435e3a2D88153F02c01d7ec835d5d2bE07d000')
+    detectBalance(wallet.wallets[activeSlide].walletAddress)
       .then((result) => {
         let temp = {
           ...wallet.wallets[activeSlide],
