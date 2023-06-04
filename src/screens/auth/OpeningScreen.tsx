@@ -4,10 +4,16 @@ import { height, width } from '../../Helpers';
 import { View, Text, VStack } from 'native-base';
 import SignButton from './openingContent/SignInButton';
 import SignUpButton from './openingContent/SignUpButton';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const OpeningScreen = () => {
+  const insets = useSafeAreaInsets();
+
   return (
-    <ImageBackground source={require('../../../assets/background.png')} style={style.container}>
+    <ImageBackground
+      source={require('../../../assets/background.png')}
+      style={{ ...style.container, paddingTop: insets.top }}
+    >
       <Image style={style.img} source={require('../../../assets/arise.png')} />
       <View style={style.content}>
         <View>

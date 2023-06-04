@@ -8,12 +8,15 @@ import notif from '../../assets/icon/notif.png';
 import { ImageSourcePropType } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import SideMenuModal from './modal/SideMenuModal';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const CustomHeader = () => {
   const [showSideMenu, setShowSideMenu] = useState(false);
   const handleShowSideMemu = useCallback((val: boolean) => {
     setShowSideMenu(val);
   }, []);
+  const insets = useSafeAreaInsets();
+
   const renderView = (img: ImageSourcePropType, isPressed: boolean) => {
     return (
       <View
@@ -32,7 +35,7 @@ const CustomHeader = () => {
   };
 
   return (
-    <View alignItems={'center'} padding={5} bg={'white'} flexDirection={'row'}>
+    <View alignItems={'center'} paddingTop={insets.top} padding={5} bg={'white'} flexDirection={'row'}>
       <StatusBar barStyle="dark-content" backgroundColor={'white'} />
       <View style={style.right}>
         <Pressable

@@ -5,7 +5,7 @@
  * @format
  */
 
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { StatusBar, StyleSheet } from 'react-native';
 import { Buffer } from '@craftzdog/react-native-buffer';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -16,6 +16,7 @@ import Root from './navigations/Root';
 import { Colors } from './Colors';
 const Moralis = require('moralis').default;
 import 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 // @ts-ignore
 
@@ -36,9 +37,11 @@ function App(): JSX.Element {
       <Provider>
         <StatusBar backgroundColor={Colors.black} />
         <NativeBaseProvider>
-          <NavigationContainer>
-            <Root />
-          </NavigationContainer>
+          <SafeAreaProvider>
+            <NavigationContainer>
+              <Root />
+            </NavigationContainer>
+          </SafeAreaProvider>
         </NativeBaseProvider>
       </Provider>
     </GestureHandlerRootView>

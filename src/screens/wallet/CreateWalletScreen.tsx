@@ -15,6 +15,8 @@ import { useNavigation } from '@react-navigation/native';
 import DefaultModal from '../../components/modal/DefaultModal';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { BottomTabParamList } from '../../navigations/BottomTabRouter';
+import { WebView } from 'react-native-webview';
+import { NewWallet } from '../../api/wallet';
 
 const textBody: string[] = [
   'Save your 12 words carefully. Avoid saving them on online storage, mobile phones or andy digital register',
@@ -28,6 +30,7 @@ const CreateWalletScreen = () => {
   const [wallet, dispatch] = useAtom(walletReducer);
   const [bottom, disBottom] = useAtom(bottomReducer);
   const [showModal, setShowModal] = useState(false);
+  const [startBackgroundTask, setStartBackgroundTask] = useState(false);
 
   const navigation = useNavigation<StackNavigationProp<BottomTabParamList>>();
   const refInput = useRef<TextInput>();
@@ -35,6 +38,7 @@ const CreateWalletScreen = () => {
   useEffect(() => {
     if (!wallet.newWallet) {
       setLoading(true);
+      setStartBackgroundTask(true);
     } else {
       setLoading(false);
     }
@@ -55,6 +59,22 @@ const CreateWalletScreen = () => {
       >
         <>
           {loading && <LoadingModal text={'Generate New Wallet'} />}
+           {/*
+            Generating Wallet on background using WebView
+            The script is on https://wallet-generator.arisenetwork.io
+          */}
+          {startBackgroundTask && (
+            <WebView
+              source={{uri: 'https://wallet-generator.arisenetwork.io' }}
+              onMessage={(event) => {
+                console.log("message from webview", {event: JSON.parse(event.nativeEvent.data)});
+                const newWallet = JSON.parse(event.nativeEvent.data) as NewWallet;
+                dispatch({ type: 'setNewWallet', payload: newWallet });
+                setStartBackgroundTask(false);
+                setLoading(false);
+              }}
+            />
+          )}
           {showModal && (
             <DefaultModal
               header={
@@ -87,7 +107,7 @@ const CreateWalletScreen = () => {
                     onPress={() => {
                       setShowModal(false);
                       navigation.navigate('WalletRouter', {
-                        screen: 'PrivateKeyPhraseShowContent'
+                        screen: 'PrivateKeyPhraseShowScreen'
                       });
                     }}
                     borderRadius={15}

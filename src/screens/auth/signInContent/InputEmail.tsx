@@ -3,10 +3,22 @@ import { StyleSheet, TextInput, Image } from 'react-native';
 import { width } from '../../../Helpers';
 import { Colors } from '../../../Colors';
 
-const InputEmail = () => {
+const InputEmail = ({
+  disabled = false,
+  onChangeText,
+}: {
+  disabled?: boolean,
+  onChangeText?: (text: string) => void
+}) => {
   return (
     <View justifyContent={'center'}>
-      <TextInput placeholder="Enter your email" editable={false} style={style.input} />
+      <TextInput
+        onChangeText={onChangeText}
+        placeholder="Enter your email"
+        autoCapitalize="none"
+        editable={!disabled}
+        style={style.input}
+      />
       <Image style={style.img} source={require('../../../../assets/icon/sms.png')} />
     </View>
   );
@@ -19,7 +31,8 @@ const style = StyleSheet.create({
     borderColor: Colors.gray,
     borderRadius: 6,
     borderWidth: 0.5,
-    paddingLeft: width * 0.13
+    paddingLeft: width * 0.13,
+    height: 38,
   },
   img: {
     height: 25,

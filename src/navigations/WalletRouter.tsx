@@ -18,7 +18,7 @@ export type WalletParamList = {
   AllWalletScreen: { new: boolean } | undefined;
   CreateWalletScreen: undefined;
   ImportWalletScreen: undefined;
-  PrivateKeyPhraseShowContent: undefined;
+  PrivateKeyPhraseShowScreen: undefined;
   PrivateKeyPhraseInputScreen: undefined;
   DetailWalletScreen: { indexWallet: number };
 };
@@ -47,7 +47,7 @@ const wallets: wallet[] = [
     }
   },
   {
-    name: 'PrivateKeyPhraseShowContent',
+    name: 'PrivateKeyPhraseShowScreen',
     component: PrivateKeyPhraseShowScreen,
     options: {
       header: () => <DefaultHeader />

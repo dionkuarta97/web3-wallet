@@ -352,6 +352,8 @@ PODS:
     - ReactCommon/turbomodule/core
   - react-native-web-browser (1.1.0):
     - React-Core
+  - react-native-webview (12.2.0):
+    - React-Core
   - React-perflogger (0.71.7)
   - React-RCTActionSheet (0.71.7):
     - React-Core/RCTActionSheetHeaders (= 0.71.7)
@@ -506,6 +508,7 @@ DEPENDENCIES:
   - react-native-quick-crypto (from `../node_modules/react-native-quick-crypto`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-web-browser (from `../node_modules/@toruslabs/react-native-web-browser`)"
+  - react-native-webview (from `../node_modules/react-native-webview`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
   - React-RCTAnimation (from `../node_modules/react-native/Libraries/NativeAnimation`)
@@ -600,6 +603,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-web-browser:
     :path: "../node_modules/@toruslabs/react-native-web-browser"
+  react-native-webview:
+    :path: "../node_modules/react-native-webview"
   React-perflogger:
     :path: "../node_modules/react-native/ReactCommon/reactperflogger"
   React-RCTActionSheet:
@@ -683,6 +688,7 @@ SPEC CHECKSUMS:
   react-native-quick-crypto: 455c1b411db006dba1026a30681ececb19180187
   react-native-safe-area-context: f5549f36508b1b7497434baa0cd97d7e470920d4
   react-native-web-browser: 087b454e1e94b58b40ba73f54251d77486144d19
+  react-native-webview: 35e076d88994c63f4435de2058e4091d1c92415e
   React-perflogger: 2d505bbe298e3b7bacdd9e542b15535be07220f6
   React-RCTActionSheet: 0e96e4560bd733c9b37efbf68f5b1a47615892fb
   React-RCTAnimation: fd138e26f120371c87e406745a27535e2c8a04ef
