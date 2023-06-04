@@ -12,6 +12,7 @@ import { height } from '../../Helpers';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { WalletParamList } from '../../navigations/WalletRouter';
 import { ActivityIndicator } from 'react-native';
+import { Wallet } from '../../state/wallet/walletTypes';
 
 const AllWalletScreen = () => {
   const [bottom, setBottom] = useAtom(bottomReducer);
@@ -20,30 +21,36 @@ const AllWalletScreen = () => {
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation<StackNavigationProp<WalletParamList>>();
 
+  const removeIsNewFlagFromWallets = () => {
+    for (const key in wallet.wallets) {
+      if (wallet.wallets[key].isNew) {
+        let temp = wallet.wallets[key];
+        let tem = wallet.wallets.filter(
+          (val: Wallet) => val.walletAddress !== wallet.wallets[key].walletAddress
+        );
+        temp.isNew = false;
+        let payload = [temp, ...tem];
+        setWallet({ type: 'setWallets', payload: payload });
+        break;
+      }
+    }
+  }
+
+  const updateTotalIdrBalance = () => {
+    let idrBalance = 0;
+    for (const key in wallet.wallets) {
+      idrBalance += wallet.wallets[key].idrAsset;
+    }
+    setTotalBalance(idrBalance);
+  }
+
   useFocusEffect(
     useCallback(() => {
-      let temp = 0;
-
       setLoading(true);
-      for (const key in wallet.wallets) {
-        temp += wallet.wallets[key].idrAsset;
-      }
-      setTotalBalance(temp);
+      updateTotalIdrBalance();
       setLoading(false);
-      return () => {
-        for (const key in wallet.wallets) {
-          if (wallet.wallets[key].isNew) {
-            let temp = wallet.wallets[key];
-            let tem = wallet.wallets.filter(
-              (val) => val.walletAddress !== wallet.wallets[key].walletAddress
-            );
-            temp.isNew = false;
-            let payload = [temp, ...tem];
-            setWallet({ type: 'setWallets', payload: payload });
-            break;
-          }
-        }
-      };
+      // on unfocus remove isNew flag from wallets
+      return removeIsNewFlagFromWallets;
     }, [])
   );
 
@@ -100,7 +107,7 @@ const AllWalletScreen = () => {
             paddingBottom: height / 8
           }}
         >
-          {wallet.wallets.map((el, idx) => (
+          {wallet.wallets.map((el: Wallet, idx: number) => (
             <View
               width={'47%'}
               mt={4}

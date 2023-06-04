@@ -12,6 +12,8 @@ const DetailWalletScreen = () => {
   const [bottom, setBottom] = useAtom(bottomReducer);
   const [active, setActive] = useState('token');
   const [showSetting, setShowSetting] = useState(false);
+
+  // TODO: Can this be moved to TokenContent component?
   const [activeSlide, setActiveSlide] = useState(route.params.indexWallet);
   const handleChangeSlide = useCallback((param: any) => {
     setActiveSlide(param);
@@ -21,6 +23,7 @@ const DetailWalletScreen = () => {
     setActive(param);
   }, []);
 
+  // TODO: Can this be moved to TokenContent component?
   const handleShowSetting = useCallback((param: boolean) => {
     setShowSetting(param);
   }, []);
