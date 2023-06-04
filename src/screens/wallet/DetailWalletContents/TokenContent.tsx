@@ -1,5 +1,5 @@
 import { HStack, Text, View, useDisclose, useToast } from 'native-base';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Image,
   ImageBackground,
@@ -28,6 +28,7 @@ import ModalShow from './ModalShow';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { BottomTabParamList } from '../../../navigations/BottomTabRouter';
+import { detectBalance } from '../../../api/wallet';
 
 type Props = {
   activeSlide: number;
@@ -60,7 +61,7 @@ const TokenContent = ({ showSetting, activeSlide, setActiveSlide, setShowSetting
   }, []);
 
   const handleSetWallet = useCallback((param: string, val: boolean) => {
-    let temp = wallet.wallets.filter((val) => val.walletAddress !== param);
+    let temp = wallet.wallets.filter((val: Wallet) => val.walletAddress !== param);
     setWallet({ type: 'setWallets', payload: temp });
     setShowModalSuccessDisconnect(val);
   }, []);
@@ -189,12 +190,37 @@ const RenderItem = ({
   let wallet: Wallet = item.item;
   const [showModalDisconnect, setShowModalDisconnect] = useState(false);
   const itemWidth = Math.round(width * 0.85);
+  const [walletState, setWalletState] = useAtom(walletReducer);
 
   const handleModalShowDisconnect = useCallback((param: boolean) => {
     setShowModalDisconnect(param);
   }, []);
 
+  const refreshWalletBalances = async () => {
+    const result = await detectBalance(wallet.walletAddress);
+    const newWalletState = {
+      ...wallet,
+      networks: result.tempNetworks,
+      idrAsset: result.idrAsset,
+      isNew: true
+    }
+    setWalletState({
+      type: 'setWalletByAddress',
+      payload: newWalletState
+    });
+    wallet = newWalletState;
+  }
+
+  useEffect(() => {
+    // Only refresh wallet balances
+    // if the active slide is the current wallet
+    if (activeSlide === item.index) {
+      refreshWalletBalances();
+    }
+  }, [activeSlide])
+
   return (
+    // TODO: Can change this to Refresh Control? (Pull to refresh to update token balances)
     <View
       style={{
         borderRadius: 10,

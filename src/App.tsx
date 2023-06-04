@@ -9,7 +9,7 @@ import { useEffect } from 'react';
 import { StatusBar, StyleSheet } from 'react-native';
 import { Buffer } from '@craftzdog/react-native-buffer';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Provider } from 'jotai';
+import { Provider as JotaiProvider } from 'jotai';
 import { NativeBaseProvider } from 'native-base';
 import { NavigationContainer } from '@react-navigation/native';
 import Root from './navigations/Root';
@@ -17,11 +17,12 @@ import { Colors } from './Colors';
 const Moralis = require('moralis').default;
 import 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { MORALIS_API_KEY } from '@env';
 
 // @ts-ignore
 
 (global as any).window.Buffer = Buffer;
-const moralisApiKey = 'rseCOf5R9ZKFg1GBgfii3WNKGglHnl3g5lUticr3XVuN1A5SDRlWf0hPeNjWhtYW';
+const moralisApiKey = MORALIS_API_KEY;
 
 function App(): JSX.Element {
   const connectMoralis = async () => {
@@ -34,7 +35,7 @@ function App(): JSX.Element {
   }, []);
   return (
     <GestureHandlerRootView style={styles.main}>
-      <Provider>
+      <JotaiProvider>
         <StatusBar backgroundColor={Colors.black} />
         <NativeBaseProvider>
           <SafeAreaProvider>
@@ -43,7 +44,7 @@ function App(): JSX.Element {
             </NavigationContainer>
           </SafeAreaProvider>
         </NativeBaseProvider>
-      </Provider>
+      </JotaiProvider>
     </GestureHandlerRootView>
   );
 }
