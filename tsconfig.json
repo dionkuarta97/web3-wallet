@@ -3,6 +3,7 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "strict": true,
-    "strictNullChecks": false
+    "strictNullChecks": false,
+    "esModuleInterop": true
   },
 }

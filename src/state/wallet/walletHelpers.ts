@@ -1,5 +1,4 @@
-import { MMKV } from 'react-native-mmkv';
-const storage = new MMKV();
+import { storage } from '../storage';
 
 type Keys = 'newWallet' | 'wallets';
 

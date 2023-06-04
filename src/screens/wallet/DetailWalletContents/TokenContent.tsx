@@ -1,5 +1,5 @@
 import { HStack, Text, View, useDisclose, useToast } from 'native-base';
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   Image,
   ImageBackground,
