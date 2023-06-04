@@ -25,7 +25,7 @@ const TokenButton = ({ name, tes, icon }: Props) => {
           padding: 10,
           borderRadius: 10,
           justifyContent: 'center',
-          height: '70%'
+          height: '85%'
         }
       ]}
     >

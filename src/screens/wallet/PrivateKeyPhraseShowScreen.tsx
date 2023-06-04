@@ -21,7 +21,6 @@ const text: string[] = [
 
 const PrivateKeyPhraseShowScreen = () => {
   const [wallet] = useAtom(walletReducer);
-  const [bottom, disBottom] = useAtom(bottomReducer);
 
   const navigation = useNavigation<StackNavigationProp<BottomTabParamList>>();
 

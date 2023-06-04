@@ -8,7 +8,6 @@ import { walletReducer } from '../../state/wallet/walletReducer';
 import InputPhrase from './PrivateKeyPhraseInputContents/InputPhrase';
 import { useRef, useState } from 'react';
 import { Image, TextInput, TouchableWithoutFeedback } from 'react-native';
-import { bottomReducer } from '../../state/bottom/bottomReducer';
 import DefaultModal from '../../components/modal/DefaultModal';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -18,7 +17,6 @@ import { detectBalance } from '../../api/wallet';
 
 const PrivateKeyPhraseInputScreen = () => {
   const [wallet, disWallet] = useAtom(walletReducer);
-  const [bottom, disBottom] = useAtom(bottomReducer);
   const [showModal, setShowModal] = useState(false);
   const [phrase, setPhrase] = useState('');
   const navigation = useNavigation<StackNavigationProp<BottomTabParamList>>();
@@ -138,8 +136,9 @@ const PrivateKeyPhraseInputScreen = () => {
                     setError('Wrong Passphrase, try again !!');
                   } else {
                     if (
-                      wallet.wallets.filter((value) =>
-                        value.walletName.toLowerCase().includes(wallet.walletName.toLowerCase())
+                      wallet.wallets.filter(
+                        (value: { walletName: string }) =>
+                          value.walletName.toLowerCase() === wallet.walletName.toLowerCase()
                       ).length > 0
                     ) {
                       setError('you have a wallet with the same name / wallet cannot number');

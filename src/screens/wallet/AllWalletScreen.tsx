@@ -1,11 +1,10 @@
 import DefaultBody from '../../components/DefaultBody';
 import { useAtom } from 'jotai';
-import { bottomReducer } from '../../state/bottom/bottomReducer';
 import { Center, HStack, Text, View } from 'native-base';
 import { Colors } from '../../Colors';
 import { Image, ImageBackground, Pressable } from 'react-native';
 import { useCallback, useState } from 'react';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import { walletReducer } from '../../state/wallet/walletReducer';
 import { ScrollView } from 'react-native';
 import { height } from '../../Helpers';
@@ -15,11 +14,13 @@ import { ActivityIndicator } from 'react-native';
 import { Wallet } from '../../state/wallet/walletTypes';
 
 const AllWalletScreen = () => {
-  const [bottom, setBottom] = useAtom(bottomReducer);
   const [wallet, setWallet] = useAtom(walletReducer);
   const [totalBalance, setTotalBalance] = useState(0);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation<StackNavigationProp<WalletParamList>>();
+
+  // console.log(JSON.stringify(wallet.wallets, null, 2));
+  const isFocused = useIsFocused();
 
   const removeIsNewFlagFromWallets = () => {
     for (const key in wallet.wallets) {
@@ -34,7 +35,7 @@ const AllWalletScreen = () => {
         break;
       }
     }
-  }
+  };
 
   const updateTotalIdrBalance = () => {
     let idrBalance = 0;
@@ -42,16 +43,18 @@ const AllWalletScreen = () => {
       idrBalance += wallet.wallets[key].idrAsset;
     }
     setTotalBalance(idrBalance);
-  }
+  };
 
   useFocusEffect(
     useCallback(() => {
       setLoading(true);
       updateTotalIdrBalance();
       setLoading(false);
+      console.log('a');
+
       // on unfocus remove isNew flag from wallets
       return removeIsNewFlagFromWallets;
-    }, [])
+    }, [isFocused])
   );
 
   return (

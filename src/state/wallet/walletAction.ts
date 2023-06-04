@@ -5,7 +5,7 @@ type Action =
   | { type: 'setNewWallet'; payload: InitialWallet['newWallet'] }
   | { type: 'setWalletName'; payload: InitialWallet['walletName'] }
   | { type: 'setWallets'; payload: InitialWallet['wallets'] }
-  | { type: 'setWalletByAddress'; payload: Wallet }
+  | { type: 'setWalletByAddress'; payload: Wallet };
 
 export const walletAction = (prev: any, action: Action) => {
   let newVal: InitialWallet = prev;
@@ -17,24 +17,13 @@ export const walletAction = (prev: any, action: Action) => {
     newVal = { ...prev, walletName: action.payload };
     return newVal;
   } else if (action.type === 'setWallets') {
-    let sort = action.payload.sort((a, b) =>
-      b.createdAt.valueOf() > a.createdAt.valueOf() ? 1 : -1
-    );
     newVal = {
       ...prev,
-      wallets: sort
+      wallets: action.payload
     };
-    setStorageWallet('wallets', JSON.stringify(sort));
+    setStorageWallet('wallets', JSON.stringify(action.payload));
+    console.log(JSON.stringify(action.payload, null, 2), 'dasdasda');
+
     return newVal;
-  } else if (action.type === 'setWalletByAddress') {
-    const walletIndex = prev.wallets.findIndex((wallet: Wallet) => {
-      return wallet.walletAddress === action.payload.walletAddress;
-    });
-    if (walletIndex == -1) {
-      return newVal;
-    }
-    prev.wallets[walletIndex] = action.payload;
-    setStorageWallet('wallets', JSON.stringify(prev.wallets));
-    return { ...prev, wallets: prev.wallets };
   }
 };

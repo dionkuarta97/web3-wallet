@@ -7,9 +7,18 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootParamList } from '../../navigations/Root';
 import { authReducer } from '../../state/auth/authReducer';
+import { MORALIS_API_KEY } from '@env';
+const Moralis = require('moralis').default;
 
 const SplashScreen = () => {
   const [auth] = useAtom(authReducer);
+  const connectMoralis = async () => {
+    await Moralis.start({
+      apiKey: MORALIS_API_KEY
+    });
+  };
+
+  console.log(MORALIS_API_KEY);
 
   const navigation = useNavigation<StackNavigationProp<RootParamList>>();
 
@@ -33,6 +42,7 @@ const SplashScreen = () => {
   };
 
   useEffect(() => {
+    connectMoralis();
     init();
   }, []);
 

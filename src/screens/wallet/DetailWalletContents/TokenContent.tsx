@@ -5,11 +5,12 @@ import {
   ImageBackground,
   ImageSourcePropType,
   Pressable,
+  RefreshControl,
   ScrollView,
   TouchableOpacity
 } from 'react-native';
 import Carousel from 'react-native-snap-carousel';
-import { width } from '../../../Helpers';
+import { height, width } from '../../../Helpers';
 import { useAtom } from 'jotai';
 import { walletReducer } from '../../../state/wallet/walletReducer';
 import LinearGradient from 'react-native-linear-gradient';
@@ -29,6 +30,7 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { BottomTabParamList } from '../../../navigations/BottomTabRouter';
 import { detectBalance } from '../../../api/wallet';
+import LoadingModal from '../../../components/modal/LoadingModal';
 
 type Props = {
   activeSlide: number;
@@ -50,6 +52,10 @@ const TokenContent = ({ showSetting, activeSlide, setActiveSlide, setShowSetting
   const [showModalSuccessDisconnect, setShowModalSuccessDisconnect] = useState(false);
   const [modalShowPhrase, setModalShowPhrase] = useState(false);
   const [modalShowSecret, setModalShowSecret] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+  }, []);
   const phrase = useDisclose();
   const privatKey = useDisclose();
   const pressSwipe = useCallback(() => {
@@ -76,6 +82,39 @@ const TokenContent = ({ showSetting, activeSlide, setActiveSlide, setShowSetting
   const handleModalShowSecret = useCallback((param: boolean) => {
     setModalShowSecret(param);
   }, []);
+
+  const handleSetRefreshing = useCallback(async (val: boolean) => {
+    detectBalance('0xAA435e3a2D88153F02c01d7ec835d5d2bE07d000')
+      .then((result) => {
+        let temp = {
+          ...wallet.wallets[activeSlide],
+          networks: result.tempNetworks,
+          idrAsset: result.idrAsset
+        };
+        let tem = wallet.wallets;
+        tem.splice(activeSlide, 1, temp);
+        setWallet({
+          type: 'setWallets',
+          payload: tem
+        });
+      })
+
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        setRefreshing(val);
+      });
+    // setRefreshing(val);
+  }, []);
+
+  console.log(activeSlide);
+
+  useEffect(() => {
+    if (refreshing) {
+      handleSetRefreshing(false);
+    }
+  }, [refreshing]);
 
   const navigation = useNavigation<StackNavigationProp<BottomTabParamList>>();
 
@@ -142,6 +181,8 @@ const TokenContent = ({ showSetting, activeSlide, setActiveSlide, setShowSetting
         legacyImplementation={true}
         renderItem={(item) => (
           <RenderItem
+            onRefresh={onRefresh}
+            refreshing={refreshing}
             item={item}
             showSetting={showSetting}
             activeSlide={activeSlide}
@@ -173,6 +214,8 @@ type PropsRender = {
   setWallet: (param: string, val: boolean) => void;
   onOpenPhrase: () => void;
   onOpenPrivateKey: () => void;
+  onRefresh: () => void;
+  refreshing: boolean;
 };
 
 const RenderItem = ({
@@ -184,40 +227,19 @@ const RenderItem = ({
   setShowSetting,
   setWallet,
   onOpenPrivateKey,
-  onOpenPhrase
+  onOpenPhrase,
+  refreshing,
+  onRefresh
 }: PropsRender) => {
   const toast = useToast();
   let wallet: Wallet = item.item;
   const [showModalDisconnect, setShowModalDisconnect] = useState(false);
+
   const itemWidth = Math.round(width * 0.85);
-  const [walletState, setWalletState] = useAtom(walletReducer);
 
   const handleModalShowDisconnect = useCallback((param: boolean) => {
     setShowModalDisconnect(param);
   }, []);
-
-  const refreshWalletBalances = async () => {
-    const result = await detectBalance(wallet.walletAddress);
-    const newWalletState = {
-      ...wallet,
-      networks: result.tempNetworks,
-      idrAsset: result.idrAsset,
-      isNew: true
-    }
-    setWalletState({
-      type: 'setWalletByAddress',
-      payload: newWalletState
-    });
-    wallet = newWalletState;
-  }
-
-  useEffect(() => {
-    // Only refresh wallet balances
-    // if the active slide is the current wallet
-    if (activeSlide === item.index) {
-      refreshWalletBalances();
-    }
-  }, [activeSlide])
 
   return (
     // TODO: Can change this to Refresh Control? (Pull to refresh to update token balances)
@@ -225,9 +247,11 @@ const RenderItem = ({
       style={{
         borderRadius: 10,
         borderWidth: 0.4,
-        flex: 0.85
+        flex: 0.85,
+        height: height / 1.65
       }}
     >
+      {refreshing && <LoadingModal />}
       {showSetting && activeSlide === item.index && (
         <WalletSetting
           onOpenPrivateKey={() => {
@@ -364,9 +388,9 @@ const RenderItem = ({
       >
         {swipe && activeSlide === item.index ? (
           <ScrollView
-            onStartShouldSetResponder={() => true}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             style={{
-              paddingHorizontal: 16
+              paddingHorizontal: 1
             }}
           >
             {wallet.networks.map(
@@ -486,7 +510,7 @@ const RenderItem = ({
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
-          flex: 0.3
+          flex: 0.2
         }}
       >
         {buttons.map((el) => (

@@ -28,7 +28,6 @@ const textBody: string[] = [
 const CreateWalletScreen = () => {
   const [loading, setLoading] = useState(true);
   const [wallet, dispatch] = useAtom(walletReducer);
-  const [bottom, disBottom] = useAtom(bottomReducer);
   const [showModal, setShowModal] = useState(false);
   const [startBackgroundTask, setStartBackgroundTask] = useState(false);
 
@@ -59,15 +58,15 @@ const CreateWalletScreen = () => {
       >
         <>
           {loading && <LoadingModal text={'Generate New Wallet'} />}
-           {/*
+          {/*
             Generating Wallet on background using WebView
             The script is on https://wallet-generator.arisenetwork.io
           */}
           {startBackgroundTask && (
             <WebView
-              source={{uri: 'https://wallet-generator.arisenetwork.io' }}
+              source={{ uri: 'https://wallet-generator.arisenetwork.io' }}
               onMessage={(event) => {
-                console.log("message from webview", {event: JSON.parse(event.nativeEvent.data)});
+                console.log('message from webview', { event: JSON.parse(event.nativeEvent.data) });
                 const newWallet = JSON.parse(event.nativeEvent.data) as NewWallet;
                 dispatch({ type: 'setNewWallet', payload: newWallet });
                 setStartBackgroundTask(false);

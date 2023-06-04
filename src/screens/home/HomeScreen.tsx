@@ -1,6 +1,4 @@
 import DefaultBody from '../../components/DefaultBody';
-import { useAtom } from 'jotai';
-import { bottomReducer } from '../../state/bottom/bottomReducer';
 import HomeCarousel from './homeContent/HomeCarousel';
 import { FlatGrid } from 'react-native-super-grid';
 import { apps, services } from './homeContent/data';
@@ -9,16 +7,8 @@ import { HStack, Text } from 'native-base';
 import { Colors } from '../../Colors';
 import { ScrollView } from 'react-native';
 import AppPress from './homeContent/AppPress';
-import { useEffect } from 'react';
-import { walletReducer } from '../../state/wallet/walletReducer';
-import { MMKV } from 'react-native-mmkv';
-const storage = new MMKV();
 
 const HomeScreen = () => {
-  const [bottom, dispatch] = useAtom(bottomReducer);
-  const [wallet, setWallet] = useAtom(walletReducer);
-  console.log(storage.getAllKeys());
-
   return (
     <DefaultBody>
       <ScrollView showsVerticalScrollIndicator={false}>

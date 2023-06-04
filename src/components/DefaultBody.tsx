@@ -21,22 +21,10 @@ const DefaultBody = ({
     <View paddingX={p} bg={'white'} flex={1}>
       {animasi ? (
         <FadeInView>
-          <TouchableWithoutFeedback
-            onPress={() => {
-              tapBackdor();
-            }}
-          >
-            <View flex={1}>{children}</View>
-          </TouchableWithoutFeedback>
+          <View flex={1}>{children}</View>
         </FadeInView>
       ) : (
-        <TouchableWithoutFeedback
-          onPress={() => {
-            tapBackdor();
-          }}
-        >
-          <View flex={1}>{children}</View>
-        </TouchableWithoutFeedback>
+        <View flex={1}>{children}</View>
       )}
     </View>
   );
