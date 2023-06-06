@@ -10,6 +10,8 @@ import { BottomTabParamList } from '../../navigations/BottomTabRouter';
 import { helps, securitys, transactions, wallets } from '../../data/SideMenuData';
 import { useAtom } from 'jotai';
 import { authReducer } from '../../state/auth/authReducer';
+import { walletReducer } from '../../state/wallet/walletReducer';
+import { Wallet } from '../../state/wallet/walletTypes';
 
 type Props = {
   // header: ReactNode;
@@ -21,6 +23,7 @@ type Props = {
 
 const SideMenuModal = ({ tapHandler, show }: Props) => {
   const [, dispatch] = useAtom(authReducer);
+  const [wallet, setWallet] = useAtom(walletReducer);
   const navigation = useNavigation<StackNavigationProp<RootParamList>>();
   return (
     <Modal
@@ -176,7 +179,14 @@ const SideMenuModal = ({ tapHandler, show }: Props) => {
         <TouchableOpacity
           onPress={() => {
             tapHandler();
+            let temp = wallet.wallets.filter(
+              (val: Wallet) => val.walletAddress !== wallet.ariseWallet?.walletAddress
+            );
+            setWallet({ type: 'setWallets', payload: temp });
+            dispatch({ type: 'setUserInfo', payload: null });
             dispatch({ type: 'setIsLogin', payload: false });
+            setWallet({ type: 'setAriseWallet', payload: null });
+
             navigation.replace('AuthRouter', { screen: 'OpeningScreen' });
           }}
         >

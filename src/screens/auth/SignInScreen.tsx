@@ -1,8 +1,16 @@
-import { GestureResponderEvent, ImageSourcePropType, SafeAreaView, StyleSheet } from 'react-native';
+import {
+  GestureResponderEvent,
+  ImageSourcePropType,
+  Keyboard,
+  SafeAreaView,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  Alert
+} from 'react-native';
 import HeaderSignIn from './signInContent/HeaderSignIn';
 import InputEmail from './signInContent/InputEmail';
 import { height, width } from '../../Helpers';
-import { Button, Center, HStack, Text, View } from 'native-base';
+import { Button, Center, HStack, ScrollView, Text, View } from 'native-base';
 import { Colors } from '../../Colors';
 import InputPassword from './signInContent/InputPassword';
 import facebook from '../../../assets/icon/facebook.png';
@@ -14,10 +22,10 @@ import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { AuthParamList } from '../../navigations/AuthRouter';
 import { authReducer } from '../../state/auth/authReducer';
-import { Alert } from 'react-native';
 import { useState } from 'react';
+import LoadingModal from '../../components/modal/LoadingModal';
 
-const socials: { image: ImageSourcePropType; handle: () => Promise<any> }[] = [
+export const socials: { image: ImageSourcePropType; handle: () => Promise<any> }[] = [
   {
     image: facebook,
     handle: () => {
@@ -52,30 +60,44 @@ const SignInScreen = () => {
   const [auth, dispatch] = useAtom(authReducer);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation<StackNavigationProp<AuthParamList>>();
 
   const handleEmailPasswordLogin = async (event: GestureResponderEvent) => {
     // TODO: Add email & password validation
-    const userInfo: any = await loginEmailPassword(email, password);
-    console.log({ userInfo });
-    if (auth?.userInfo?.pin) {
-      dispatch({ type: 'setUserInfo', payload: { ...userInfo, pin: auth.userInfo.pin } });
-      navigation.navigate('InputPinScreen');
-    } else {
-      dispatch({ type: 'setUserInfo', payload: { ...userInfo, pin: null } });
-      navigation.navigate('SetupPinScreen');
+    try {
+      setLoading(true);
+      const userInfo: any = await loginEmailPassword(email, password);
+      console.log({ userInfo });
+      if (auth?.userInfo?.pin) {
+        setLoading(false);
+        dispatch({ type: 'setUserInfo', payload: { ...userInfo, pin: auth.userInfo.pin } });
+        navigation.navigate('InputPinScreen');
+      } else {
+        setLoading(false);
+        dispatch({ type: 'setUserInfo', payload: { ...userInfo, pin: null } });
+        navigation.navigate('SetupPinScreen');
+      }
+    } catch (error) {
+      Alert.alert('error', 'error login');
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <View style={style.container}>
+    <ScrollView keyboardShouldPersistTaps={'never'} style={style.container}>
+      {loading && <LoadingModal />}
       <View flex={1}>
         <HeaderSignIn />
         <View style={style.input}>
           <Text marginBottom={2} color={Colors.green}>
             Email Address
           </Text>
-          <InputEmail onChangeText={(text) => setEmail(text)} />
+          <InputEmail
+            onChange={(val) => {
+              setEmail(val);
+            }}
+          />
           <Text marginBottom={2} mt={5} color={Colors.green}>
             Password
           </Text>
@@ -150,6 +172,9 @@ const SignInScreen = () => {
       >
         <Text color={Colors.grayText}>Don’t have an account? Please</Text>
         <Button
+          onPress={() => {
+            navigation.navigate('SignUpScreen');
+          }}
           colorScheme={'gray'}
           padding={1}
           variant={'link'}
@@ -163,7 +188,7 @@ const SignInScreen = () => {
           Register
         </Button>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 

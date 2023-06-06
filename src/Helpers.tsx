@@ -44,3 +44,43 @@ export const scheduleTask = () => {
     .then(() => {})
     .catch((error) => {});
 };
+
+export const formatEmail = (email: string | null) => {
+  const emailReg = new RegExp(
+    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.){1,2}[a-zA-Z]{2,}))$/
+  );
+
+  if (email !== null) {
+    if (emailReg.test(email)) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+};
+
+export function passwordValidations(text: string | null) {
+  let validasi: { valid: boolean; error: string[] } = {
+    valid: true,
+    error: []
+  };
+  if (text !== null) {
+    if (text.length < 8) {
+      validasi.valid = false;
+      validasi.error.push('minimum 8 letters');
+    }
+    if (!text.match(new RegExp('[A-Z]'))) {
+      validasi.valid = false;
+      validasi.error.push('must be capitalized');
+    }
+    if (!text.match(new RegExp('[a-z]'))) {
+      validasi.valid = false;
+      validasi.error.push('must contain lowercase letters');
+    }
+    if (text.search(/[0-9]/) < 0) {
+      validasi.valid = false;
+      validasi.error.push('there must be a number');
+    }
+  }
+  return validasi;
+}

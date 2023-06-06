@@ -60,18 +60,9 @@ const ChatScreen = () => {
 };
 
 const MeScreen = () => {
-  const [, dispatch] = useAtom(authReducer);
-  const navigation = useNavigation<StackNavigationProp<RootParamList>>();
   return (
     <Center flex={1} justifyContent={'center'} alignItems={'center'}>
-      <Button
-        onPress={() => {
-          dispatch({ type: 'setIsLogin', payload: false });
-          navigation.replace('AuthRouter', { screen: 'OpeningScreen' });
-        }}
-      >
-        Log out
-      </Button>
+      <Text>Me screen</Text>
     </Center>
   );
 };

@@ -15,7 +15,6 @@ const DefaultModal = ({ header, body, footer }: Props) => {
     <Modal transparent={true} animationType="fade">
       <View style={styles.container}>
         <View style={styles.dimBackground} />
-
         <View style={styles.header}>{header}</View>
         <ScrollView showsVerticalScrollIndicator={false} style={styles.body}>
           {body}

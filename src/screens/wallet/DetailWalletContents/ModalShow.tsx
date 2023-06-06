@@ -25,45 +25,62 @@ const ModalShow = ({ onClose, title, desc, secret }: Props) => {
             <Text textAlign={'center'} color={Colors.green} fontWeight={'semibold'} fontSize={20}>
               {title}
             </Text>
-            <Text fontSize={13} color={'red.400'} textAlign={'center'} margin={width / 20}>
-              {desc}
-            </Text>
+            {secret !== 'arise' && (
+              <Text fontSize={13} color={'red.400'} textAlign={'center'} margin={width / 20}>
+                {desc}
+              </Text>
+            )}
           </Center>
-          <HStack
-            borderRadius={8}
-            mb={width / 30}
-            borderWidth={0.8}
-            paddingY={6}
-            paddingX={3}
-            space={2}
-            alignItems={'center'}
-          >
-            <View width={'90%'}>
-              <Text textAlign={'center'}>{secret}</Text>
-            </View>
-            <View width={'10%'}>
-              <TouchableOpacity
-                style={{
-                  padding: 3
-                }}
-                onPress={() => {
-                  Clipboard.setString(secret);
-                  toast.show({
-                    description: 'copy to clipboard'
-                  });
-                }}
+          {secret === 'arise' ? (
+            <View>
+              <Text
+                fontSize={13}
+                fontWeight={'semibold'}
+                color={Colors.green}
+                textAlign={'center'}
+                mb={width / 20}
               >
-                <Image
-                  source={require('../../../../assets/icon/copyBlack.png')}
-                  style={{
-                    resizeMode: 'contain',
-                    height: 20,
-                    width: 20
-                  }}
-                />
-              </TouchableOpacity>
+                This wallet is connected to web3auth, you can see the passphrase in your recovery
+                email
+              </Text>
             </View>
-          </HStack>
+          ) : (
+            <HStack
+              borderRadius={8}
+              mb={width / 30}
+              borderWidth={0.8}
+              paddingY={6}
+              paddingX={3}
+              space={2}
+              alignItems={'center'}
+            >
+              <View width={'90%'}>
+                <Text textAlign={'center'}>{secret}</Text>
+              </View>
+              <View width={'10%'}>
+                <TouchableOpacity
+                  style={{
+                    padding: 3
+                  }}
+                  onPress={() => {
+                    Clipboard.setString(secret);
+                    toast.show({
+                      description: 'copy to clipboard'
+                    });
+                  }}
+                >
+                  <Image
+                    source={require('../../../../assets/icon/copyBlack.png')}
+                    style={{
+                      resizeMode: 'contain',
+                      height: 20,
+                      width: 20
+                    }}
+                  />
+                </TouchableOpacity>
+              </View>
+            </HStack>
+          )}
           <Pressable
             onPress={() => {
               onClose();

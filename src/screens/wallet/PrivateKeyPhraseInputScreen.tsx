@@ -147,25 +147,22 @@ const PrivateKeyPhraseInputScreen = () => {
                       detectBalance(wallet.newWallet?.address, true)
                         .then((data: any) => {
                           setError('');
-                          let payload = [
-                            {
-                              walletName: wallet.walletName,
-                              walletAddress: wallet.newWallet?.address,
-                              walletPhrase: wallet.newWallet?.mnemonic,
-                              walletPrivateKey: wallet.newWallet?.privateKey,
-                              idrAsset: data.idrAsset,
-                              networks: data.tempNetworks,
-                              isNew: true,
-                              createdAt: Date.now()
-                            },
-                            ...wallet.wallets
-                          ];
+                          let payload = {
+                            walletName: wallet.walletName,
+                            walletAddress: wallet.newWallet?.address,
+                            walletPhrase: wallet.newWallet?.mnemonic,
+                            walletPrivateKey: wallet.newWallet?.privateKey,
+                            idrAsset: data.idrAsset,
+                            networks: data.tempNetworks,
+                            isNew: true,
+                            createdAt: Date.now()
+                          };
 
                           return payload;
                         })
                         .then((payload) => {
                           disWallet({
-                            type: 'setWallets',
+                            type: 'addWallet',
                             payload: payload
                           });
                           disWallet({ type: 'setNewWallet', payload: null });

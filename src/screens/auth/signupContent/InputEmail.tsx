@@ -27,8 +27,6 @@ const InputEmail = ({ onChange, isDisable = false, validate = true }: Props) => 
 
   useEffect(() => {
     if (email !== null) {
-      console.log(email);
-
       if (formatEmail(email)) {
         setShowError(false);
       } else {

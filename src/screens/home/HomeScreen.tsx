@@ -7,11 +7,66 @@ import { HStack, Text } from 'native-base';
 import { Colors } from '../../Colors';
 import { ScrollView } from 'react-native';
 import AppPress from './homeContent/AppPress';
+import { useCallback, useEffect, useState } from 'react';
+import { useAtom } from 'jotai';
+import { walletReducer } from '../../state/wallet/walletReducer';
+import { initBackgroundFetch, scheduleTask } from '../../Helpers';
+import { createWallet, detectBalance } from '../../api/wallet';
+import { authReducer } from '../../state/auth/authReducer';
+import LoadingModal from '../../components/modal/LoadingModal';
 
 const HomeScreen = () => {
+  const [wallet, setWallet] = useAtom(walletReducer);
+  const [auth, setAuth] = useAtom(authReducer);
+  const [loading, setLoading] = useState(false);
+  const makeDefaultWallet = useCallback(() => {
+    if (!wallet.ariseWallet) {
+      setLoading(true);
+      scheduleTask();
+      initBackgroundFetch(() => {
+        createWallet('', auth.userInfo.privKey)
+          .then(async (val) => {
+            const result = await detectBalance(val.address);
+            setWallet({
+              type: 'setAriseWallet',
+              payload: {
+                walletAddress: val.address,
+                walletName: 'Arise Wallet',
+                walletPhrase: val.mnemonic,
+                walletPrivateKey: val.privateKey,
+                createdAt: Date.now(),
+                networks: result.tempNetworks,
+                idrAsset: result.idrAsset,
+                isNew: false
+              }
+            });
+            setWallet({
+              type: 'addWallet',
+              payload: {
+                walletAddress: val.address,
+                walletName: 'Arise Wallet',
+                walletPhrase: val.mnemonic,
+                walletPrivateKey: val.privateKey,
+                createdAt: Date.now(),
+                networks: result.tempNetworks,
+                idrAsset: result.idrAsset,
+                isNew: true
+              }
+            });
+          })
+          .finally(() => {
+            setLoading(false);
+          });
+      });
+    }
+  }, []);
+  useEffect(() => {
+    makeDefaultWallet();
+  }, []);
   return (
     <DefaultBody>
       <ScrollView showsVerticalScrollIndicator={false}>
+        {loading && <LoadingModal />}
         <HomeCarousel />
         <Text mt={5} color={Colors.green} fontSize={18} fontWeight={'semibold'}>
           Services

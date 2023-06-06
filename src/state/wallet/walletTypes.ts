@@ -35,4 +35,5 @@ export type InitialWallet = {
   newWallet: NewWallet | null;
   walletName: string;
   wallets: Wallet[];
+  ariseWallet: Wallet | null;
 };

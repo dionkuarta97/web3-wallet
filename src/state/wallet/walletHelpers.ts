@@ -1,6 +1,6 @@
 import { storage } from '../storage';
 
-type Keys = 'newWallet' | 'wallets';
+type Keys = 'newWallet' | 'wallets' | 'ariseWallet';
 
 export const checkStorageWallet = (key: Keys, val: any, type: 'string') => {
   let temp: any = null;

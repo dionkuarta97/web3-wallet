@@ -10,7 +10,8 @@ let temp: InitialWallet['wallets'] = checkStorageWallet('wallets', [], 'string')
 const initialWallet: InitialWallet = {
   newWallet: checkStorageWallet('newWallet', null, 'string'),
   walletName: '',
-  wallets: temp.sort((a, b) => (b.createdAt.valueOf() > a.createdAt.valueOf() ? 1 : -1))
+  wallets: temp.sort((a, b) => (b.createdAt.valueOf() > a.createdAt.valueOf() ? 1 : -1)),
+  ariseWallet: checkStorageWallet('ariseWallet', null, 'string')
 };
 
 export const walletReducer = atomWithReducer(initialWallet, walletAction);

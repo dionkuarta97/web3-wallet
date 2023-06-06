@@ -13,37 +13,54 @@ export type NewWallet = {
   address: string;
 };
 
-export const createWallet = (phrase = '') => {
+export const createWallet = (phrase = '', private_key = '') => {
   return new Promise<NewWallet>(async (resolved, rejected) => {
     try {
-      const entropy = ethers.utils.randomBytes(16);
-      let mnemonic = phrase;
-      if (mnemonic === '') {
-        mnemonic = ethers.utils.entropyToMnemonic(entropy);
+      if (private_key === '') {
+        const entropy = ethers.utils.randomBytes(16);
+        let mnemonic = phrase;
+        if (mnemonic === '') {
+          mnemonic = ethers.utils.entropyToMnemonic(entropy);
+        }
+        const hdkey = HDKey.fromMasterSeed(bip39.mnemonicToSeedSync(mnemonic));
+        const derivedNode = hdkey.derive(ethers.utils.defaultPath);
+
+        const privateKey = ethers.utils.hexlify(derivedNode.privateKey);
+
+        let wallet = [];
+
+        for (const key in networks) {
+          let temp = null;
+          const ethersProvider = ethers.getDefaultProvider(networks[key].rpcUrl);
+          temp = new ethers.Wallet(privateKey, ethersProvider);
+          wallet.push(temp);
+          temp = null;
+        }
+
+        let result: NewWallet = {
+          mnemonic,
+          privateKey,
+          address: wallet[0].address
+        };
+        resolved(result);
+      } else {
+        let wallet = [];
+
+        for (const key in networks) {
+          let temp = null;
+          const ethersProvider = ethers.getDefaultProvider(networks[key].rpcUrl);
+          temp = new ethers.Wallet(private_key, ethersProvider);
+          wallet.push(temp);
+          temp = null;
+        }
+
+        let result: NewWallet = {
+          mnemonic: 'arise',
+          privateKey: private_key,
+          address: wallet[0].address
+        };
+        resolved(result);
       }
-
-      const hdkey = HDKey.fromMasterSeed(bip39.mnemonicToSeedSync(mnemonic));
-
-      const derivedNode = hdkey.derive(ethers.utils.defaultPath);
-
-      const privateKey = ethers.utils.hexlify(derivedNode.privateKey);
-
-      let wallet = [];
-
-      for (const key in networks) {
-        let temp = null;
-        const ethersProvider = ethers.getDefaultProvider(networks[key].rpcUrl);
-        temp = new ethers.Wallet(privateKey, ethersProvider);
-        wallet.push(temp);
-        temp = null;
-      }
-
-      let result: NewWallet = {
-        mnemonic,
-        privateKey,
-        address: wallet[0].address
-      };
-      resolved(result);
     } catch (error) {
       console.log(error);
       rejected(error);
