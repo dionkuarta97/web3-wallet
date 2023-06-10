@@ -27,36 +27,24 @@ const SignUpContent = () => {
   const [loading, setLoading] = useState(false);
   const [auth, dispatch] = useAtom(authReducer);
 
-  const handleEmailPasswordRegister = useCallback(async () => {
+  const handleEmailPasswordRegister = () => {
     // TODO: Add email & password validation
-    try {
-      setLoading(true);
-      const userInfo: any = await registerEmailPassword(email, password);
-      console.log({ userInfo });
-      if (auth?.userInfo?.pin) {
-        setLoading(false);
-        dispatch({ type: 'setUserInfo', payload: { ...userInfo, pin: auth.userInfo.pin } });
-        navigation.navigate('InputPinScreen');
-      } else {
-        setLoading(false);
-        dispatch({ type: 'setUserInfo', payload: { ...userInfo, pin: null } });
-        navigation.navigate('SetupPinScreen');
-      }
-    } catch (error) {
-      Alert.alert('error', 'error register');
-      setLoading(false);
-    }
-  }, []);
+    setLoading(true);
+    console.log(email, 'email');
 
-  const handleChangeEmail = useCallback((val: string) => {
-    setEmail(val);
-  }, []);
-  const handleChangePassword = useCallback((val: string) => {
-    setPassword(val);
-  }, []);
-  const handleChangeRePassword = useCallback((val: string) => {
-    setRePassword(val);
-  }, []);
+    registerEmailPassword(email, password)
+      .then(() => {
+        navigation.navigate('EmailVerificationScreen', { email: email });
+      })
+      .catch((err) => {
+        Alert.alert('error', err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  console.log(email);
 
   const navigation = useNavigation<StackNavigationProp<AuthParamList>>();
 
@@ -68,7 +56,8 @@ const SignUpContent = () => {
       </Text>
       <InputEmail
         onChange={(val) => {
-          handleChangeEmail(val);
+          console.log(val);
+          setEmail(val);
         }}
         isDisable={isChecked}
       />
@@ -78,7 +67,7 @@ const SignUpContent = () => {
       <InputPassword
         isDisable={isChecked}
         onChangeText={(val) => {
-          handleChangePassword(val);
+          setPassword(val);
         }}
       />
       <Text color={Colors.green} marginBottom={1}>
@@ -88,7 +77,7 @@ const SignUpContent = () => {
         isDisable={isChecked}
         pass={password}
         onChangeText={(val) => {
-          handleChangeRePassword(val);
+          setRePassword(val);
         }}
       />
       <Pressable

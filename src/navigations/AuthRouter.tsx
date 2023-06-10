@@ -12,6 +12,7 @@ import SetupPinScreen from '../screens/auth/SetupPinScreen';
 import ReenterPinScreen from '../screens/auth/ReenterPinScreen';
 import InputPinScreen from '../screens/auth/InputPinScreen';
 import SignUpScreen from '../screens/auth/SignUpScreen';
+import EmailVerificationScreen from '../screens/auth/EmailVerificationScreen';
 
 export type AuthParamList = {
   OpeningScreen: undefined;
@@ -20,6 +21,7 @@ export type AuthParamList = {
   ReenterPinScreen: undefined;
   InputPinScreen: undefined;
   SignUpScreen: undefined;
+  EmailVerificationScreen: { email: string };
 };
 
 const AuthStack = createStackNavigator<AuthParamList>();
@@ -73,6 +75,13 @@ const auths: auth[] = [
     component: SignUpScreen,
     options: {
       header: () => <DefaultHeader />
+    }
+  },
+  {
+    name: 'EmailVerificationScreen',
+    component: EmailVerificationScreen,
+    options: {
+      header: () => <DefaultHeader type="dark" />
     }
   }
 ];

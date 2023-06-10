@@ -15,7 +15,6 @@ const InputEmail = ({ onChange, isDisable = false, validate = true }: Props) => 
 
   const handleEmail = useCallback((val: string) => {
     setEmail(val);
-    onChange(val);
   }, []);
 
   const handleSetFocus = useCallback((val: boolean) => {
@@ -50,7 +49,10 @@ const InputEmail = ({ onChange, isDisable = false, validate = true }: Props) => 
           onBlur={() => handleSetFocus(false)}
           inputMode="email"
           autoComplete="email"
-          onChangeText={(val) => handleEmail(val)}
+          onChangeText={(val) => {
+            handleEmail(val);
+            onChange(val);
+          }}
           autoCapitalize="none"
           placeholder="Enter your email"
           style={{

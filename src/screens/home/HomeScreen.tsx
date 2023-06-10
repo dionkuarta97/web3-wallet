@@ -3,14 +3,14 @@ import HomeCarousel from './homeContent/HomeCarousel';
 import { FlatGrid } from 'react-native-super-grid';
 import { apps, services } from './homeContent/data';
 import ServicePress from './homeContent/ServicePress';
-import { HStack, Text } from 'native-base';
+import { HStack, Text, View } from 'native-base';
 import { Colors } from '../../Colors';
-import { ScrollView } from 'react-native';
+import { ImageBackground, ScrollView } from 'react-native';
 import AppPress from './homeContent/AppPress';
 import { useCallback, useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { walletReducer } from '../../state/wallet/walletReducer';
-import { initBackgroundFetch, scheduleTask } from '../../Helpers';
+import { height, initBackgroundFetch, scheduleTask, width } from '../../Helpers';
 import { createWallet, detectBalance } from '../../api/wallet';
 import { authReducer } from '../../state/auth/authReducer';
 import LoadingModal from '../../components/modal/LoadingModal';
@@ -91,27 +91,32 @@ const HomeScreen = () => {
           <Text color={Colors.green} fontSize={18} fontWeight={'semibold'}>
             D’apps
           </Text>
-          <Text color={Colors.green} fontSize={14} marginLeft={'auto'}>
-            Browse D’apps
+          <Text color={Colors.grayText} marginLeft={'auto'}>
+            See All
           </Text>
         </HStack>
-        <FlatGrid
-          data={apps}
-          itemContainerStyle={{
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 5
-          }}
-          maxItemsPerRow={4}
-          spacing={8}
-          scrollEnabled={false}
-          style={{
-            flexGrow: 0,
-            marginBottom: 100
-          }}
-          itemDimension={10}
-          renderItem={({ item }) => <AppPress logo={item.logo} />}
-        />
+        <View alignItems={'center'}>
+          <ImageBackground
+            resizeMode="cover"
+            source={require('../../../assets/dapp-not-found.png')}
+            style={{
+              width: width,
+              height: height / 2.8,
+              justifyContent: 'flex-end',
+              alignItems: 'center'
+            }}
+          >
+            <Text
+              fontWeight={'bold'}
+              fontSize={17}
+              style={{
+                marginBottom: height / 10
+              }}
+            >
+              No D’apps, Please Search
+            </Text>
+          </ImageBackground>
+        </View>
       </ScrollView>
     </DefaultBody>
   );

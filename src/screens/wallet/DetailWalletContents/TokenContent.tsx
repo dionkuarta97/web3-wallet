@@ -55,6 +55,26 @@ const TokenContent = ({ showSetting, activeSlide, setActiveSlide, setShowSetting
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = useCallback(() => {
     setRefreshing(true);
+    detectBalance(wallet.wallets[activeSlide].walletAddress)
+      .then((result) => {
+        let temp = {
+          ...wallet.wallets[activeSlide],
+          networks: result.tempNetworks,
+          idrAsset: result.idrAsset
+        };
+        let tem = wallet.wallets;
+        tem.splice(activeSlide, 1, temp);
+        setWallet({
+          type: 'setWallets',
+          payload: tem
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => {
+        setRefreshing(false);
+      });
   }, []);
   const phrase = useDisclose();
   const privatKey = useDisclose();
@@ -82,39 +102,6 @@ const TokenContent = ({ showSetting, activeSlide, setActiveSlide, setShowSetting
   const handleModalShowSecret = useCallback((param: boolean) => {
     setModalShowSecret(param);
   }, []);
-
-  const handleSetRefreshing = useCallback(async (val: boolean) => {
-    detectBalance(wallet.wallets[activeSlide].walletAddress)
-      .then((result) => {
-        let temp = {
-          ...wallet.wallets[activeSlide],
-          networks: result.tempNetworks,
-          idrAsset: result.idrAsset
-        };
-        let tem = wallet.wallets;
-        tem.splice(activeSlide, 1, temp);
-        setWallet({
-          type: 'setWallets',
-          payload: tem
-        });
-      })
-
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => {
-        setRefreshing(val);
-      });
-    // setRefreshing(val);
-  }, []);
-
-  console.log(activeSlide);
-
-  useEffect(() => {
-    if (refreshing) {
-      handleSetRefreshing(false);
-    }
-  }, [refreshing]);
 
   const navigation = useNavigation<StackNavigationProp<BottomTabParamList>>();
 

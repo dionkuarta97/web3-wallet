@@ -84,17 +84,37 @@ export const loginEmailPassword = async (email: string, password: string) => {
   return web3AuthResponse;
 };
 
-export const registerEmailPassword = async (email: string, password: string) => {
-  const backendResponse = await axios.post(`${ARISE_BACKEND_BASE_URL}/auth/register`, {
-    email,
-    password
+export const registerEmailPassword = (email: string, password: string) => {
+  return new Promise(async (resolved, rejected) => {
+    try {
+      const { data } = await axios.post(`${ARISE_BACKEND_BASE_URL}/auth/register`, {
+        email,
+        password
+      });
+      resolved('success');
+    } catch (error: any) {
+      if (error.response.data?.message) {
+        rejected(error.response.data.message);
+      } else {
+        rejected('internal server error');
+      }
+    }
   });
+};
 
-  const { token } = backendResponse.data;
-  const web3AuthResponse = await registerJwt(token);
-
-  console.log({ web3AuthResponse });
-  return web3AuthResponse;
+export const resendEmailVerification = async (email: string) => {
+  try {
+    const { data } = await axios({
+      url: ARISE_BACKEND_BASE_URL + '/auth/resend-email-verification',
+      method: 'GET',
+      params: {
+        email
+      }
+    });
+    return data;
+  } catch (error) {
+    throw 'internal server error';
+  }
 };
 
 export const loginJwt = async (jwtToken: string) => {

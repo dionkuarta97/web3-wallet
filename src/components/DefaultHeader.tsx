@@ -5,14 +5,18 @@ import { StyleSheet, Image, StatusBar } from 'react-native';
 import { RootParamList } from '../navigations/Root';
 import { width } from '../Helpers';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Colors } from '../Colors';
 
-const DefaultHeader = () => {
+const DefaultHeader = ({ type }: { type?: string }) => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<StackNavigationProp<RootParamList>>();
 
   return (
-    <View paddingTop={insets.top} padding={5} bg={'white'}>
-      <StatusBar barStyle="dark-content" backgroundColor={'white'} />
+    <View paddingTop={insets.top} padding={5} bg={type ? Colors.green : 'white'}>
+      <StatusBar
+        barStyle={type ? 'light-content' : 'dark-content'}
+        backgroundColor={type ? Colors.green : 'white'}
+      />
       <Pressable
         onPress={() => {
           if (navigation.canGoBack()) {
@@ -33,7 +37,14 @@ const DefaultHeader = () => {
                 ]
               }}
             >
-              <Image style={style.image} source={require('../../assets/icon/arrowBack.png')} />
+              <Image
+                style={style.image}
+                source={
+                  type
+                    ? require('../../assets/icon/arrow-back-white.png')
+                    : require('../../assets/icon/arrowBack.png')
+                }
+              />
             </View>
           );
         }}
