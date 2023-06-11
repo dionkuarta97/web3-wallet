@@ -13,6 +13,11 @@ import ReenterPinScreen from '../screens/auth/ReenterPinScreen';
 import InputPinScreen from '../screens/auth/InputPinScreen';
 import SignUpScreen from '../screens/auth/SignUpScreen';
 import EmailVerificationScreen from '../screens/auth/EmailVerificationScreen';
+import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
+import SendVerification from '../screens/auth/forgotPassword/SendVerification';
+import OtpScren from '../screens/auth/forgotPassword/OtpScreen';
+import ResetPasswordScreen from '../screens/auth/forgotPassword/ResetPasswordScreen';
+import SuccessReset from '../screens/auth/forgotPassword/SuccessReset';
 
 export type AuthParamList = {
   OpeningScreen: undefined;
@@ -22,6 +27,11 @@ export type AuthParamList = {
   InputPinScreen: undefined;
   SignUpScreen: undefined;
   EmailVerificationScreen: { email: string };
+  ForgotPasswordScreen: undefined;
+  SendVerification: undefined;
+  OtpScreen: undefined;
+  ResetPasswordScreen: undefined;
+  SuccessReset: undefined;
 };
 
 const AuthStack = createStackNavigator<AuthParamList>();
@@ -82,6 +92,41 @@ const auths: auth[] = [
     component: EmailVerificationScreen,
     options: {
       header: () => <DefaultHeader type="dark" />
+    }
+  },
+  {
+    name: 'ForgotPasswordScreen',
+    component: ForgotPasswordScreen,
+    options: {
+      header: () => <DefaultHeader />
+    }
+  },
+  {
+    name: 'SendVerification',
+    component: SendVerification,
+    options: {
+      headerShown: false
+    }
+  },
+  {
+    name: 'OtpScreen',
+    component: OtpScren,
+    options: {
+      headerShown: false
+    }
+  },
+  {
+    name: 'ResetPasswordScreen',
+    component: ResetPasswordScreen,
+    options: {
+      headerShown: false
+    }
+  },
+  {
+    name: 'SuccessReset',
+    component: SuccessReset,
+    options: {
+      headerShown: false
     }
   }
 ];

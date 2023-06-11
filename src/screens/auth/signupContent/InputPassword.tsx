@@ -19,6 +19,8 @@ const InputPassword = ({
   const [password, setPassword] = useState('');
   const handleSetPassword = useCallback((val: string) => {
     setPassword(val);
+    console.log(val);
+
     onChangeText(val);
   }, []);
   const handleSetFocus = useCallback((val: boolean) => {

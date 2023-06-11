@@ -105,6 +105,9 @@ const SignInScreen = () => {
         </View>
         <View alignItems={'flex-end'}>
           <Button
+            onPress={() => {
+              navigation.navigate('ForgotPasswordScreen');
+            }}
             colorScheme={Colors.gray}
             padding={1}
             mt={1}

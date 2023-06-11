@@ -41,6 +41,7 @@ const InputRePassword = ({
       setShowError(false);
     }
   }, [password]);
+
   return (
     <>
       <View justifyContent={'center'}>
@@ -53,7 +54,7 @@ const InputRePassword = ({
             handleSetFocus(false);
           }}
           secureTextEntry={!show}
-          placeholder="Enter your Password"
+          placeholder="Confirm your Password"
           style={[
             style.input,
             {

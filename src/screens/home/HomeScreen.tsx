@@ -60,9 +60,11 @@ const HomeScreen = () => {
       });
     }
   }, []);
+
   useEffect(() => {
     makeDefaultWallet();
   }, []);
+
   return (
     <DefaultBody>
       <ScrollView showsVerticalScrollIndicator={false}>
