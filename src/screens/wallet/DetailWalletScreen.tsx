@@ -6,6 +6,7 @@ import { useCallback, useState } from 'react';
 import TokenContent from './DetailWalletContents/TokenContent';
 import { useAtom } from 'jotai';
 import { bottomReducer } from '../../state/bottom/bottomReducer';
+import HistoryContent from './DetailWalletContents/history/HistoryContent';
 
 const DetailWalletScreen = () => {
   const route = useRoute<WalletRouteProps<'DetailWalletScreen'>>();
@@ -28,6 +29,8 @@ const DetailWalletScreen = () => {
     setShowSetting(param);
   }, []);
 
+  console.log(active);
+
   return (
     <DefaultBody>
       <DetailHeader active={active} onPress={handleChangeActive} />
@@ -39,6 +42,7 @@ const DetailWalletScreen = () => {
           setActiveSlide={handleChangeSlide}
         />
       )}
+      {active === 'history' && <HistoryContent />}
     </DefaultBody>
   );
 };

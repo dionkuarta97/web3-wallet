@@ -1,6 +1,5 @@
 import { ReactNode } from 'react';
 import { Modal, ScrollView, StyleSheet, View } from 'react-native';
-import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Colors } from '../../Colors';
 import { height, width } from '../../Helpers';
 
@@ -39,7 +38,7 @@ const styles = StyleSheet.create({
     height: '100%',
     position: 'absolute',
     backgroundColor: 'black',
-    opacity: 0.3
+    opacity: 0.1
   },
   header: {
     borderRadius: 15,

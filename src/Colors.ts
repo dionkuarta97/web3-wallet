@@ -11,5 +11,7 @@ export enum Colors {
   lightGreen = 'rgba(4, 38, 38, 0.8)',
   lightGray = 'rgba(229, 229, 229, 1)',
   greenGray = 'rgba(205, 212, 212, 1)',
-  orange = 'rgba(255, 103, 75, 1)'
+  orange = 'rgba(255, 103, 75, 1)',
+  cardGray = 'rgba(243, 243, 243, 1)',
+  cardGrayLight = 'rgba(243, 243, 243, 0.7)'
 }
