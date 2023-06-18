@@ -31,6 +31,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { BottomTabParamList } from '../../../navigations/BottomTabRouter';
 import { detectBalance } from '../../../api/wallet';
 import LoadingModal from '../../../components/modal/LoadingModal';
+import SendBottomSheet from './bottomSheet/SendBottomSheet';
 
 type Props = {
   activeSlide: number;
@@ -78,6 +79,7 @@ const TokenContent = ({ showSetting, activeSlide, setActiveSlide, setShowSetting
   }, []);
   const phrase = useDisclose();
   const privatKey = useDisclose();
+
   const pressSwipe = useCallback(() => {
     setSwipe(!swipe);
   }, [swipe]);
@@ -227,7 +229,7 @@ const RenderItem = ({
   const handleModalShowDisconnect = useCallback((param: boolean) => {
     setShowModalDisconnect(param);
   }, []);
-
+  const sendBottomSheet = useDisclose();
   return (
     // TODO: Can change this to Refresh Control? (Pull to refresh to update token balances)
     <View
@@ -501,9 +503,25 @@ const RenderItem = ({
         }}
       >
         {buttons.map((el) => (
-          <TokenButton icon={el.icon} tes={wallet.walletName} key={el.name} name={el.name} />
+          <TokenButton
+            onPress={() => {
+              if (el.name === 'Send') {
+                sendBottomSheet.onOpen();
+              }
+            }}
+            icon={el.icon}
+            tes={wallet.walletName}
+            key={el.name}
+            name={el.name}
+          />
         ))}
       </View>
+      <SendBottomSheet
+        name={wallet.walletName}
+        isOpen={sendBottomSheet.isOpen}
+        onClose={sendBottomSheet.onClose}
+        address={wallet.walletAddress}
+      />
     </View>
   );
 };

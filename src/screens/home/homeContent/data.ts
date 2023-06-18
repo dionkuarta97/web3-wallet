@@ -82,3 +82,53 @@ export const apps: app[] = [
   },
   { logo: Delapan }
 ];
+
+export const crypto: {
+  icon: ImageSourcePropType;
+  name: string;
+  chart: ImageSourcePropType;
+  desc: string;
+  harga: string;
+  persen: string;
+}[] = [
+  {
+    name: 'ZRX',
+    icon: require('../../../../assets/homeCoins/zrx.png'),
+    chart: require('../../../../assets/homeCoins/red.png'),
+    desc: '0x',
+    harga: '3.259',
+    persen: '-2,74'
+  },
+  {
+    name: '1INCH',
+    icon: require('../../../../assets/homeCoins/1inch.png'),
+    chart: require('../../../../assets/homeCoins/green.png'),
+    desc: '1inch',
+    harga: '5.850',
+    persen: '-0,26'
+  },
+  {
+    name: 'AAVE',
+    icon: require('../../../../assets/homeCoins/aave.png'),
+    chart: require('../../../../assets/homeCoins/red.png'),
+    desc: 'AAVE',
+    harga: '956.541',
+    persen: '-0,26'
+  },
+  {
+    name: 'ACM',
+    icon: require('../../../../assets/homeCoins/acm.png'),
+    chart: require('../../../../assets/homeCoins/red.png'),
+    desc: 'AC Milan Fans Club',
+    harga: '33.614',
+    persen: '-2,83'
+  },
+  {
+    name: 'API3',
+    icon: require('../../../../assets/homeCoins/api3.png'),
+    chart: require('../../../../assets/homeCoins/red.png'),
+    desc: 'API3',
+    harga: '17.349',
+    persen: '-3,98'
+  }
+];

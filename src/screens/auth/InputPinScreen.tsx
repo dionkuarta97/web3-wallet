@@ -6,14 +6,16 @@ import { width } from '../../Helpers';
 import { useAtom } from 'jotai';
 import { authReducer } from '../../state/auth/authReducer';
 import { useEffect, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootParamList } from '../../navigations/Root';
+import { AuthRouteProps } from '../../navigations/AuthRouter';
 
 const InputPinScreen = () => {
   const [auth, dispatch] = useAtom(authReducer);
   const [error, setError] = useState<string | null>(null);
   const navigation = useNavigation<StackNavigationProp<RootParamList>>();
+  const route = useRoute<AuthRouteProps<'InputPinScreen'>>();
   useEffect(() => {
     return () => {
       dispatch({ type: 'setPin', payload: null });
@@ -72,13 +74,23 @@ const InputPinScreen = () => {
             if (auth.userInfo.pin !== Number(auth.inputPin.join(''))) {
               setError('Wrong Pin');
             } else {
-              dispatch({ type: 'setIsLogin', payload: true });
-              navigation.replace('BottomTabRouter', {
-                screen: 'HomeRouter',
-                params: {
-                  screen: 'HomeScreen'
-                }
-              });
+              if (route.params.data) {
+                navigation.navigate('BottomTabRouter', {
+                  screen: 'WalletRouter',
+                  params: {
+                    screen: 'WalletAmountScreen',
+                    params: { data: { ...route.params.data, valid: true } }
+                  }
+                });
+              } else {
+                dispatch({ type: 'setIsLogin', payload: true });
+                navigation.replace('BottomTabRouter', {
+                  screen: 'HomeRouter',
+                  params: {
+                    screen: 'HomeScreen'
+                  }
+                });
+              }
             }
           }}
         >

@@ -13,6 +13,8 @@ import PrivateKeyPhraseShowScreen from '../screens/wallet/PrivateKeyPhraseShowSc
 import PrivateKeyPhraseInputScreen from '../screens/wallet/PrivateKeyPhraseInputScreen';
 import DetailWalletScreen from '../screens/wallet/DetailWalletScreen';
 import ImportWalletScreen from '../screens/wallet/ImportWalletScreen';
+import SendWalletScreen from '../screens/wallet/send/SendWalletScreen';
+import WalletAmountScreen from '../screens/wallet/send/WalletAmountScreen';
 
 export type WalletParamList = {
   AllWalletScreen: { new: boolean } | undefined;
@@ -21,6 +23,18 @@ export type WalletParamList = {
   PrivateKeyPhraseShowScreen: undefined;
   PrivateKeyPhraseInputScreen: undefined;
   DetailWalletScreen: { indexWallet: number };
+  SendWalletScreen: { address: string; name: string } | undefined;
+  WalletAmountScreen:
+    | {
+        data: {
+          from: string;
+          to: string;
+          network: string;
+          valid: boolean;
+          amount?: number;
+        };
+      }
+    | undefined;
 };
 
 const WalletStack = createStackNavigator<WalletParamList>();
@@ -77,6 +91,20 @@ const wallets: wallet[] = [
   {
     name: 'DetailWalletScreen',
     component: DetailWalletScreen,
+    options: {
+      header: () => <DefaultHeader />
+    }
+  },
+  {
+    name: 'SendWalletScreen',
+    component: SendWalletScreen,
+    options: {
+      header: () => <DefaultHeader />
+    }
+  },
+  {
+    name: 'WalletAmountScreen',
+    component: WalletAmountScreen,
     options: {
       header: () => <DefaultHeader />
     }

@@ -1,11 +1,11 @@
 import DefaultBody from '../../components/DefaultBody';
 import HomeCarousel from './homeContent/HomeCarousel';
 import { FlatGrid } from 'react-native-super-grid';
-import { apps, services } from './homeContent/data';
+import { apps, crypto, services } from './homeContent/data';
 import ServicePress from './homeContent/ServicePress';
-import { HStack, Text, View } from 'native-base';
+import { HStack, Text, VStack, View } from 'native-base';
 import { Colors } from '../../Colors';
-import { ImageBackground, ScrollView } from 'react-native';
+import { Image, ImageBackground, ScrollView } from 'react-native';
 import AppPress from './homeContent/AppPress';
 import { useCallback, useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
@@ -103,7 +103,7 @@ const HomeScreen = () => {
             source={require('../../../assets/dapp-not-found.png')}
             style={{
               width: width,
-              height: height / 2.8,
+              height: height / 3,
               justifyContent: 'flex-end',
               alignItems: 'center'
             }}
@@ -119,6 +119,55 @@ const HomeScreen = () => {
             </Text>
           </ImageBackground>
         </View>
+        <HStack mb={8} alignItems={'center'}>
+          <Text color={Colors.green} fontSize={18} fontWeight={'semibold'}>
+            D’apps
+          </Text>
+          <Text color={Colors.grayText} marginLeft={'auto'}>
+            See More
+          </Text>
+        </HStack>
+        {crypto.map((el, idx) => (
+          <HStack
+            alignItems={'center'}
+            key={idx + 'crypto'}
+            mb={idx + 1 === crypto.length ? height / 5 : 4}
+          >
+            <Image
+              source={el.icon}
+              style={{
+                resizeMode: 'contain',
+                height: height / 20,
+                width: '10%'
+              }}
+            />
+            <VStack ml={4} width={'25%'}>
+              <Text fontWeight={'semibold'} numberOfLines={1}>
+                {el.name}
+              </Text>
+              <Text fontSize={12} numberOfLines={1} color={Colors.grayText}>
+                {el.desc}
+              </Text>
+            </VStack>
+            <Image
+              source={el.chart}
+              style={{
+                resizeMode: 'contain',
+                width: '20%',
+                height: height / 25,
+                marginLeft: width / 10
+              }}
+            />
+            <VStack width={'25%'} ml={'auto'} alignItems={'flex-end'}>
+              <Text fontWeight={'semibold'} numberOfLines={1}>
+                IDR {el.harga}
+              </Text>
+              <Text fontSize={12} numberOfLines={1} color={'red.400'}>
+                {el.persen} %
+              </Text>
+            </VStack>
+          </HStack>
+        ))}
       </ScrollView>
     </DefaultBody>
   );

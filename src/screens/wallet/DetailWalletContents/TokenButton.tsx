@@ -8,13 +8,14 @@ type Props = {
   name: string & {};
   tes?: string & {};
   icon: ImageSourcePropType;
+  onPress: () => void;
 };
 
-const TokenButton = ({ name, tes, icon }: Props) => {
+const TokenButton = ({ onPress, name, tes, icon }: Props) => {
   return (
     <Pressable
       onPress={() => {
-        console.log(tes);
+        onPress();
       }}
       style={({ pressed }) => [
         {

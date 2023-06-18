@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     height: '100%',
     position: 'absolute',
     backgroundColor: 'black',
-    opacity: 0.1
+    opacity: 0.3
   },
   header: {
     borderRadius: 15,

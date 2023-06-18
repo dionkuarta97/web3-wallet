@@ -4,7 +4,7 @@ import {
   StackNavigationEventMap,
   StackNavigationOptions
 } from '@react-navigation/stack';
-import type { RouteConfig, StackNavigationState } from '@react-navigation/core';
+import type { RouteConfig, RouteProp, StackNavigationState } from '@react-navigation/core';
 import OpeningScreen from '../screens/auth/OpeningScreen';
 import SignInScreen from '../screens/auth/SignInScreen';
 import DefaultHeader from '../components/DefaultHeader';
@@ -24,7 +24,17 @@ export type AuthParamList = {
   SignInScreen: undefined;
   SetupPinScreen: undefined;
   ReenterPinScreen: undefined;
-  InputPinScreen: undefined;
+  InputPinScreen:
+    | {
+        data: {
+          from: string;
+          to: string;
+          network: string;
+          valid: boolean;
+          amount?: number;
+        };
+      }
+    | undefined;
   SignUpScreen: undefined;
   EmailVerificationScreen: { email: string };
   ForgotPasswordScreen: undefined;
@@ -42,6 +52,11 @@ type auth = RouteConfig<
   StackNavigationState<AuthParamList>,
   StackNavigationOptions,
   StackNavigationEventMap
+>;
+
+export type AuthRouteProps<RouteName extends keyof AuthParamList> = RouteProp<
+  AuthParamList,
+  RouteName
 >;
 
 const auths: auth[] = [
