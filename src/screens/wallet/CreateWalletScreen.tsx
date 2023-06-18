@@ -17,6 +17,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { BottomTabParamList } from '../../navigations/BottomTabRouter';
 import { WebView } from 'react-native-webview';
 import { NewWallet } from '../../api/wallet';
+import { ARISE_WALLET_GENERATOR_BASE_URL } from '@env';
 
 const textBody: string[] = [
   'Save your 12 words carefully. Avoid saving them on online storage, mobile phones or andy digital register',
@@ -64,7 +65,7 @@ const CreateWalletScreen = () => {
           */}
           {startBackgroundTask && (
             <WebView
-              source={{ uri: 'https://wallet-generator.arisenetwork.io' }}
+              source={{ uri: ARISE_WALLET_GENERATOR_BASE_URL }}
               onMessage={(event) => {
                 console.log('message from webview', { event: JSON.parse(event.nativeEvent.data) });
                 const newWallet = JSON.parse(event.nativeEvent.data) as NewWallet;

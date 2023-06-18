@@ -14,50 +14,46 @@ import { height, initBackgroundFetch, scheduleTask, width } from '../../Helpers'
 import { createWallet, detectBalance } from '../../api/wallet';
 import { authReducer } from '../../state/auth/authReducer';
 import LoadingModal from '../../components/modal/LoadingModal';
+import { ethers } from 'ethers';
 
 const HomeScreen = () => {
   const [wallet, setWallet] = useAtom(walletReducer);
   const [auth, setAuth] = useAtom(authReducer);
   const [loading, setLoading] = useState(false);
-  const makeDefaultWallet = useCallback(() => {
+
+  const makeDefaultWallet = useCallback(async () => {
     if (!wallet.ariseWallet) {
       setLoading(true);
-      scheduleTask();
-      initBackgroundFetch(() => {
-        createWallet('', auth.userInfo.privKey)
-          .then(async (val) => {
-            const result = await detectBalance(val.address);
-            setWallet({
-              type: 'setAriseWallet',
-              payload: {
-                walletAddress: val.address,
-                walletName: 'Arise Wallet',
-                walletPhrase: val.mnemonic,
-                walletPrivateKey: val.privateKey,
-                createdAt: Date.now(),
-                networks: result.tempNetworks,
-                idrAsset: result.idrAsset,
-                isNew: false
-              }
-            });
-            setWallet({
-              type: 'addWallet',
-              payload: {
-                walletAddress: val.address,
-                walletName: 'Arise Wallet',
-                walletPhrase: val.mnemonic,
-                walletPrivateKey: val.privateKey,
-                createdAt: Date.now(),
-                networks: result.tempNetworks,
-                idrAsset: result.idrAsset,
-                isNew: true
-              }
-            });
-          })
-          .finally(() => {
-            setLoading(false);
-          });
+      const wallet = new ethers.Wallet(auth.userInfo.privKey);
+      const mnemonic = auth.userInfo.userInfo.dappShare;
+      const result = await detectBalance(wallet.address);
+      setWallet({
+        type: 'setAriseWallet',
+        payload: {
+          walletAddress: wallet.address,
+          walletName: 'Arise Wallet',
+          walletPhrase: mnemonic,
+          walletPrivateKey: wallet.privateKey,
+          createdAt: Date.now(),
+          networks: result.tempNetworks,
+          idrAsset: result.idrAsset,
+          isNew: false
+        }
       });
+      setWallet({
+        type: 'addWallet',
+        payload: {
+          walletAddress: wallet.address,
+          walletName: 'Arise Wallet',
+          walletPhrase: mnemonic,
+          walletPrivateKey: wallet.privateKey,
+          createdAt: Date.now(),
+          networks: result.tempNetworks,
+          idrAsset: result.idrAsset,
+          isNew: true
+        }
+      });
+      setLoading(false);
     }
   }, []);
 
