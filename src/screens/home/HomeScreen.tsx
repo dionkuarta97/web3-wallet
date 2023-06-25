@@ -25,7 +25,7 @@ console.log({ ARISE_WALLET_GENERATOR_BASE_URL })
 
 const HomeScreen = () => {
   const [wallet, setWallet] = useAtom(walletReducer);
-  const [auth] = useAtom(authReducer);
+  const [auth, setAuth] = useAtom(authReducer);
   const [loading, setLoading] = useState(false);
   const [startBackgroundTask, setStartBackgroundTask] = useState(false);
   const [injectedJavaScript, setInjectedJavaScript] = useState('');
