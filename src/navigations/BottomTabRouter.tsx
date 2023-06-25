@@ -23,11 +23,13 @@ import { authReducer } from '../state/auth/authReducer';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootParamList } from './Root';
 import SideMenuRouter, { SideMenuParamList } from './SideMenuRouter';
+import ActionbottomTab from '../components/bottomTab/ActionBottomTab';
+import ActionRouter from './ActionRouter';
 
 export type BottomTabParamList = {
   HomeRouter: NavigatorScreenParams<HomeParamList>;
   WalletRouter: NavigatorScreenParams<WalletParamList>;
-  ActionScreen: undefined;
+  ActionRouter: undefined;
   ChatScreen: undefined;
   MeScreen: undefined;
   SideMenuRouter: NavigatorScreenParams<SideMenuParamList>;
@@ -42,14 +44,6 @@ type menu = RouteConfig<
   BottomTabNavigationOptions,
   BottomTabNavigationEventMap
 >;
-
-const ActionScreen = () => {
-  return (
-    <Center justifyContent={'center'} alignItems={'center'}>
-      <Text>Action</Text>
-    </Center>
-  );
-};
 
 const ChatScreen = () => {
   return (
@@ -109,13 +103,12 @@ const menus: menu[] = [
     }
   },
   {
-    name: 'ActionScreen',
-    component: ActionScreen,
+    name: 'ActionRouter',
+    component: ActionRouter,
     options: {
       tabBarButton: (props) => (
-        <DefaultBottomTab
+        <ActionbottomTab
           {...props}
-          router="ActionScreen"
           image={require('../../assets/icon/action.png')}
           label="Action"
         />

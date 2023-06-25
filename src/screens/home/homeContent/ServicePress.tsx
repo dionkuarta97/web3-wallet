@@ -32,11 +32,12 @@ const ServicePress = ({ name, logo }: Props) => {
             style={{
               width: 30,
               height: 30,
+              marginBottom: 2,
               alignSelf: 'center'
             }}
             source={logo}
           />
-          <Text alignSelf={'center'} color={Colors.green}>
+          <Text numberOfLines={1} fontSize={12} alignSelf={'center'} color={Colors.green}>
             {name}
           </Text>
         </View>

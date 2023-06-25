@@ -1,16 +1,15 @@
 import DefaultBody from '../../components/DefaultBody';
 import HomeCarousel from './homeContent/HomeCarousel';
 import { FlatGrid } from 'react-native-super-grid';
-import { apps, crypto, services } from './homeContent/data';
+import { crypto, services } from './homeContent/data';
 import ServicePress from './homeContent/ServicePress';
 import { HStack, Text, VStack, View } from 'native-base';
 import { Colors } from '../../Colors';
 import { Image, ImageBackground, ScrollView } from 'react-native';
-import AppPress from './homeContent/AppPress';
 import { useCallback, useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { walletReducer } from '../../state/wallet/walletReducer';
-import { height, initBackgroundFetch, scheduleTask, width } from '../../Helpers';
+import { height, width } from '../../Helpers';
 import { createWallet, detectBalance } from '../../api/wallet';
 import { authReducer } from '../../state/auth/authReducer';
 import LoadingModal from '../../components/modal/LoadingModal';
@@ -18,7 +17,7 @@ import { ethers } from 'ethers';
 
 const HomeScreen = () => {
   const [wallet, setWallet] = useAtom(walletReducer);
-  const [auth, setAuth] = useAtom(authReducer);
+  const [auth] = useAtom(authReducer);
   const [loading, setLoading] = useState(false);
 
   const makeDefaultWallet = useCallback(async () => {

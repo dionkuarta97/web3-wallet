@@ -1,4 +1,4 @@
-import { Text, View } from 'native-base';
+import { Text } from 'native-base';
 import { Image, Pressable } from 'react-native';
 import { height } from '../../../../Helpers';
 import { Colors } from '../../../../Colors';

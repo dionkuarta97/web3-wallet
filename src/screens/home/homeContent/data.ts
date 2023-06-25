@@ -1,5 +1,7 @@
 import Air from '../../../../assets/services/air.png';
 import Pulsa from '../../../../assets/services/pulsa.png';
+import pbbTax from '../../../../assets/services/pbb-tax.png';
+import eMoney from '../../../../assets/services/e-money.png';
 import Token from '../../../../assets/services/token.png';
 import PLN from '../../../../assets/services/pln.png';
 import Internet from '../../../../assets/services/internet.png';
@@ -32,8 +34,8 @@ export const services: service[] = [
     logo: Pulsa
   },
   {
-    name: 'Token',
-    logo: Token
+    name: 'PBB Tax',
+    logo: pbbTax
   },
   {
     name: 'PLN',
@@ -52,8 +54,8 @@ export const services: service[] = [
     logo: Games
   },
   {
-    name: 'NFT',
-    logo: NFT
+    name: 'E-Money',
+    logo: eMoney
   },
   { name: 'More', logo: More }
 ];
