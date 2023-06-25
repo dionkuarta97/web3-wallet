@@ -27,7 +27,7 @@ const textBody: string[] = [
 ];
 
 const CreateWalletScreen = () => {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [wallet, dispatch] = useAtom(walletReducer);
   const [showModal, setShowModal] = useState(false);
   const [startBackgroundTask, setStartBackgroundTask] = useState(false);
@@ -63,15 +63,37 @@ const CreateWalletScreen = () => {
             Generating Wallet on background using WebView
             The script is on https://wallet-generator.arisenetwork.io
           */}
-          {startBackgroundTask && (
+          {startBackgroundTask && wallet.ariseWallet && (
             <WebView
-              source={{ uri: ARISE_WALLET_GENERATOR_BASE_URL }}
-              onMessage={(event) => {
+              source={{ uri: ARISE_WALLET_GENERATOR_BASE_URL + '/hd-wallet' }}
+              injectedJavaScriptBeforeContentLoaded={`(function() {
+                window.privateKey = "${wallet.ariseWallet.walletPrivateKey}"
+                window.walletIndex = ${wallet.wallets.length - 1}
+              })();`}
+              onMessage={async (event) => {
                 console.log('message from webview', { event: JSON.parse(event.nativeEvent.data) });
-                const newWallet = JSON.parse(event.nativeEvent.data) as NewWallet;
-                dispatch({ type: 'setNewWallet', payload: newWallet });
+                const newWallets = JSON.parse(event.nativeEvent.data) as NewWallet[];
+                if (newWallets.length === 0) {
+                  // TODO: error handling
+                  setStartBackgroundTask(false);
+                  setLoading(false);
+                  return;
+                }
+                dispatch({ type: 'setNewWallet', payload: { ...newWallets[0], mnemonic: 'test test' } });
+                // TODO: hit backend to save new wallet
+                // try {
+                //   const walletIndex = wallet.wallets.length - 1;
+                //   const walletAddress = newWallets[0].address;
+                //   await handleSaveWallet(walletAddress, walletIndex);
+                // } catch (err) {
+                //   console.log({ err });
+                // }
                 setStartBackgroundTask(false);
                 setLoading(false);
+              }}
+              onError={(event) => {
+                // TODO: Error handling
+                console.log('error from webview', { event })
               }}
             />
           )}
@@ -149,7 +171,7 @@ const CreateWalletScreen = () => {
             </View>
             <View marginTop={height / 30}>
               <Text marginBottom={2} color={Colors.green}>
-                Wallet Addres
+                Wallet Address
               </Text>
               <InputWalletAdress value={wallet.newWallet?.address} />
             </View>

@@ -20,6 +20,7 @@ type UserType = {
   ed25519PrivKey: string;
   userInfo: UserInfo;
   pin: number | null;
+  ariseUserUuid: string;
 };
 
 export type InitialStateTypes = {

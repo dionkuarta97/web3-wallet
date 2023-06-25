@@ -3,7 +3,7 @@ import { useAtom } from 'jotai';
 import { Center, HStack, Text, View } from 'native-base';
 import { Colors } from '../../Colors';
 import { Image, ImageBackground, Pressable } from 'react-native';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import { walletReducer } from '../../state/wallet/walletReducer';
 import { ScrollView } from 'react-native';
@@ -23,7 +23,8 @@ const AllWalletScreen = () => {
   const isFocused = useIsFocused();
 
   const removeIsNewFlagFromWallets = () => {
-    for (const key in wallet.wallets) {
+    const wallets = wallet.wallets;
+    for (const key in wallets) {
       if (wallet.wallets[key].isNew) {
         let temp = wallet.wallets[key];
         let tem = wallet.wallets.filter(
@@ -44,17 +45,22 @@ const AllWalletScreen = () => {
     }
     setTotalBalance(idrBalance);
   };
-
+  
   useFocusEffect(
     useCallback(() => {
       setLoading(true);
       updateTotalIdrBalance();
       setLoading(false);
-      console.log('a');
 
       // on unfocus remove isNew flag from wallets
-      return removeIsNewFlagFromWallets;
-    }, [isFocused])
+      // FIXME: this should not be called.
+      // if not called, this function sets wallets state with
+      // outdated data.
+      // To reproduce the bug, return the function without calling it.
+      // Then log out and log in again.
+      // The wallets will be duplicated
+      return removeIsNewFlagFromWallets();
+    }, [isFocused, wallet.wallets])
   );
 
   return (

@@ -72,7 +72,7 @@ export const loginFacebook = async () => {
 };
 
 export const loginEmailPassword = async (email: string, password: string) => {
-  const backendResponse = await axios.post(`${ARISE_BACKEND_BASE_URL}/auth/login`, {
+  const backendResponse = await axios.post(`${ARISE_BACKEND_BASE_URL}/v1/auth/login`, {
     email,
     password
   });
@@ -87,7 +87,7 @@ export const loginEmailPassword = async (email: string, password: string) => {
 export const registerEmailPassword = (email: string, password: string) => {
   return new Promise(async (resolved, rejected) => {
     try {
-      const { data } = await axios.post(`${ARISE_BACKEND_BASE_URL}/auth/register`, {
+      const { data } = await axios.post(`${ARISE_BACKEND_BASE_URL}/v1/auth/register`, {
         email,
         password
       });

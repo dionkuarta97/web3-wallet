@@ -14,6 +14,8 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import LoadingModal from '../../components/modal/LoadingModal';
 import { BottomTabParamList } from '../../navigations/BottomTabRouter';
 import { detectBalance } from '../../api/wallet';
+import { authReducer } from '../../state/auth/authReducer';
+import { NetworkType, SaveWalletPayload, getOrSaveWallet } from '../../api/wallet/save-wallet';
 
 const PrivateKeyPhraseInputScreen = () => {
   const [wallet, disWallet] = useAtom(walletReducer);
@@ -22,8 +24,20 @@ const PrivateKeyPhraseInputScreen = () => {
   const navigation = useNavigation<StackNavigationProp<BottomTabParamList>>();
   const [loading, setLoading] = useState(false);
   const refInput = useRef<TextInput>();
+  const [auth, setAuth] = useAtom(authReducer);
 
   const [error, setError] = useState('');
+
+  const handleSaveWallet = async (walletName: string, walletAddress: string, walletIndex: number) => {
+    const payload: SaveWalletPayload = {
+      name: walletName,
+      address: walletAddress,
+      hd_wallet_index: walletIndex,
+      network_type: NetworkType.EVM,
+      user_uuid: auth.userInfo.ariseUserUuid,
+    }
+    await getOrSaveWallet(payload);
+  }
 
   return (
     <DefaultBody>
@@ -133,7 +147,7 @@ const PrivateKeyPhraseInputScreen = () => {
                 onPress={async () => {
                   refInput.current.blur();
                   if (wallet.newWallet?.mnemonic !== phrase.toLowerCase()) {
-                    setError('Wrong Passphrase, try again !!');
+                    setError('Wrong Passphrase, try again!!');
                   } else {
                     if (
                       wallet.wallets.filter(
@@ -144,6 +158,15 @@ const PrivateKeyPhraseInputScreen = () => {
                       setError('you have a wallet with the same name / wallet cannot number');
                     } else {
                       setLoading(true);
+                      // Save wallet information to backend
+                      // for automatic wallet generation
+                      // if user changes device in the future 
+                      const walletName = wallet.walletName;
+                      const walletAddress = wallet.newWallet.address;
+                      const walletIndex = wallet.wallets.length - 1;
+                      await handleSaveWallet(walletName, walletAddress, walletIndex)
+                        .catch(err => { setError(err.message) })
+
                       detectBalance(wallet.newWallet?.address, true)
                         .then((data: any) => {
                           setError('');

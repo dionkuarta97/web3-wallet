@@ -177,15 +177,19 @@ const SideMenuModal = ({ tapHandler, show }: Props) => {
           ))}
         </ScrollView>
         <TouchableOpacity
-          onPress={() => {
+          onPress={async () => {
             tapHandler();
-            let temp = wallet.wallets.filter(
-              (val: Wallet) => val.walletAddress !== wallet.ariseWallet?.walletAddress
-            );
-            setWallet({ type: 'setWallets', payload: temp });
+            // let temp = wallet.wallets.filter(
+            //   (val: Wallet) => val.walletAddress !== wallet.ariseWallet?.walletAddress
+            // );
+            // setWallet({ type: 'setWallets', payload: temp });
+            setWallet({ type: 'setWallets', payload: [] });
             dispatch({ type: 'setUserInfo', payload: null });
             dispatch({ type: 'setIsLogin', payload: false });
             setWallet({ type: 'setAriseWallet', payload: null });
+            setWallet({ type: 'setNewWallet', payload: null });
+
+            await new Promise((resolve) => setTimeout(resolve, 300));
 
             navigation.replace('AuthRouter', { screen: 'OpeningScreen' });
           }}
