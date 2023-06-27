@@ -34,7 +34,7 @@ const HomeScreen = () => {
   const makeDefaultWallet = async (): Promise<ethers.Wallet> => {
     const wallet = new ethers.Wallet(auth.userInfo.privKey);
     const mnemonic = auth.userInfo.userInfo.dappShare;
-    const result = await detectBalance(wallet.address);
+    // const result = await detectBalance(wallet.address);
     setWallet({
       type: 'setAriseWallet',
       payload: {
@@ -43,8 +43,8 @@ const HomeScreen = () => {
         walletPhrase: mnemonic,
         walletPrivateKey: wallet.privateKey,
         createdAt: Date.now(),
-        networks: result.tempNetworks,
-        idrAsset: result.idrAsset,
+        networks: [],
+        idrAsset: 0,
         isNew: false
       }
     });
@@ -56,8 +56,8 @@ const HomeScreen = () => {
         walletPhrase: mnemonic,
         walletPrivateKey: wallet.privateKey,
         createdAt: Date.now(),
-        networks: result.tempNetworks,
-        idrAsset: result.idrAsset,
+        networks: [],
+        idrAsset: 0,
         isNew: true
       }
     });
@@ -85,6 +85,7 @@ const HomeScreen = () => {
       network_type: NetworkType.EVM,
       user_uuid: userUuid,
     })
+    .catch(err => console.log('saveAriseWallet: error saving wallet', { err }))
     
     return savedWallet;
   }
@@ -123,7 +124,6 @@ const HomeScreen = () => {
       try {
         const masterWallet = await makeDefaultWallet();
         const user = await getOrCreateAriseUser(masterWallet);
-        console.log({ user });
         const savedWallet = await saveAriseWallet(user.uuid, masterWallet);
         const createdWallets = await getCreatedWallets(user.uuid);
         await startGenerateHDWallets(masterWallet.privateKey, createdWallets.length);

@@ -6,6 +6,8 @@ import HDKey from 'hdkey';
 import { networks } from './wallet/network';
 import coinGecko from './apiUrl/coinGecko';
 import { NetworkType, TokenType } from '../state/wallet/walletTypes';
+import { getNetworks } from './networks';
+import { getTokens, Token, TokenType as TokenTypeEnum } from './tokens';
 
 export type NewWallet = {
   mnemonic: string;
@@ -107,7 +109,55 @@ const getPrice = async (coinGeckoId: string, tokenAddress: string) => {
   }
 };
 
-export const detectBalance = (
+export const detectBalance = async (address: string) => {
+  const networks = await getNetworks({ isTestNet: true });
+  const tokens = await getTokens();
+
+  const walletNetworks: NetworkType[] = [];
+  for (const net of networks) {
+    const network: NetworkType = {
+      name: net.name,
+      slug: net.slug,
+      tokens: []
+    }
+    const tokensInNetwork: Token[] = await tokens.filter(x => x.network.chain_id == parseInt(net.chainId));
+
+    for (const token of tokensInNetwork) {
+      const provider = new ethers.providers.JsonRpcProvider(net.rpcUrl);
+      const erc20Abi = [
+        "function balanceOf(address owner) view returns (uint balance)"
+      ]
+      const tokenContract = new ethers.Contract(token.address, erc20Abi, provider);
+
+      let balance;
+      if (token.token_type == TokenTypeEnum.NATIVE) {
+        balance = await provider.getBalance(address);
+      }
+      if (token.token_type == TokenTypeEnum.ERC20) {
+        balance = await tokenContract.balanceOf(address);
+      }
+      const networkToken: TokenType = {
+        tokenAddress: token.address,
+        name: token.name,
+        symbol: token.symbol,
+        logo: token.logo_uri,
+        balance: balance.toString(),
+        decimals: token.decimals,
+        idrPrice: 0,
+        possibleSpam: false,
+        tokenType: token.token_type,
+      }
+
+      network.tokens.push(networkToken);
+    }
+
+    walletNetworks.push(network);
+  }
+
+  return { idrValue: 0, networks: walletNetworks };
+}
+
+export const detectBalanceOld = (
   address: string,
   isNew: boolean = false
 ): Promise<{ idrAsset: number; tempNetworks: NetworkType[] }> => {
@@ -188,12 +238,12 @@ const newWallet = async () => {
   let idrAsset = 0;
   for (const key in networks) {
     tempNetworks.push({
-      networkName: networks[key].name,
+      // networkName: networks[key].name,
       name: networks[key].nativeCurrency.name,
       slug: networks[key].slug,
-      balance: '0',
-      symbol: networks[key].nativeCurrency.symbol,
-      idrPrice: 0,
+      // balance: '0',
+      // symbol: networks[key].nativeCurrency.symbol,
+      // idrPrice: 0,
       tokens: []
     });
   }

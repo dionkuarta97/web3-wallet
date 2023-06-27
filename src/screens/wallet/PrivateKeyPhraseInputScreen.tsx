@@ -16,6 +16,7 @@ import { BottomTabParamList } from '../../navigations/BottomTabRouter';
 import { detectBalance } from '../../api/wallet';
 import { authReducer } from '../../state/auth/authReducer';
 import { NetworkType, SaveWalletPayload, getOrSaveWallet } from '../../api/wallet/save-wallet';
+import { Wallet } from '../../state/wallet/walletTypes';
 
 const PrivateKeyPhraseInputScreen = () => {
   const [wallet, disWallet] = useAtom(walletReducer);
@@ -165,43 +166,26 @@ const PrivateKeyPhraseInputScreen = () => {
                       const walletAddress = wallet.newWallet.address;
                       const walletIndex = wallet.wallets.length - 1;
                       await handleSaveWallet(walletName, walletAddress, walletIndex)
-                        .catch(err => { setError(err.message) })
+                        .catch(err => {
+                          setError(err.message)
+                        })
 
-                      detectBalance(wallet.newWallet?.address, true)
-                        .then((data: any) => {
-                          setError('');
-                          let payload = {
-                            walletName: wallet.walletName,
-                            walletAddress: wallet.newWallet?.address,
-                            walletPhrase: wallet.newWallet?.mnemonic,
-                            walletPrivateKey: wallet.newWallet?.privateKey,
-                            idrAsset: data.idrAsset,
-                            networks: data.tempNetworks,
-                            isNew: true,
-                            createdAt: Date.now()
-                          };
+                      let payload: Wallet = {
+                        walletName: wallet.walletName,
+                        walletAddress: wallet.newWallet?.address,
+                        walletPhrase: wallet.newWallet?.mnemonic,
+                        walletPrivateKey: wallet.newWallet?.privateKey,
+                        networks: [],
+                        idrAsset: 0,
+                        isNew: true,
+                        createdAt: Date.now()
+                      };
+                      disWallet({ type: 'addWallet', payload });
+                      disWallet({ type: 'setNewWallet', payload: null });
+                      disWallet({ type: 'setWalletName', payload: '' });
+                      setShowModal(true);
 
-                          return payload;
-                        })
-                        .then((payload) => {
-                          disWallet({
-                            type: 'addWallet',
-                            payload: payload
-                          });
-                          disWallet({ type: 'setNewWallet', payload: null });
-                          disWallet({ type: 'setWalletName', payload: '' });
-                        })
-                        .then(() => {
-                          setShowModal(true);
-                        })
-                        .catch((err) => {
-                          console.log(err);
-
-                          setError('Request time out');
-                        })
-                        .finally(() => {
-                          setLoading(false);
-                        });
+                      setLoading(false);
                     }
                   }
                 }}

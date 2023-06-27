@@ -1,22 +1,25 @@
 import { NewWallet } from '../../api/wallet';
+import { TokenType as TokenTypeEnum } from '../../api/tokens';
 
 export type TokenType = {
-  token_address: string;
+  tokenAddress: string;
   name: string;
   symbol: string;
   logo: string | null;
   balance: string;
+  decimals: number;
   idrPrice: number;
-  possible_spam: boolean;
+  possibleSpam: boolean;
+  tokenType: TokenTypeEnum;
 };
 
 export type NetworkType = {
-  networkName: string;
+  // networkName: string;
   name: string;
   slug: string;
-  balance: string;
-  symbol: string;
-  idrPrice: number;
+  // balance: string;
+  // symbol: string;
+  // idrPrice: number;
   tokens: TokenType[];
 };
 
