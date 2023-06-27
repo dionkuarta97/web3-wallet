@@ -32,6 +32,7 @@ import { BottomTabParamList } from '../../../navigations/BottomTabRouter';
 import { detectBalance } from '../../../api/wallet';
 import LoadingModal from '../../../components/modal/LoadingModal';
 import SendBottomSheet from './bottomSheet/SendBottomSheet';
+import { ethers } from 'ethers';
 
 type Props = {
   activeSlide: number;
@@ -54,29 +55,30 @@ const TokenContent = ({ showSetting, activeSlide, setActiveSlide, setShowSetting
   const [modalShowPhrase, setModalShowPhrase] = useState(false);
   const [modalShowSecret, setModalShowSecret] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    refreshWalletBalance();
+  }, [])
+
   const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    detectBalance(wallet.wallets[activeSlide].walletAddress)
-      .then((result) => {
-        let temp = {
-          ...wallet.wallets[activeSlide],
-          networks: result.tempNetworks,
-          idrAsset: result.idrAsset
-        };
-        let tem = wallet.wallets;
-        tem.splice(activeSlide, 1, temp);
-        setWallet({
-          type: 'setWallets',
-          payload: tem
-        });
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => {
-        setRefreshing(false);
-      });
+    refreshWalletBalance();
   }, []);
+
+  const refreshWalletBalance = async () => {
+    setRefreshing(true);
+    const { idrValue, networks } = await detectBalance(wallet.wallets[activeSlide].walletAddress);
+    const activeWallet = {
+      ...wallet.wallets[activeSlide],
+      networks,
+      idrAsset: idrValue,
+    }
+    setWallet({
+      type: 'setWalletByAddress',
+      payload: activeWallet,
+    });
+    setRefreshing(false);
+  }
+
   const phrase = useDisclose();
   const privatKey = useDisclose();
 
@@ -230,6 +232,11 @@ const RenderItem = ({
     setShowModalDisconnect(param);
   }, []);
   const sendBottomSheet = useDisclose();
+
+  const displayTokenBalance = (balance: string, decimals: number) => {
+    return ethers.utils.formatUnits(balance, decimals);
+  }
+
   return (
     // TODO: Can change this to Refresh Control? (Pull to refresh to update token balances)
     <View
@@ -382,64 +389,13 @@ const RenderItem = ({
               paddingHorizontal: 1
             }}
           >
-            {wallet.networks.map(
-              (el, idx) =>
-                Number(el.balance) > 0 && (
-                  <HStack key={el.slug} marginTop={idx > 0 ? 0 : 4} marginBottom={4}>
-                    <Image
-                      source={
-                        el.slug === 'ethereum'
-                          ? require('../../../../assets/coins/ethereum.png')
-                          : el.slug === 'polygon'
-                          ? require('../../../../assets/coins/polygon.png')
-                          : el.slug === 'bsc'
-                          ? require('../../../../assets/coins/binance-smart-chain.png')
-                          : el.slug === 'arbitrum'
-                          ? require('../../../../assets/coins/arbitrum.png')
-                          : el.slug === 'avalanche'
-                          ? require('../../../../assets/coins/avalanche.png')
-                          : el.slug === 'fantom'
-                          ? require('../../../../assets/coins/fantom.png')
-                          : el.slug === 'cronos'
-                          ? require('../../../../assets/coins/cronos.png')
-                          : require('../../../../assets/coins/default.png')
-                      }
-                      style={{
-                        alignSelf: 'center',
-                        resizeMode: 'contain',
-                        width: 35,
-                        height: 35
-                      }}
-                    />
-                    <View width={'39%'} ml={4}>
-                      <Text numberOfLines={1} fontWeight={'bold'}>
-                        {el.symbol}
-                      </Text>
-                      <Text numberOfLines={1} fontSize={12}>
-                        ({el.name})
-                      </Text>
-                      <Text numberOfLines={1} fontSize={12} color={Colors.grayText}>
-                        {el.networkName}
-                      </Text>
-                    </View>
-                    <View width={'40%'} alignItems={'flex-end'} ml={'auto'}>
-                      <Text numberOfLines={1} fontWeight={'bold'}>
-                        {Number(el.balance).toFixed(8)}
-                      </Text>
-                      <Text fontSize={12}>
-                        IDR {(Number(el.balance) * el.idrPrice).toLocaleString('id-ID')}
-                      </Text>
-                    </View>
-                  </HStack>
-                )
-            )}
-            {wallet.networks.map((el) =>
-              el.tokens.map((item) => (
-                <HStack key={item.token_address} marginBottom={4}>
+            {wallet.networks.map((network) =>
+              network.tokens.map((token) => (
+                <HStack key={token.tokenAddress} marginBottom={4}>
                   <Image
                     source={
-                      item.logo
-                        ? { uri: item.logo }
+                      token.logo
+                        ? { uri: token.logo }
                         : require('../../../../assets/coins/default.png')
                     }
                     style={{
@@ -451,21 +407,21 @@ const RenderItem = ({
                   />
                   <View width={'39%'} ml={4}>
                     <Text numberOfLines={1} fontWeight={'bold'}>
-                      {item.symbol}
+                      {token.symbol}
                     </Text>
                     <Text numberOfLines={1} fontSize={12}>
-                      ({item.name})
+                      ({token.name})
                     </Text>
                     <Text numberOfLines={1} fontSize={12} color={Colors.grayText}>
-                      {el.networkName}
+                      {network.name}
                     </Text>
                   </View>
                   <View width={'40%'} alignItems={'flex-end'} ml={'auto'}>
                     <Text numberOfLines={1} fontWeight={'bold'}>
-                      {Number(item.balance).toFixed(8)}
+                      {displayTokenBalance(token.balance, token.decimals)}
                     </Text>
                     <Text fontSize={12}>
-                      IDR {(Number(item.balance) * item.idrPrice).toLocaleString('id-ID')}
+                      IDR {(Number(token.balance) * token.idrPrice).toLocaleString('id-ID')}
                     </Text>
                   </View>
                 </HStack>
