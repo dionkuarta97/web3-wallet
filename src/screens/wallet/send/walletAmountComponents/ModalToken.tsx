@@ -4,22 +4,18 @@ import Modal from 'react-native-modal';
 import { height, width } from '../../../../Helpers';
 import { Colors } from '../../../../Colors';
 import { memo, useState } from 'react';
-import { tokens } from './data';
+// import { tokens } from './data';
 import Token from './Token';
+import { TokenType } from '../../../../state/wallet/walletTypes';
+
 type Props = {
+  tokens: TokenType[];
   show: boolean;
   onClose: () => void;
-  onTap: (val: {
-    name: string;
-    symbol: string;
-    balance: number;
-    network: string;
-    price: number;
-    logo: string;
-  }) => void;
+  onTap: (token: TokenType) => void;
 };
 
-const ModalToken = ({ onTap, show, onClose }: Props) => {
+const ModalToken = ({ onTap, show, onClose, tokens }: Props) => {
   const [search, setSearch] = useState('');
   return (
     <Modal
@@ -74,10 +70,10 @@ const ModalToken = ({ onTap, show, onClose }: Props) => {
         <ScrollView showsVerticalScrollIndicator={false}>
           {tokens
             .filter((val) => val.name.toLowerCase().includes(search.toLowerCase()))
-            .map((el, idx) => (
+            .map((token, idx) => (
               <Token
                 key={idx}
-                el={el}
+                token={token}
                 idx={idx}
                 setSearch={setSearch}
                 onClose={onClose}

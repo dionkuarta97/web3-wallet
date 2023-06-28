@@ -122,8 +122,16 @@ export const detectBalance = async (address: string) => {
     }
     const tokensInNetwork: Token[] = await tokens.filter(x => x.network.chain_id == parseInt(net.chainId));
 
+    let provider: ethers.providers.JsonRpcProvider;
+
+    try {
+      provider = new ethers.providers.JsonRpcProvider(net.rpcUrl);
+    } catch (err) {
+      console.log({ err })
+      continue;
+    }
+
     for (const token of tokensInNetwork) {
-      const provider = new ethers.providers.JsonRpcProvider(net.rpcUrl);
       const erc20Abi = [
         "function balanceOf(address owner) view returns (uint balance)"
       ]

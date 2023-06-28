@@ -1,10 +1,11 @@
-type Network = {
+export type Network = {
   name: string;
   slug: string;
   chainId: string;
   coinGeckoId: string;
   rpcUrl: string;
   blockExplorerUrl: string;
+  logoUrl?: string;
   nativeCurrency: {
     name: string;
     symbol: string;
@@ -130,10 +131,11 @@ export const networks: Network[] = [
   // },
   {
     name: 'Sepolia',
-    slug: 'sepolia',
+    slug: 'ethereum-sepolia-testnet',
     coinGeckoId: 'tesnet',
     chainId: '0xaa36a7',
     rpcUrl: 'https://rpc.sepolia.org',
+    logoUrl: 'https://ik.imagekit.io/05pxznjom/PNG/eth.png?updatedAt=1686827720604',
     blockExplorerUrl: 'https://sepolia.etherscan.io/',
     nativeCurrency: {
       name: 'Sepolia',
@@ -145,9 +147,10 @@ export const networks: Network[] = [
   },
   {
     name: 'Polygon Mumbai Testnet',
-    slug: 'mumbai',
+    slug: 'polygon-mumbai-testnet',
     coinGeckoId: 'tesnet',
     chainId: '0x13881',
+    logoUrl: 'https://ik.imagekit.io/05pxznjom/PNG/matic.png?updatedAt=1686827670405',
     rpcUrl: 'https://polygon-mumbai.blockpi.network/v1/rpc/public',
     blockExplorerUrl: 'https://mumbai.polygonscan.com',
     nativeCurrency: {
@@ -160,9 +163,10 @@ export const networks: Network[] = [
   },
   {
     name: 'BNB Smart Chain Testnet',
-    slug: 'bsc_testnet',
+    slug: 'binance-smart-chain-testnet',
     coinGeckoId: 'tesnet',
     chainId: '0x61',
+    logoUrl: 'https://ik.imagekit.io/05pxznjom/PNG/bnb.png?updatedAt=1686827673284',
     rpcUrl: 'https://data-seed-prebsc-2-s1.binance.org:8545',
     blockExplorerUrl: 'https://testnet.bscscan.com',
     nativeCurrency: {
@@ -181,4 +185,8 @@ export const getNetworks = async ({ isTestNet }: { isTestNet?: boolean }) => {
     return networks.filter((network) => network.isTestNet);
   }
   return networks;
+}
+
+export const getNetworkBySlug = async (slug: string) => {
+  return networks.find((network) => network.slug === slug);
 }

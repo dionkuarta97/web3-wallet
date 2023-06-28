@@ -4,21 +4,16 @@ import { height } from '../../../../Helpers';
 import { Colors } from '../../../../Colors';
 import { useState } from 'react';
 import ModalToken from './ModalToken';
+import { TokenType } from '../../../../state/wallet/walletTypes';
 
 type Props = {
+  tokens: TokenType[];
   value: string & {};
   logo?: string & {};
-  onTap: (val: {
-    name: string;
-    symbol: string;
-    balance: number;
-    network: string;
-    price: number;
-    logo: string;
-  }) => void;
+  onTap: (token: TokenType) => void;
 };
 
-const TokenTap = ({ value, onTap, logo }: Props) => {
+const TokenTap = ({ value, onTap, logo, tokens }: Props) => {
   const [show, setShow] = useState(false);
 
   return (
@@ -63,7 +58,12 @@ const TokenTap = ({ value, onTap, logo }: Props) => {
           }}
         />
       </Pressable>
-      <ModalToken onTap={onTap} show={show} onClose={() => setShow(false)} />
+      <ModalToken
+        tokens={tokens}
+        onTap={onTap}
+        show={show}
+        onClose={() => setShow(false)}
+      />
     </>
   );
 };

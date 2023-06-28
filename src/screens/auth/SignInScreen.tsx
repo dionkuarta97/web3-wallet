@@ -79,6 +79,7 @@ const SignInScreen = () => {
         navigation.navigate('SetupPinScreen');
       }
     } catch (error) {
+      console.log({ error });
       Alert.alert('error', 'error login');
       setLoading(false);
     }

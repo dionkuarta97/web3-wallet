@@ -10,13 +10,11 @@ import axios from 'axios';
 
 const redirectUrl = `ariseweb3auth://auth`;
 
-// const clientId =
-//   'BATdZ3CpPj-rqgudz8mkoJ8EOC0oT4itYO3lev6ZsG-ofU8Sg4FGvX8kWyLLV3WTwjg70ZaNrkki6rT6K19XyW8';
 const clientId = WEB3_AUTH_CLIENT_ID;
 
 const web3AuthParams: SdkInitParams = {
   clientId,
-  network: OPENLOGIN_NETWORK.TESTNET,
+  network: OPENLOGIN_NETWORK.AQUA,
   loginConfig: {
     // Add login configs corresponding to the provider
     // For firebase/ cognito & other providers, you need to pass the JWT token
@@ -72,11 +70,12 @@ export const loginFacebook = async () => {
 };
 
 export const loginEmailPassword = async (email: string, password: string) => {
+  console.log({ email, password })
   const backendResponse = await axios.post(`${ARISE_BACKEND_BASE_URL}/v1/auth/login`, {
     email,
     password
   });
-
+  console.log({ backendResponse });
   const { token } = backendResponse.data;
   const web3AuthResponse = await loginJwt(token);
 

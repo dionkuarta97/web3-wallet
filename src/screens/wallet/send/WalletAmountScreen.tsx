@@ -1,9 +1,9 @@
-import { Text, Center, View, VStack, ScrollView, HStack } from 'native-base';
+import { Text, Center, View, VStack, ScrollView, HStack, Divider } from 'native-base';
 import DefaultBody from '../../../components/DefaultBody';
 import { Colors } from '../../../Colors';
-import { height, width } from '../../../Helpers';
+import { displayToken, height, width } from '../../../Helpers';
 import TokenTap from './walletAmountComponents/TokenTap';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Wallet from '../../../../assets/icon/wallet.png';
 import WalletGray from '../../../../assets/icon/walletGray.png';
 import { TextInput } from 'react-native-gesture-handler';
@@ -13,21 +13,95 @@ import { WalletRouteProps } from '../../../navigations/WalletRouter';
 import { RootParamList } from '../../../navigations/Root';
 import { StackNavigationProp } from '@react-navigation/stack';
 import DefaultModal from '../../../components/modal/DefaultModal';
+import { useAtom } from 'jotai';
+import { walletReducer } from '../../../state/wallet/walletReducer';
+import { TokenType } from '../../../state/wallet/walletTypes';
+import { ethers } from 'ethers';
+import { getNetworkBySlug } from '../../../api/networks';
+import { TokenType as TokenTypeEnum } from '../../../api/tokens';
 
 const WalletAmountScreen = () => {
-  const [choose, setChoose] = useState<{
-    name: string;
-    symbol: string;
-    balance: number;
-    network: string;
-    price: number;
-    logo: string;
-  } | null>(null);
-  const [amount, setAmount] = useState(null);
+  const [choose, setChoose] = useState<TokenType | null>(null);
+  const [tokens, setTokens] = useState<TokenType[]>([]);
+  const [amount, setAmount] = useState('');
+  const [networkFee, setNetworkFee] = useState('0');
+  const [networkFeeToken, setNetworkFeeToken] = useState<TokenType | null>(null);
+  const [total, setTotal] = useState('0');
   const [isFocused, setIsFocused] = useState(false);
   const [show, setShow] = useState(false);
   const route = useRoute<WalletRouteProps<'WalletAmountScreen'>>();
   const navigation = useNavigation<StackNavigationProp<RootParamList>>();
+  const [wallet] = useAtom(walletReducer);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = route.params;
+      const { from, fromAddress, to, network: networkSlug } = data;
+      const senderWallet = wallet.wallets.find(w => w.walletAddress.toLowerCase() === fromAddress.toLowerCase());
+      const sourceNetwork = senderWallet.networks.find(n => n.slug === networkSlug);
+      const tokens = sourceNetwork.tokens;
+      setTokens(tokens);
+    })()
+  }, [])
+
+  useEffect(() => {
+    if (!amount || Number(amount) == 0) {
+      setNetworkFee('0');
+      return
+    }
+    // TODO: Network fee should be refreshed after a period of time
+    (async () => {
+      const { data } = route.params;
+      const { from, fromAddress, to, network: networkSlug } = data;
+      const senderWallet = wallet.wallets.find(w => w.walletAddress.toLowerCase() === fromAddress.toLowerCase());
+      const sourceNetwork = senderWallet.networks.find(n => n.slug === networkSlug);
+      const networkConfig = await getNetworkBySlug(networkSlug);
+      const provider = new ethers.providers.JsonRpcProvider(networkConfig.rpcUrl);
+      const tokens = sourceNetwork.tokens;
+      const gasPaymentToken = tokens.find(t => t.tokenType === TokenTypeEnum.NATIVE);
+      const value = amount;
+
+      setNetworkFeeToken(gasPaymentToken);
+
+      if (choose.tokenType == TokenTypeEnum.NATIVE) {
+        const tx = {
+          to: to,
+          data: '0x',
+          value
+        }
+        const feeData = await provider.getFeeData();
+        const estimatedGas = await provider.estimateGas(tx);
+        const networkFee = estimatedGas.mul(feeData.gasPrice);
+        setNetworkFee(networkFee.toString());
+      }
+
+      if (choose.tokenType == TokenTypeEnum.ERC20) {
+        const erc20Abi = [
+          "function transfer(address to, uint amount)"
+        ]
+        const contract = new ethers.Contract(choose.tokenAddress, erc20Abi, provider);
+        const feeData = await provider.getFeeData();
+        const fromWallet = new ethers.Wallet(senderWallet.walletPrivateKey, provider);
+        const estimatedGas = await contract.connect(fromWallet).estimateGas.transfer(to, value);
+        const networkFee = estimatedGas.mul(feeData.gasPrice);
+        setNetworkFee(networkFee.toString());
+      }
+    })()
+  }, [amount])
+
+  useEffect(() => {
+    if (!amount || Number(amount) == 0) {
+      setTotal('0');
+      return
+    }
+    if (choose.tokenType == TokenTypeEnum.NATIVE) {
+      const parsedAmount = ethers.utils.parseUnits(amount, choose.decimals);
+      const total = ethers.BigNumber.from(parsedAmount).add(networkFee).toString();
+      setTotal(total);
+    } else {
+      setTotal(amount);
+    }
+  }, [amount, networkFee])
 
   return (
     <DefaultBody>
@@ -92,7 +166,7 @@ const WalletAmountScreen = () => {
                 </HStack>
                 <HStack mt={1}>
                   <Text fontSize={11} color={Colors.green}>
-                    Confrim
+                    Confirmed
                   </Text>
                   <View
                     style={{
@@ -161,20 +235,20 @@ const WalletAmountScreen = () => {
                 <HStack mt={2}>
                   <Text fontWeight={'semibold'}>Total Price</Text>
                   <Text ml={'auto'} numberOfLines={1} fontWeight={'semibold'}>
-                    IDR {choose ? (choose.price * amount).toLocaleString('id-ID') : 0}
+                    {/* IDR {choose ? (choose.idrPrice * amount).toLocaleString('id-ID') : 0} */}
                   </Text>
                 </HStack>
                 <HStack mt={1}>
                   <Text fontWeight={'semibold'}>NetWork Fee</Text>
                   <Text ml={'auto'} numberOfLines={1} fontWeight={'semibold'}>
-                    IDR {choose ? (500500).toLocaleString('id-ID') : 0}
+                    {networkFee}
                   </Text>
                 </HStack>
                 <View width={'100%'} my={2} borderTopWidth={1} />
                 <HStack mt={1}>
                   <Text fontWeight={'semibold'}>Total Payment</Text>
                   <Text ml={'auto'} numberOfLines={1} fontWeight={'semibold'}>
-                    IDR {choose ? (amount * choose.price + 500500).toLocaleString('id-ID') : 0}
+                    {/* IDR {choose ? (amount * choose.idrPrice + 500500).toLocaleString('id-ID') : 0} */}
                   </Text>
                 </HStack>
               </View>
@@ -208,30 +282,23 @@ const WalletAmountScreen = () => {
           }
         />
       )}
+
       <ScrollView showsVerticalScrollIndicator={false} flex={1}>
         <Center>
           <Text fontSize={width / 20} fontWeight={'bold'} color={Colors.green}>
             Send To Wallet
           </Text>
-          <View
-            style={{
-              borderTopWidth: 4,
-              width: width / 2.2,
-              borderRadius: 15,
-              marginTop: 3,
-              borderTopColor: Colors.green
-            }}
-          />
+          <Divider backgroundColor={Colors.green} width={width / 2.2} thickness={5} borderRadius={15} />
         </Center>
         <Text mt={8} ml={2} mb={1}>
           Token
         </Text>
         <View alignItems={'center'} flexDirection={'row'}>
           <TokenTap
+            tokens={tokens}
             logo={choose?.logo}
             onTap={(val) => {
               setChoose(val);
-
               setAmount(null);
             }}
             value={choose ? choose.name : 'Choose'}
@@ -241,7 +308,7 @@ const WalletAmountScreen = () => {
               Your Balance
             </Text>
             <Text numberOfLines={1} fontWeight={'semibold'}>
-              {choose ? choose.symbol + ' ' + choose.balance : 0}
+              {choose ? choose.symbol + ' ' + displayToken(choose.balance, choose.decimals) : 0}
             </Text>
           </VStack>
         </View>
@@ -250,18 +317,25 @@ const WalletAmountScreen = () => {
         </Text>
         <View justifyContent={'center'}>
           <TextInput
-            value={amount}
+            value={amount ? displayToken(amount, choose?.decimals) : ''}
             editable={choose ? true : false}
             keyboardType="numeric"
             placeholder="Input your amount"
             onChangeText={(val) => {
-              setAmount(val);
+              if (!val) {
+                setAmount('');
+                return;
+              }
+              setAmount(
+                ethers.utils.parseUnits(val, choose?.decimals).toString()
+              );
             }}
             style={{
               borderRadius: 6,
               borderWidth: 1,
               paddingLeft: width * 0.13,
-              borderColor: amount ? 'black' : Colors.neutral50
+              borderColor: amount ? 'black' : Colors.neutral50,
+              height: 40,
             }}
           />
           <Image
@@ -335,14 +409,16 @@ const WalletAmountScreen = () => {
               />
               <HStack>
                 <Text>Token</Text>
-                <Text ml={'auto'}>{amount ? amount : 0}</Text>
+                <Text ml={'auto'}>
+                  {choose?.symbol} {amount ? displayToken(amount, choose.decimals) : 0}</Text>
               </HStack>
-              <Text alignSelf={'flex-end'}>
-                IDR {choose ? (choose.price * amount).toLocaleString('id-ID') : 0}
-              </Text>
               <HStack mt={2}>
                 <Text>Network Fee</Text>
-                <Text ml={'auto'}>IDR {amount ? (500500).toLocaleString('id-ID') : 0}</Text>
+                {networkFeeToken && (
+                  <Text ml={'auto'}>
+                    {networkFeeToken.symbol} {displayToken(networkFee, networkFeeToken.decimals, 18)}
+                  </Text>
+                )}
               </HStack>
             </>
           )}
@@ -356,9 +432,16 @@ const WalletAmountScreen = () => {
           <HStack>
             <Text fontWeight={'bold'}>Total Payment</Text>
             <Text fontWeight={'bold'} ml={'auto'}>
-              IDR {choose ? (amount * choose.price + 500500).toLocaleString('id-ID') : 0}
+              {choose?.symbol} {choose ? displayToken(total, choose.decimals) : 0}
             </Text>
           </HStack>
+          {choose?.tokenType === TokenTypeEnum.ERC20 && networkFeeToken && (
+            <HStack>
+              <Text fontWeight={'bold'} ml={'auto'}>
+                {networkFeeToken?.symbol} {choose ? displayToken(networkFee, networkFeeToken.decimals, 18) : 0}
+              </Text>
+            </HStack>
+          )}
         </Pressable>
         <Pressable
           onPress={() => {

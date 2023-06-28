@@ -39,3 +39,15 @@ export const getTokens = async (): Promise<Token[]> =>  {
 
   return data.data.records;
 }
+
+export const getTokensByNetwork = async (networkSlug: string): Promise<Token[]> =>  {
+  const { data } = await axios.get(`${ARISE_BACKEND_BASE_URL}/v1/tokens`, {
+    params: {
+      page: 1,
+      limit: 10
+    }
+  });
+  console.log(data.data.records)
+
+  return data.data.records.filter((token: Token) => token.network.slug == networkSlug);
+}

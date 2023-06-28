@@ -10,7 +10,7 @@ import {
   TouchableOpacity
 } from 'react-native';
 import Carousel from 'react-native-snap-carousel';
-import { height, width } from '../../../Helpers';
+import { displayToken, height, width } from '../../../Helpers';
 import { useAtom } from 'jotai';
 import { walletReducer } from '../../../state/wallet/walletReducer';
 import LinearGradient from 'react-native-linear-gradient';
@@ -65,7 +65,7 @@ const TokenContent = ({ showSetting, activeSlide, setActiveSlide, setShowSetting
   }, []);
 
   const refreshWalletBalance = async () => {
-    setRefreshing(true);
+    // setRefreshing(true);
     const { idrValue, networks } = await detectBalance(wallet.wallets[activeSlide].walletAddress);
     const activeWallet = {
       ...wallet.wallets[activeSlide],
@@ -76,7 +76,7 @@ const TokenContent = ({ showSetting, activeSlide, setActiveSlide, setShowSetting
       type: 'setWalletByAddress',
       payload: activeWallet,
     });
-    setRefreshing(false);
+    // setRefreshing(false);
   }
 
   const phrase = useDisclose();
@@ -232,10 +232,6 @@ const RenderItem = ({
     setShowModalDisconnect(param);
   }, []);
   const sendBottomSheet = useDisclose();
-
-  const displayTokenBalance = (balance: string, decimals: number) => {
-    return ethers.utils.formatUnits(balance, decimals);
-  }
 
   return (
     // TODO: Can change this to Refresh Control? (Pull to refresh to update token balances)
@@ -418,7 +414,7 @@ const RenderItem = ({
                   </View>
                   <View width={'40%'} alignItems={'flex-end'} ml={'auto'}>
                     <Text numberOfLines={1} fontWeight={'bold'}>
-                      {displayTokenBalance(token.balance, token.decimals)}
+                      {displayToken(token.balance, token.decimals)}
                     </Text>
                     <Text fontSize={12}>
                       IDR {(Number(token.balance) * token.idrPrice).toLocaleString('id-ID')}

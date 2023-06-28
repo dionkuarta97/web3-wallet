@@ -28,6 +28,7 @@ export type WalletParamList = {
     | {
         data: {
           from: string;
+          fromAddress: string;
           to: string;
           network: string;
           valid: boolean;

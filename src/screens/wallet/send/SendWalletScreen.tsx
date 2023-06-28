@@ -4,17 +4,93 @@ import { useNavigation, useRoute } from '@react-navigation/core';
 import { WalletParamList, WalletRouteProps } from '../../../navigations/WalletRouter';
 import { height, width } from '../../../Helpers';
 import { Colors } from '../../../Colors';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, Image, TextInput, Keyboard } from 'react-native';
 import { TouchableWithoutFeedback } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { getNetworks, Network as TNetwork } from '../../../api/networks';
+
+
+const Network = ({
+  onSetNetwork,
+  network,
+  isSelected,
+}: {
+  onSetNetwork: (network: TNetwork) => void;
+  network: TNetwork;
+  isSelected: boolean;
+}) => {
+  return (
+    <Pressable
+      onPress={() => {
+        onSetNetwork(network);
+      }}
+      style={({ pressed }) => [
+        {
+          transform: [
+            {
+              scale: pressed ? 0.99 : 1
+            }
+          ],
+          flexDirection: 'row',
+          alignItems: 'center',
+          padding: 10
+        }
+      ]}
+    >
+      <Image
+        source={network.logoUrl
+          ? { uri: network.logoUrl }
+          : require('../../../../assets/coins/default.png')}
+        style={{
+          marginRight: 10,
+          width: 20,
+          height: 20,
+          resizeMode: 'contain'
+        }}
+      />
+      <Text>{network.name}</Text>
+      {!isSelected ? (
+        <View
+          style={{
+            borderRadius: 60,
+            width: 20,
+            height: 20,
+            borderColor: Colors.neutral25,
+            borderWidth: 1,
+            marginLeft: 'auto'
+          }}
+        />
+      ) : (
+        <Image
+          source={require('../../../../assets/icon/checkFull.png')}
+          style={{
+            marginLeft: 'auto',
+            width: 20,
+            height: 20,
+            resizeMode: 'contain'
+          }}
+        />
+      )}
+    </Pressable>
+  )
+}
 
 const SendWalletScreen = () => {
-  const [network, setNetwork] = useState(null);
+  const [network, setNetwork] = useState<TNetwork | null>(null);
   const [showListNetwork, setShowListNetwork] = useState(false);
+  const [networkList, setNetworkList] = useState<TNetwork[]>([]);
   const [toAddress, setToAddress] = useState(null);
   const route = useRoute<WalletRouteProps<'SendWalletScreen'>>();
   const navigation = useNavigation<StackNavigationProp<WalletParamList>>();
+
+  useEffect(() => {
+    (async () => {
+      const networks = await getNetworks({ isTestNet: true });
+      setNetworkList(networks);
+    })()
+  }, [])
+
   return (
     <DefaultBody>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -54,7 +130,7 @@ const SendWalletScreen = () => {
             <Image
               source={
                 network
-                  ? require('../../../../assets/coins/ethereum.png')
+                  ? { uri: network.logoUrl }
                   : require('../../../../assets/icon/coin.png')
               }
               style={{
@@ -65,7 +141,7 @@ const SendWalletScreen = () => {
               }}
             />
             <Text color={network ? 'black' : Colors.grayText}>
-              {network ? network : 'Choose your network'}
+              {network ? network.name : 'Choose your network'}
             </Text>
             <Image
               source={
@@ -98,9 +174,9 @@ const SendWalletScreen = () => {
             >
               <View padding={2} mb={3} justifyContent={'center'}>
                 <TextInput
-                  editable={false}
                   placeholder="Search your network"
                   style={{
+                    height: 40,
                     borderWidth: 1,
                     borderRadius: 8,
                     borderColor: Colors.neutral25,
@@ -118,57 +194,15 @@ const SendWalletScreen = () => {
                   }}
                 />
               </View>
-              <Pressable
-                onPress={() => {
-                  setNetwork('Ethereum');
-                  setShowListNetwork(false);
-                }}
-                style={({ pressed }) => [
-                  {
-                    transform: [
-                      {
-                        scale: pressed ? 0.99 : 1
-                      }
-                    ],
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    padding: 10
-                  }
-                ]}
-              >
-                <Image
-                  source={require('../../../../assets/coins/ethereum.png')}
-                  style={{
-                    marginRight: 10,
-                    width: 20,
-                    height: 20,
-                    resizeMode: 'contain'
-                  }}
+              {networkList.map((n) => (
+                <Network
+                  key={n.slug}
+                  network={n}
+                  isSelected={n.slug === network?.slug}
+                  onSetNetwork={setNetwork}
                 />
-                <Text>Ethereum</Text>
-                {!network ? (
-                  <View
-                    style={{
-                      borderRadius: 60,
-                      width: 20,
-                      height: 20,
-                      borderColor: Colors.neutral25,
-                      borderWidth: 1,
-                      marginLeft: 'auto'
-                    }}
-                  />
-                ) : (
-                  <Image
-                    source={require('../../../../assets/icon/checkFull.png')}
-                    style={{
-                      marginLeft: 'auto',
-                      width: 20,
-                      height: 20,
-                      resizeMode: 'contain'
-                    }}
-                  />
-                )}
-              </Pressable>
+              )
+              )}
             </View>
           )}
           {network && !showListNetwork && (
@@ -184,7 +218,8 @@ const SendWalletScreen = () => {
                     borderWidth: 1,
                     borderRadius: 8,
                     paddingHorizontal: width / 10,
-                    borderColor: Colors.grayText
+                    borderColor: Colors.grayText,
+                    height: 40
                   }}
                 />
                 <Image
@@ -211,7 +246,8 @@ const SendWalletScreen = () => {
                   style={{
                     borderWidth: 1,
                     borderRadius: 8,
-                    paddingHorizontal: width / 10
+                    paddingHorizontal: width / 10,
+                    height: 40
                   }}
                 />
                 <Image
@@ -235,12 +271,14 @@ const SendWalletScreen = () => {
             navigation.navigate('WalletAmountScreen', {
               data: {
                 from: route.params.name,
+                fromAddress: route.params.address,
                 to: toAddress,
-                network: network,
+                network: network ? network.slug : '',
                 valid: false
               }
             });
           }}
+          disabled={!network}
           style={({ pressed }) => [
             {
               alignItems: 'center',

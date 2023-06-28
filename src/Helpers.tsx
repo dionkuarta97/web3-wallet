@@ -1,3 +1,4 @@
+import { ethers } from 'ethers';
 import { Dimensions } from 'react-native';
 import BackgroundFetch from 'react-native-background-fetch';
 
@@ -83,4 +84,23 @@ export function passwordValidations(text: string | null) {
     }
   }
   return validasi;
+}
+
+export const displayToken = (balance: string, decimals: number, precision?: number) => {
+  if (!balance) return '0';
+
+  const _balance = ethers.utils.formatUnits(balance, decimals);
+  console.log({ _balance })
+  return toPlainString( 
+    parseFloat(Number.parseFloat(_balance).toFixed(precision || 5))
+  );
+}
+
+function toPlainString(num: number) {
+  return (''+ +num).replace(/(-?)(\d*)\.?(\d*)e([+-]\d+)/,
+    function(a,b,c,d,e) {
+      return e < 0
+        ? b + '0.' + Array(1-e-c.length).join('0') + c + d
+        : b + c + d + Array(e-d.length+1).join('0');
+    });
 }

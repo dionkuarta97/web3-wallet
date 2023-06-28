@@ -4,35 +4,24 @@ import { tokens } from './data';
 import { Colors } from '../../../../Colors';
 import { memo } from 'react';
 import FastImage from 'react-native-fast-image';
+import { ethers } from 'ethers';
+import { TokenType } from '../../../../state/wallet/walletTypes';
+import { displayToken } from '../../../../Helpers';
 
 type props = {
-  el: {
-    name: string;
-    symbol: string;
-    balance: number;
-    network: string;
-    price: number;
-    logo: string;
-  };
+  token: TokenType;
   search: string;
   idx: number;
   onClose: () => void;
   setSearch: (val: string) => void;
-  onTap: (val: {
-    name: string;
-    symbol: string;
-    balance: number;
-    network: string;
-    price: number;
-    logo: string;
-  }) => void;
+  onTap: (token: TokenType) => void;
 };
 
-const Token = ({ el, idx, onClose, setSearch, onTap, search }: props) => {
+const Token = ({ token, idx, onClose, setSearch, onTap, search }: props) => {
   return (
     <Pressable
       onPress={() => {
-        onTap(el);
+        onTap(token);
         onClose();
         setSearch('');
       }}
@@ -51,7 +40,7 @@ const Token = ({ el, idx, onClose, setSearch, onTap, search }: props) => {
       ]}
     >
       <FastImage
-        source={{ uri: el.logo }}
+        source={{ uri: token.logo }}
         resizeMode={FastImage.resizeMode.contain}
         style={{
           height: 50,
@@ -59,16 +48,16 @@ const Token = ({ el, idx, onClose, setSearch, onTap, search }: props) => {
         }}
       />
       <VStack ml={4} width={'35%'}>
-        <Text fontWeight={'semibold'}>{el.symbol}</Text>
+        <Text fontWeight={'semibold'}>{token.symbol}</Text>
         <Text numberOfLines={1} fontSize={13} color={Colors.grayText}>
-          {el.name}
+          {token.name}
         </Text>
-        <Text numberOfLines={1} color={Colors.grayText} fontSize={13}>
-          {el.network}
-        </Text>
+        {/* <Text numberOfLines={1} color={Colors.grayText} fontSize={13}>
+          {token.}
+        </Text> */}
       </VStack>
       <Text fontSize={15} ml="auto">
-        {el.balance} {el.symbol}
+        {displayToken(token.balance, token.decimals)} {token.symbol}
       </Text>
     </Pressable>
   );

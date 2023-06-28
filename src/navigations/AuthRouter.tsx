@@ -31,7 +31,7 @@ export type AuthParamList = {
           to: string;
           network: string;
           valid: boolean;
-          amount?: number;
+          amount?: number | string;
         };
       }
     | undefined;
