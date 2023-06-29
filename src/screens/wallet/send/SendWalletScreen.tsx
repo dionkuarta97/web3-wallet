@@ -9,6 +9,10 @@ import { Pressable, Image, TextInput, Keyboard } from 'react-native';
 import { TouchableWithoutFeedback } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { getNetworks, Network as TNetwork } from '../../../api/networks';
+import { useAtom } from 'jotai';
+import { sendCryptoStateAtom } from '../../../state/send-crypto';
+import { walletByAddressAtom } from '../../../state/wallet/walletReducer';
+import { TokenType } from '../../../api/tokens';
 
 
 const Network = ({
@@ -83,13 +87,46 @@ const SendWalletScreen = () => {
   const [toAddress, setToAddress] = useState(null);
   const route = useRoute<WalletRouteProps<'SendWalletScreen'>>();
   const navigation = useNavigation<StackNavigationProp<WalletParamList>>();
+  const [walletByAddress, setWalletByAddress] = useAtom(walletByAddressAtom);
+  const [sendCryptoState, setSendCryptoState] = useAtom(sendCryptoStateAtom);
 
   useEffect(() => {
     (async () => {
       const networks = await getNetworks({ isTestNet: true });
       setNetworkList(networks);
+      setWalletByAddress(route.params.address);
     })()
   }, [])
+  
+  useEffect(() => {
+    setSendCryptoState({
+      ...sendCryptoState,
+      senderWallet: walletByAddress,
+    })
+  }, [walletByAddress])
+
+  useEffect(() => {
+    setSendCryptoState({
+      ...sendCryptoState,
+      destinationWallet: {
+        address: toAddress,
+      }
+    })
+  }, [toAddress])
+
+  const onSetNetwork = (network: TNetwork) => {
+    setNetwork(network);
+
+    const networkFeeToken = walletByAddress.networks
+      .find(n => n.slug === network.slug)?.tokens
+      .find(t => t.tokenType === TokenType.NATIVE);
+
+    setSendCryptoState({
+      ...sendCryptoState,
+      network: network,
+      networkFeeToken,
+    })
+  }
 
   return (
     <DefaultBody>
@@ -199,7 +236,7 @@ const SendWalletScreen = () => {
                   key={n.slug}
                   network={n}
                   isSelected={n.slug === network?.slug}
-                  onSetNetwork={setNetwork}
+                  onSetNetwork={onSetNetwork}
                 />
               )
               )}

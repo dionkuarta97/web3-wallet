@@ -34,6 +34,11 @@ export type Wallet = {
   createdAt: Number;
 };
 
+export type PublicWallet = {
+  name?: string;
+  address: string;
+}
+
 export type InitialWallet = {
   newWallet: NewWallet | null;
   walletName: string;

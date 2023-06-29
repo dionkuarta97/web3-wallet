@@ -19,60 +19,61 @@ import { TokenType } from '../../../state/wallet/walletTypes';
 import { ethers } from 'ethers';
 import { getNetworkBySlug } from '../../../api/networks';
 import { TokenType as TokenTypeEnum } from '../../../api/tokens';
+import { sendCryptoStateAtom } from '../../../state/send-crypto';
 
 const WalletAmountScreen = () => {
   const [choose, setChoose] = useState<TokenType | null>(null);
   const [tokens, setTokens] = useState<TokenType[]>([]);
   const [amount, setAmount] = useState('');
-  const [networkFee, setNetworkFee] = useState('0');
-  const [networkFeeToken, setNetworkFeeToken] = useState<TokenType | null>(null);
+  const [inputAmount, setInputAmount] = useState('');
   const [total, setTotal] = useState('0');
   const [isFocused, setIsFocused] = useState(false);
   const [show, setShow] = useState(false);
   const route = useRoute<WalletRouteProps<'WalletAmountScreen'>>();
   const navigation = useNavigation<StackNavigationProp<RootParamList>>();
-  const [wallet] = useAtom(walletReducer);
+  const [sendCryptoState, setSendCryptoState] = useAtom(sendCryptoStateAtom);
+  const {
+    network,
+    senderWallet,
+    networkFee,
+    networkFeeToken,
+    destinationWallet,
+  } = sendCryptoState;
 
   useEffect(() => {
-    (async () => {
-      const { data } = route.params;
-      const { from, fromAddress, to, network: networkSlug } = data;
-      const senderWallet = wallet.wallets.find(w => w.walletAddress.toLowerCase() === fromAddress.toLowerCase());
-      const sourceNetwork = senderWallet.networks.find(n => n.slug === networkSlug);
-      const tokens = sourceNetwork.tokens;
-      setTokens(tokens);
-    })()
+    const tokens = senderWallet.networks.find(n => n.slug === network.slug)?.tokens;
+    setTokens(tokens);
   }, [])
 
   useEffect(() => {
     if (!amount || Number(amount) == 0) {
-      setNetworkFee('0');
+      setSendCryptoState({
+        ...sendCryptoState,
+        networkFee: '0',
+      })
       return
     }
     // TODO: Network fee should be refreshed after a period of time
     (async () => {
-      const { data } = route.params;
-      const { from, fromAddress, to, network: networkSlug } = data;
-      const senderWallet = wallet.wallets.find(w => w.walletAddress.toLowerCase() === fromAddress.toLowerCase());
-      const sourceNetwork = senderWallet.networks.find(n => n.slug === networkSlug);
-      const networkConfig = await getNetworkBySlug(networkSlug);
-      const provider = new ethers.providers.JsonRpcProvider(networkConfig.rpcUrl);
-      const tokens = sourceNetwork.tokens;
-      const gasPaymentToken = tokens.find(t => t.tokenType === TokenTypeEnum.NATIVE);
+      const provider = new ethers.providers.JsonRpcProvider(network.rpcUrl);
       const value = amount;
-
-      setNetworkFeeToken(gasPaymentToken);
+      const gasPaymentToken = tokens.find(t => t.tokenType === TokenTypeEnum.NATIVE);
 
       if (choose.tokenType == TokenTypeEnum.NATIVE) {
         const tx = {
-          to: to,
+          to: destinationWallet.address,
           data: '0x',
           value
         }
         const feeData = await provider.getFeeData();
         const estimatedGas = await provider.estimateGas(tx);
-        const networkFee = estimatedGas.mul(feeData.gasPrice);
-        setNetworkFee(networkFee.toString());
+        const _networkFee = estimatedGas.mul(feeData.gasPrice);
+
+        setSendCryptoState({
+          ...sendCryptoState,
+          networkFeeToken: gasPaymentToken,
+          networkFee: _networkFee.toString()
+        });
       }
 
       if (choose.tokenType == TokenTypeEnum.ERC20) {
@@ -82,9 +83,14 @@ const WalletAmountScreen = () => {
         const contract = new ethers.Contract(choose.tokenAddress, erc20Abi, provider);
         const feeData = await provider.getFeeData();
         const fromWallet = new ethers.Wallet(senderWallet.walletPrivateKey, provider);
-        const estimatedGas = await contract.connect(fromWallet).estimateGas.transfer(to, value);
-        const networkFee = estimatedGas.mul(feeData.gasPrice);
-        setNetworkFee(networkFee.toString());
+        const estimatedGas = await contract.connect(fromWallet).estimateGas.transfer(destinationWallet.address, value);
+        const _networkFee = estimatedGas.mul(feeData.gasPrice);
+
+        setSendCryptoState({
+          ...sendCryptoState,
+          networkFeeToken: gasPaymentToken,
+          networkFee: _networkFee.toString()
+        });
       }
     })()
   }, [amount])
@@ -95,8 +101,7 @@ const WalletAmountScreen = () => {
       return
     }
     if (choose.tokenType == TokenTypeEnum.NATIVE) {
-      const parsedAmount = ethers.utils.parseUnits(amount, choose.decimals);
-      const total = ethers.BigNumber.from(parsedAmount).add(networkFee).toString();
+      const total = ethers.BigNumber.from(amount).add(networkFee).toString();
       setTotal(total);
     } else {
       setTotal(amount);
@@ -317,15 +322,12 @@ const WalletAmountScreen = () => {
         </Text>
         <View justifyContent={'center'}>
           <TextInput
-            value={amount ? displayToken(amount, choose?.decimals) : ''}
+            value={inputAmount}
             editable={choose ? true : false}
             keyboardType="numeric"
             placeholder="Input your amount"
             onChangeText={(val) => {
-              if (!val) {
-                setAmount('');
-                return;
-              }
+              setInputAmount(val);
               setAmount(
                 ethers.utils.parseUnits(val, choose?.decimals).toString()
               );
@@ -414,9 +416,15 @@ const WalletAmountScreen = () => {
               </HStack>
               <HStack mt={2}>
                 <Text>Network Fee</Text>
-                {networkFeeToken && (
+                {sendCryptoState.networkFeeToken && (
                   <Text ml={'auto'}>
-                    {networkFeeToken.symbol} {displayToken(networkFee, networkFeeToken.decimals, 18)}
+                    {sendCryptoState.networkFeeToken.symbol + ' '}
+                    {displayToken(
+                        sendCryptoState.networkFee,
+                        sendCryptoState.networkFeeToken.decimals,
+                        18
+                      )
+                    }
                   </Text>
                 )}
               </HStack>
@@ -432,7 +440,7 @@ const WalletAmountScreen = () => {
           <HStack>
             <Text fontWeight={'bold'}>Total Payment</Text>
             <Text fontWeight={'bold'} ml={'auto'}>
-              {choose?.symbol} {choose ? displayToken(total, choose.decimals) : 0}
+              {choose?.symbol} {choose ? displayToken(total, choose.decimals, 18) : 0}
             </Text>
           </HStack>
           {choose?.tokenType === TokenTypeEnum.ERC20 && networkFeeToken && (

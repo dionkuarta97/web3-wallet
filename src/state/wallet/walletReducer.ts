@@ -1,5 +1,6 @@
 import { atomWithReducer } from 'jotai/utils';
-import { InitialWallet } from './walletTypes';
+import { WritableAtom, atom } from 'jotai';
+import { InitialWallet, Wallet } from './walletTypes';
 import { walletAction } from './walletAction';
 import { checkStorageWallet } from './walletHelpers';
 
@@ -15,3 +16,13 @@ const initialWallet: InitialWallet = {
 };
 
 export const walletReducer = atomWithReducer(initialWallet, walletAction);
+export const walletByAddressAtom = atom(
+  null as Wallet | null,
+  (_get, set, walletAddress: string) => {
+    const wallets = _get(walletReducer).wallets;
+    const wallet = wallets.find(wallet => wallet.walletAddress === walletAddress);
+    if (wallet) {
+      set(walletByAddressAtom as any, wallet);
+    }
+  }
+)
