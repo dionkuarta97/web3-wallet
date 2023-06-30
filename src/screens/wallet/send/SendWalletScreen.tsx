@@ -10,7 +10,7 @@ import { TouchableWithoutFeedback } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { getNetworks, Network as TNetwork } from '../../../api/networks';
 import { useAtom } from 'jotai';
-import { sendCryptoStateAtom } from '../../../state/send-crypto';
+import { SendCryptoTxStatus, sendCryptoStateAtom } from '../../../state/send-crypto';
 import { walletByAddressAtom } from '../../../state/wallet/walletReducer';
 import { TokenType } from '../../../api/tokens';
 

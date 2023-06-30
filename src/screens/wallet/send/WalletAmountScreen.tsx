@@ -1,7 +1,7 @@
-import { Text, Center, View, VStack, ScrollView, HStack, Divider } from 'native-base';
+import { Text, Center, View, VStack, ScrollView, HStack, Divider, Spinner } from 'native-base';
 import DefaultBody from '../../../components/DefaultBody';
 import { Colors } from '../../../Colors';
-import { displayToken, height, width } from '../../../Helpers';
+import { displayToken, height, logJsonPretty, width } from '../../../Helpers';
 import TokenTap from './walletAmountComponents/TokenTap';
 import { useEffect, useState } from 'react';
 import Wallet from '../../../../assets/icon/wallet.png';
@@ -19,7 +19,9 @@ import { TokenType } from '../../../state/wallet/walletTypes';
 import { ethers } from 'ethers';
 import { getNetworkBySlug } from '../../../api/networks';
 import { TokenType as TokenTypeEnum } from '../../../api/tokens';
-import { sendCryptoStateAtom } from '../../../state/send-crypto';
+import { SendCryptoTxStatus, readWriteSendCryptoTransactionHistoryAtom, sendCryptoStateAtom, sendCryptoTransactionByTxHashAtom, updateSendCryptoTransactionByTxHashAtom } from '../../../state/send-crypto';
+import { TextEllipsis } from 'neka-simple-utilities';
+import { useDeepCompareEffectNoCheck } from 'use-deep-compare-effect'
 
 const WalletAmountScreen = () => {
   const [choose, setChoose] = useState<TokenType | null>(null);
@@ -28,16 +30,24 @@ const WalletAmountScreen = () => {
   const [inputAmount, setInputAmount] = useState('');
   const [total, setTotal] = useState('0');
   const [isFocused, setIsFocused] = useState(false);
+  const [isLoadingProcessingTx, setIsLoadingProcessingTx] = useState(false);
   const [show, setShow] = useState(false);
   const route = useRoute<WalletRouteProps<'WalletAmountScreen'>>();
   const navigation = useNavigation<StackNavigationProp<RootParamList>>();
+  const [transactionStep, setTransactionStep] = useState<'CONFIRMATION' | 'PROCESSING' | 'DELIVERY'>('CONFIRMATION');
   const [sendCryptoState, setSendCryptoState] = useAtom(sendCryptoStateAtom);
+  const [sendCryptoTxByHash, setSendCryptoTxByHash] = useAtom(sendCryptoTransactionByTxHashAtom);
+  const [, appendSendCryptoTxHistory] = useAtom(readWriteSendCryptoTransactionHistoryAtom);
+  const [, updateSendCryptoTx] = useAtom(updateSendCryptoTransactionByTxHashAtom);
+  const [, clearSendCryptoTxByHash] = useAtom(sendCryptoTransactionByTxHashAtom);
   const {
     network,
     senderWallet,
     networkFee,
     networkFeeToken,
     destinationWallet,
+    token,
+    evmFeeData
   } = sendCryptoState;
 
   useEffect(() => {
@@ -45,6 +55,7 @@ const WalletAmountScreen = () => {
     setTokens(tokens);
   }, [])
 
+  // Update Network Fees and other Fee Data
   useEffect(() => {
     if (!amount || Number(amount) == 0) {
       setSendCryptoState({
@@ -71,8 +82,13 @@ const WalletAmountScreen = () => {
 
         setSendCryptoState({
           ...sendCryptoState,
+          amount,
           networkFeeToken: gasPaymentToken,
-          networkFee: _networkFee.toString()
+          networkFee: _networkFee.toString(),
+          evmFeeData: {
+            ...feeData,
+            estimatedGas,
+          }
         });
       }
 
@@ -88,13 +104,19 @@ const WalletAmountScreen = () => {
 
         setSendCryptoState({
           ...sendCryptoState,
+          amount,
           networkFeeToken: gasPaymentToken,
-          networkFee: _networkFee.toString()
+          networkFee: _networkFee.toString(),
+          evmFeeData: {
+            ...feeData,
+            estimatedGas,
+          }
         });
       }
     })()
   }, [amount])
 
+  // Update Total
   useEffect(() => {
     if (!amount || Number(amount) == 0) {
       setTotal('0');
@@ -108,6 +130,97 @@ const WalletAmountScreen = () => {
     }
   }, [amount, networkFee])
 
+  // Handle Done Button on Modal
+  const handleDonePress = () => {
+    if (!sendCryptoTxByHash) {
+      submitSendTransaction();
+      return;
+    }
+    clearSendCryptoTxByHash(sendCryptoTxByHash.txHash);
+    navigation.replace('BottomTabRouter', {
+      screen: 'HomeRouter',
+      params: {
+        screen: 'HomeScreen'
+      }
+    });
+  }
+  
+  // Submit Send Transaction
+  const submitSendTransaction = async () => {
+    setIsLoadingProcessingTx(true);
+    
+    const provider = new ethers.providers.JsonRpcProvider(network.rpcUrl);
+    const wallet = new ethers.Wallet(senderWallet.walletPrivateKey, provider);
+    if (token.tokenType == TokenTypeEnum.NATIVE) {
+      const tx = {
+        from: senderWallet.walletAddress,
+        to: destinationWallet.address,
+        value: amount,
+        gasLimit: evmFeeData.estimatedGas.mul(150).div(100),
+        gasPrice: evmFeeData.gasPrice,
+      }
+      logJsonPretty(tx);
+      const trx = await wallet.sendTransaction(tx);
+      setSendCryptoState({
+        ...sendCryptoState,
+        txHash: trx.hash,
+      })
+      appendSendCryptoTxHistory({
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        txHash: trx.hash,
+        status: SendCryptoTxStatus.PROCESSING
+      })
+      setSendCryptoTxByHash(trx.hash);
+    }
+    setIsLoadingProcessingTx(false)
+  }
+
+  const selectToken = async (token: TokenType) => {
+    setChoose(token);
+    setSendCryptoState({
+      ...sendCryptoState,
+      token
+    })
+  }
+
+  // Check Transaction Status periodically
+  useEffect(() => {
+    if (!sendCryptoTxByHash) return;
+    const intervalId = setInterval(async () => {
+      console.log('hello')
+      const provider = new ethers.providers.JsonRpcProvider(network.rpcUrl);
+      const receipt = await provider.getTransactionReceipt(sendCryptoTxByHash.txHash);
+      console.log({ receipt })
+      if (!receipt) { return }
+      updateSendCryptoTx({
+        ...sendCryptoTxByHash,
+        status: SendCryptoTxStatus.SUCCESS,
+      })
+      // TODO: Need to find a better way to update sendCryptoTxByHash
+      // updateSendCryptoTx will not update sendCryptoTxByHash
+      // but it should
+      // Need to call this function otherwise 
+      // sendCryptoTxByHash will not be updated
+      setSendCryptoTxByHash(sendCryptoTxByHash.txHash);
+    }, 3000)
+
+    return () => clearInterval(intervalId);
+  }, [sendCryptoTxByHash])
+
+  // Update Transaction Steps
+  useDeepCompareEffectNoCheck(() => {
+    if (!sendCryptoTxByHash) return;
+    if (sendCryptoTxByHash.status === SendCryptoTxStatus.PROCESSING) {
+      setTransactionStep('PROCESSING');
+      return;
+    }
+    if (sendCryptoTxByHash.status === SendCryptoTxStatus.SUCCESS) {
+      setTransactionStep('DELIVERY');
+      return;
+    }
+  }, [sendCryptoTxByHash])
+
   return (
     <DefaultBody>
       {route.params.data.valid && (
@@ -115,7 +228,9 @@ const WalletAmountScreen = () => {
           header={
             <View>
               <Text color={'white'} fontWeight={'bold'} fontSize={20}>
-                Congratulation
+                {transactionStep === 'CONFIRMATION' && 'Congratulation'}
+                {transactionStep === 'PROCESSING' && 'Processing'}
+                {transactionStep === 'DELIVERY' && 'Delivery'}
               </Text>
             </View>
           }
@@ -131,7 +246,7 @@ const WalletAmountScreen = () => {
                       style={{
                         width: 15,
                         height: 15,
-                        backgroundColor: Colors.green,
+                        backgroundColor: (transactionStep === 'CONFIRMATION' ? Colors.green : Colors.neutral50),
                         borderRadius: 50
                       }}
                     />
@@ -148,7 +263,7 @@ const WalletAmountScreen = () => {
                     style={{
                       width: 15,
                       height: 15,
-                      backgroundColor: Colors.neutral50,
+                      backgroundColor: (transactionStep === 'PROCESSING' ? Colors.green : Colors.neutral50),
                       borderRadius: 50
                     }}
                   />
@@ -164,14 +279,14 @@ const WalletAmountScreen = () => {
                     style={{
                       width: 15,
                       height: 15,
-                      backgroundColor: Colors.neutral50,
+                      backgroundColor: (transactionStep === 'DELIVERY' ? Colors.green : Colors.neutral50),
                       borderRadius: 50
                     }}
                   />
                 </HStack>
                 <HStack mt={1}>
                   <Text fontSize={11} color={Colors.green}>
-                    Confirmed
+                    Confirmation
                   </Text>
                   <View
                     style={{
@@ -183,7 +298,7 @@ const WalletAmountScreen = () => {
                     }}
                   />
                   <Text fontSize={11} color={Colors.grayText}>
-                    Ready
+                    Processing
                   </Text>
                   <View
                     style={{
@@ -218,7 +333,7 @@ const WalletAmountScreen = () => {
                   <VStack alignItems={'flex-end'} ml={'auto'}>
                     <Text color={Colors.grayText}>Amount</Text>
                     <Text numberOfLines={1} fontWeight={'semibold'}>
-                      {choose?.symbol} {choose?.balance}
+                      {choose?.symbol} {displayToken(total, choose.decimals, 8)}
                     </Text>
                   </VStack>
                 </HStack>
@@ -230,7 +345,7 @@ const WalletAmountScreen = () => {
                   <VStack alignItems={'flex-end'} ml={'auto'}>
                     <Text color={Colors.grayText}>To</Text>
                     <Text numberOfLines={1} fontWeight={'semibold'}>
-                      {route.params?.data.to}
+                      {TextEllipsis({ position: 'middle', text: destinationWallet.address, length: 6 })}
                     </Text>
                   </VStack>
                 </HStack>
@@ -241,34 +356,36 @@ const WalletAmountScreen = () => {
                   <Text fontWeight={'semibold'}>Total Price</Text>
                   <Text ml={'auto'} numberOfLines={1} fontWeight={'semibold'}>
                     {/* IDR {choose ? (choose.idrPrice * amount).toLocaleString('id-ID') : 0} */}
+                    {choose?.symbol} {choose ? displayToken(total, choose.decimals, 18) : 0}
                   </Text>
                 </HStack>
                 <HStack mt={1}>
-                  <Text fontWeight={'semibold'}>NetWork Fee</Text>
+                  <Text fontWeight={'semibold'}>Network Fee</Text>
                   <Text ml={'auto'} numberOfLines={1} fontWeight={'semibold'}>
-                    {networkFee}
+                    {networkFeeToken?.symbol} {choose ? displayToken(networkFee, networkFeeToken.decimals, 10) : 0}
                   </Text>
                 </HStack>
                 <View width={'100%'} my={2} borderTopWidth={1} />
                 <HStack mt={1}>
                   <Text fontWeight={'semibold'}>Total Payment</Text>
                   <Text ml={'auto'} numberOfLines={1} fontWeight={'semibold'}>
-                    {/* IDR {choose ? (amount * choose.idrPrice + 500500).toLocaleString('id-ID') : 0} */}
+                    {choose?.symbol} {choose ? displayToken(total, choose.decimals, 18) : 0}
                   </Text>
                 </HStack>
+                {choose?.tokenType === TokenTypeEnum.ERC20 && networkFeeToken && (
+                  <HStack>
+                    <Text fontWeight={'bold'} ml={'auto'}>
+                      {networkFeeToken?.symbol} {choose ? displayToken(networkFee, networkFeeToken.decimals, 10) : 0}
+                    </Text>
+                  </HStack>
+                )}
               </View>
             </View>
           }
           footer={
             <Pressable
-              onPress={() => {
-                navigation.replace('BottomTabRouter', {
-                  screen: 'HomeRouter',
-                  params: {
-                    screen: 'HomeScreen'
-                  }
-                });
-              }}
+              onPress={handleDonePress}
+              disabled={isLoadingProcessingTx}
               style={({ pressed }) => [
                 {
                   width: width / 2,
@@ -281,7 +398,7 @@ const WalletAmountScreen = () => {
               ]}
             >
               <Text fontWeight={'semibold'} color="white">
-                Done
+                {isLoadingProcessingTx ? (<Spinner color={Colors.white} />) : 'Done' }
               </Text>
             </Pressable>
           }
@@ -301,19 +418,16 @@ const WalletAmountScreen = () => {
         <View alignItems={'center'} flexDirection={'row'}>
           <TokenTap
             tokens={tokens}
-            logo={choose?.logo}
-            onTap={(val) => {
-              setChoose(val);
-              setAmount(null);
-            }}
-            value={choose ? choose.name : 'Choose'}
+            logo={token?.logo}
+            onTap={selectToken}
+            value={token ? token.name : 'Choose'}
           />
           <VStack width={'45%'} ml={'auto'}>
             <Text fontSize={13} color={Colors.grayText}>
               Your Balance
             </Text>
             <Text numberOfLines={1} fontWeight={'semibold'}>
-              {choose ? choose.symbol + ' ' + displayToken(choose.balance, choose.decimals) : 0}
+              {token ? token.symbol + ' ' + displayToken(token.balance, token.decimals) : 0}
             </Text>
           </VStack>
         </View>

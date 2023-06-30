@@ -104,3 +104,7 @@ function toPlainString(num: number) {
         : b + c + d + Array(e-d.length+1).join('0');
     });
 }
+
+export const logJsonPretty = (json: any) => {
+  console.log(JSON.stringify(json, null, 2));
+}
