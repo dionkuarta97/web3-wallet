@@ -1,5 +1,5 @@
 import { Image, StyleSheet, TextInput } from 'react-native';
-import { width } from '../../../Helpers';
+import { width, height } from '../../../Helpers';
 import { View } from 'native-base';
 import WalletAddress from '../../../../assets/icon/address.png';
 import { Colors } from '../../../Colors';
@@ -25,7 +25,8 @@ const style = StyleSheet.create({
     borderRadius: 6,
     borderWidth: 0.5,
     paddingLeft: width * 0.13,
-    color: Colors.neutral50
+    color: Colors.neutral50,
+    height: height / 18
   },
   img: {
     height: 25,

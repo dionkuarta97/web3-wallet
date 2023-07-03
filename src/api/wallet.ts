@@ -137,12 +137,26 @@ export const detectBalance = async (address: string) => {
       ]
       const tokenContract = new ethers.Contract(token.address, erc20Abi, provider);
 
-      let balance;
+      let balance = '0';
       if (token.token_type == TokenTypeEnum.NATIVE) {
-        balance = await provider.getBalance(address);
+        try {
+          balance = (await provider.getBalance(address)).toString();
+        } catch (err) {
+          console.log('err getBalance', {
+            token,
+            err
+          })
+        }
       }
       if (token.token_type == TokenTypeEnum.ERC20) {
+        try {
         balance = await tokenContract.balanceOf(address);
+        } catch (err) {
+          console.log('err getBalance', {
+            token,
+            err
+          })
+        }
       }
       const networkToken: TokenType = {
         tokenAddress: token.address,
