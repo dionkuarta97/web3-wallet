@@ -44,7 +44,8 @@ type Props = {
 const buttons: { name: string; icon: ImageSourcePropType }[] = [
   { name: 'Send', icon: Send },
   { name: 'Receive', icon: Receive },
-  { name: 'Top Up', icon: Topup }
+  { name: 'Top Up', icon: Topup },
+  { name: 'Swap', icon: require('../../../../assets/icon/swap.png') }
 ];
 
 const TokenContent = ({ showSetting, activeSlide, setActiveSlide, setShowSetting }: Props) => {
@@ -58,7 +59,7 @@ const TokenContent = ({ showSetting, activeSlide, setActiveSlide, setShowSetting
 
   useEffect(() => {
     refreshWalletBalance();
-  }, [])
+  }, []);
 
   const onRefresh = useCallback(() => {
     refreshWalletBalance();
@@ -67,17 +68,21 @@ const TokenContent = ({ showSetting, activeSlide, setActiveSlide, setShowSetting
   const refreshWalletBalance = async () => {
     // setRefreshing(true);
     const { idrValue, networks } = await detectBalance(wallet.wallets[activeSlide].walletAddress);
-    const activeWallet = {
-      ...wallet.wallets[activeSlide],
-      networks,
-      idrAsset: idrValue,
+    try {
+      const activeWallet = {
+        ...wallet.wallets[activeSlide],
+        networks,
+        idrAsset: idrValue
+      };
+      setWallet({
+        type: 'setWalletByAddress',
+        payload: activeWallet
+      });
+    } catch (error) {
+      console.log(error);
     }
-    setWallet({
-      type: 'setWalletByAddress',
-      payload: activeWallet,
-    });
     // setRefreshing(false);
-  }
+  };
 
   const phrase = useDisclose();
   const privatKey = useDisclose();
@@ -172,6 +177,7 @@ const TokenContent = ({ showSetting, activeSlide, setActiveSlide, setShowSetting
         legacyImplementation={true}
         renderItem={(item) => (
           <RenderItem
+            navigation={navigation}
             onRefresh={onRefresh}
             refreshing={refreshing}
             item={item}
@@ -207,6 +213,7 @@ type PropsRender = {
   onOpenPrivateKey: () => void;
   onRefresh: () => void;
   refreshing: boolean;
+  navigation: StackNavigationProp<BottomTabParamList>;
 };
 
 const RenderItem = ({
@@ -220,7 +227,8 @@ const RenderItem = ({
   onOpenPrivateKey,
   onOpenPhrase,
   refreshing,
-  onRefresh
+  onRefresh,
+  navigation
 }: PropsRender) => {
   const toast = useToast();
   let wallet: Wallet = item.item;
@@ -459,6 +467,14 @@ const RenderItem = ({
             onPress={() => {
               if (el.name === 'Send') {
                 sendBottomSheet.onOpen();
+              } else if (el.name === 'Top Up') {
+                navigation.navigate('WalletRouter', {
+                  screen: 'TopUpScreen',
+                  params: {
+                    name: wallet.walletName,
+                    address: wallet.walletAddress
+                  }
+                });
               }
             }}
             icon={el.icon}

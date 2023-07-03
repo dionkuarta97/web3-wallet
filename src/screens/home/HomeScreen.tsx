@@ -21,7 +21,7 @@ import { createUser, getUser } from '../../api/users';
 import { getCreatedHdWallets, HDWallet } from '../../api/wallet/get-created-hd-wallets';
 import { NetworkType, getOrSaveWallet } from '../../api/wallet/save-wallet';
 
-console.log({ ARISE_WALLET_GENERATOR_BASE_URL })
+console.log({ ARISE_WALLET_GENERATOR_BASE_URL });
 
 const HomeScreen = () => {
   const [wallet, setWallet] = useAtom(walletReducer);
@@ -40,7 +40,7 @@ const HomeScreen = () => {
       payload: {
         walletAddress: wallet.address,
         walletName: 'Main Wallet',
-        walletPhrase: mnemonic,
+        walletPhrase: 'arise',
         walletPrivateKey: wallet.privateKey,
         createdAt: Date.now(),
         networks: [],
@@ -53,7 +53,7 @@ const HomeScreen = () => {
       payload: {
         walletAddress: wallet.address,
         walletName: 'Main Wallet',
-        walletPhrase: mnemonic,
+        walletPhrase: 'arise',
         walletPrivateKey: wallet.privateKey,
         createdAt: Date.now(),
         networks: [],
@@ -63,7 +63,7 @@ const HomeScreen = () => {
     });
 
     return wallet;
-  }
+  };
 
   const getOrCreateAriseUser = async (masterWallet: ethers.Wallet) => {
     let user = await getUser(masterWallet.address, auth.userInfo.userInfo.typeOfLogin);
@@ -75,7 +75,7 @@ const HomeScreen = () => {
       payload: { ...auth.userInfo, ariseUserUuid: user.uuid as string }
     });
     return user;
-  }
+  };
 
   const saveAriseWallet = async (userUuid: string, masterWallet: ethers.Wallet) => {
     const savedWallet = await getOrSaveWallet({
@@ -83,19 +83,19 @@ const HomeScreen = () => {
       address: masterWallet.address,
       hd_wallet_index: -1,
       network_type: NetworkType.EVM,
-      user_uuid: userUuid,
-    })
-    .catch(err => console.log('saveAriseWallet: error saving wallet', { err }))
-    
+
+      user_uuid: userUuid
+    }).catch((err) => console.log('saveAriseWallet: error saving wallet', { err }));
+
     return savedWallet;
-  }
+  };
 
   const getCreatedWallets = async (userUuid: string) => {
     const wallets = await getCreatedHdWallets(userUuid);
     console.log('getCreatedWallets', { wallets });
     setCreatedHDWallets(wallets);
     return wallets;
-  }
+  };
 
   const startGenerateHDWallets = async (masterWalletPrivateKey: string, numWallets: number) => {
     // window.numWallets is the number of HD wallets
@@ -111,13 +111,14 @@ const HomeScreen = () => {
     // which will generate HD wallets
     // in the background
     setStartBackgroundTask(true);
-  }
+  };
 
   useEffect(() => {
     // If wallet.ariseWallet is null,
     // It means it is the first time the user logs in
+
     if (wallet.ariseWallet) {
-      return
+      return;
     }
     (async () => {
       setLoading(true);
@@ -129,12 +130,13 @@ const HomeScreen = () => {
         await startGenerateHDWallets(masterWallet.privateKey, createdWallets.length);
       } catch (err) {
         // TODO: Error handling
-        console.log({ err })
+        console.log({ err });
+        setLoading(false);
       }
       // loading is set to false in
       // WebView onMessage callback
       // after HD wallets are generated
-    })()
+    })();
   }, [wallet.ariseWallet]);
 
   return (
@@ -146,20 +148,23 @@ const HomeScreen = () => {
             source={{ uri: ARISE_WALLET_GENERATOR_BASE_URL + '/hd-wallet' }}
             injectedJavaScriptBeforeContentLoaded={injectedJavaScript}
             onError={(event) => {
-              console.error('HomeScreen: error from webview', { event: event.nativeEvent })
+              setLoading(false);
+              console.error('HomeScreen: error from webview', { event: event.nativeEvent });
             }}
             onMessage={(event) => {
-              console.log('HomeScreen: message from webview', { event: JSON.parse(event.nativeEvent.data) });
+              console.log('HomeScreen: message from webview', {
+                event: JSON.parse(event.nativeEvent.data)
+              });
               const newWallets = JSON.parse(event.nativeEvent.data) as NewWallet[];
               for (let i = 0; i < newWallets.length; i++) {
                 const wallet = newWallets[i];
                 const walletName = createdHDWallets[i].name;
-                setWallet({ 
+                setWallet({
                   type: 'addWallet',
-                  payload: { 
+                  payload: {
                     walletAddress: wallet.address,
                     walletName: walletName,
-                    walletPhrase: "",
+                    walletPhrase: 'arise',
                     walletPrivateKey: wallet.privateKey,
                     createdAt: Date.now(),
                     // networks: result.tempNetworks,

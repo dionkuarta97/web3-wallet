@@ -15,6 +15,7 @@ import DetailWalletScreen from '../screens/wallet/DetailWalletScreen';
 import ImportWalletScreen from '../screens/wallet/ImportWalletScreen';
 import SendWalletScreen from '../screens/wallet/send/SendWalletScreen';
 import WalletAmountScreen from '../screens/wallet/send/WalletAmountScreen';
+import TopUpScreen from '../screens/wallet/Topup/TopUpScreen';
 
 export type WalletParamList = {
   AllWalletScreen: { new: boolean } | undefined;
@@ -24,6 +25,7 @@ export type WalletParamList = {
   PrivateKeyPhraseInputScreen: undefined;
   DetailWalletScreen: { indexWallet: number };
   SendWalletScreen: { address: string; name: string } | undefined;
+  TopUpScreen: { address: string; name: string } | undefined;
   WalletAmountScreen:
     | {
         data: {
@@ -106,6 +108,13 @@ const wallets: wallet[] = [
   {
     name: 'WalletAmountScreen',
     component: WalletAmountScreen,
+    options: {
+      header: () => <DefaultHeader />
+    }
+  },
+  {
+    name: 'TopUpScreen',
+    component: TopUpScreen,
     options: {
       header: () => <DefaultHeader />
     }

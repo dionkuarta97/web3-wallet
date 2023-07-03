@@ -2,7 +2,7 @@ import { storage } from '../storage';
 
 type Keys = 'listTokens';
 
-export const checkStorageWallet = (key: Keys, val: any, type: 'string') => {
+export const checkStorageToken = (key: Keys, val: any, type: 'string') => {
   let temp: any = null;
   if (type === 'string') {
     temp = storage.getString(key);
@@ -11,6 +11,6 @@ export const checkStorageWallet = (key: Keys, val: any, type: 'string') => {
   }
 };
 
-export const setStorageWallet = (key: Keys, newVal: any) => {
+export const setStorageToken = (key: Keys, newVal: any) => {
   storage.set(key, newVal);
 };

@@ -9,13 +9,15 @@ import { TouchableWithoutFeedback } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { ActionParamList } from '../../navigations/ActionRouter';
 import FromTap from './sendComponents/FromTap';
+import DropDown from './sendComponents/DropDown';
 
 const SendActionScreen = () => {
   const [network, setNetwork] = useState(null);
   const [showListNetwork, setShowListNetwork] = useState(false);
   const [toAddress, setToAddress] = useState(null);
+  const [show, setShow] = useState(false);
 
-  const [from, setFrom] = useState(null);
+  const [from, setFrom] = useState<{ address: string; name: string } | null>(null);
 
   const navigation = useNavigation<StackNavigationProp<ActionParamList>>();
   return (
@@ -179,39 +181,51 @@ const SendActionScreen = () => {
               <Text ml={2} mt={8} mb={1}>
                 From
               </Text>
-              <FromTap
-                onTap={(val) => {
-                  setFrom(val);
-                }}
-                value={from}
-              />
-              <Text ml={2} mt={8} mb={1}>
-                To (Wallet Address)
-              </Text>
-              <View justifyContent={'center'}>
-                <TextInput
-                  editable={from ? true : false}
-                  value={toAddress}
-                  placeholder="Wallet Address"
-                  onChangeText={(val) => {
-                    setToAddress(val);
-                  }}
-                  style={{
-                    borderWidth: 1,
-                    borderRadius: 8,
-                    paddingHorizontal: width / 10
-                  }}
+              <View>
+                <FromTap
+                  show={show}
+                  value={from ? from.address : null}
+                  setShow={(val) => setShow(!show)}
                 />
-                <Image
-                  source={require('../../../assets/icon/wallet.png')}
-                  style={{
-                    resizeMode: 'contain',
-                    width: 25,
-                    height: 25,
-                    marginLeft: 10,
-                    position: 'absolute'
+                <DropDown
+                  onTap={(val) => {
+                    setFrom(val);
                   }}
+                  address={from?.address}
+                  setShow={(val) => {
+                    setShow(val);
+                  }}
+                  show={show}
                 />
+
+                <Text ml={2} mt={8} mb={1}>
+                  To (Wallet Address)
+                </Text>
+                <View justifyContent={'center'}>
+                  <TextInput
+                    editable={from ? true : false}
+                    value={toAddress}
+                    placeholder="Wallet Address"
+                    onChangeText={(val) => {
+                      setToAddress(val);
+                    }}
+                    style={{
+                      borderWidth: 1,
+                      borderRadius: 8,
+                      paddingHorizontal: width / 10
+                    }}
+                  />
+                  <Image
+                    source={require('../../../assets/icon/wallet.png')}
+                    style={{
+                      resizeMode: 'contain',
+                      width: 25,
+                      height: 25,
+                      marginLeft: 10,
+                      position: 'absolute'
+                    }}
+                  />
+                </View>
               </View>
             </>
           )}
@@ -222,7 +236,7 @@ const SendActionScreen = () => {
           onPress={() => {
             navigation.navigate('WalletAmountScreen', {
               data: {
-                from: from,
+                from: from.name,
                 to: toAddress,
                 network: network,
                 valid: false

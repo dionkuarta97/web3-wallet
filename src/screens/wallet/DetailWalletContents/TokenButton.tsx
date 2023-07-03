@@ -21,7 +21,7 @@ const TokenButton = ({ onPress, name, tes, icon }: Props) => {
         {
           transform: [{ scale: pressed ? 0.98 : 1 }],
           backgroundColor: pressed ? Colors.lightGreen : Colors.green,
-          width: '30%',
+          width: '22%',
           alignItems: 'center',
           padding: 10,
           borderRadius: 10,

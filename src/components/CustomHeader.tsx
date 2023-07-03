@@ -35,7 +35,13 @@ const CustomHeader = () => {
   };
 
   return (
-    <View alignItems={'center'} paddingTop={insets.top} padding={5} bg={'white'} flexDirection={'row'}>
+    <View
+      alignItems={'center'}
+      paddingTop={insets.top}
+      padding={5}
+      bg={'white'}
+      flexDirection={'row'}
+    >
       <StatusBar barStyle="dark-content" backgroundColor={'white'} />
       <View style={style.right}>
         <Pressable
