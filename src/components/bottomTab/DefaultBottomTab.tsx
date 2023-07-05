@@ -1,5 +1,5 @@
 import { Text, View } from 'native-base';
-import React from 'react';
+import React, { memo } from 'react';
 import { ImageSourcePropType, TouchableOpacity, Image } from 'react-native';
 import { Animated } from 'react-native';
 import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
@@ -75,4 +75,4 @@ const DefaultBottomTab = (
   );
 };
 
-export default DefaultBottomTab;
+export default memo(DefaultBottomTab);

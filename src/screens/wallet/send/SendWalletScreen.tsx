@@ -4,7 +4,7 @@ import { useNavigation, useRoute } from '@react-navigation/core';
 import { WalletParamList, WalletRouteProps } from '../../../navigations/WalletRouter';
 import { height, width } from '../../../Helpers';
 import { Colors } from '../../../Colors';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Pressable, Image, TextInput, Keyboard } from 'react-native';
 import { TouchableWithoutFeedback } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -14,11 +14,10 @@ import { SendCryptoTxStatus, sendCryptoStateAtom } from '../../../state/send-cry
 import { walletByAddressAtom } from '../../../state/wallet/walletReducer';
 import { TokenType } from '../../../api/tokens';
 
-
 const Network = ({
   onSetNetwork,
   network,
-  isSelected,
+  isSelected
 }: {
   onSetNetwork: (network: TNetwork) => void;
   network: TNetwork;
@@ -43,9 +42,11 @@ const Network = ({
       ]}
     >
       <Image
-        source={network.logoUrl
-          ? { uri: network.logoUrl }
-          : require('../../../../assets/coins/default.png')}
+        source={
+          network.logoUrl
+            ? { uri: network.logoUrl }
+            : require('../../../../assets/coins/default.png')
+        }
         style={{
           marginRight: 10,
           width: 20,
@@ -77,8 +78,8 @@ const Network = ({
         />
       )}
     </Pressable>
-  )
-}
+  );
+};
 
 const SendWalletScreen = () => {
   const [network, setNetwork] = useState<TNetwork | null>(null);
@@ -95,38 +96,39 @@ const SendWalletScreen = () => {
       const networks = await getNetworks({ isTestNet: true });
       setNetworkList(networks);
       setWalletByAddress(route.params.address);
-    })()
-  }, [])
-  
+    })();
+  }, []);
+
   useEffect(() => {
     setSendCryptoState({
       ...sendCryptoState,
-      senderWallet: walletByAddress,
-    })
-  }, [walletByAddress])
+      senderWallet: walletByAddress
+    });
+  }, [walletByAddress]);
 
   useEffect(() => {
     setSendCryptoState({
       ...sendCryptoState,
       destinationWallet: {
-        address: toAddress,
+        address: toAddress
       }
-    })
-  }, [toAddress])
+    });
+  }, [toAddress]);
 
-  const onSetNetwork = (network: TNetwork) => {
+  const onSetNetwork = useCallback((network: TNetwork) => {
     setNetwork(network);
 
     const networkFeeToken = walletByAddress.networks
-      .find(n => n.slug === network.slug)?.tokens
-      .find(t => t.tokenType === TokenType.NATIVE);
+      .find((n) => n.slug === network.slug)
+      ?.tokens.find((t) => t.tokenType === TokenType.NATIVE);
 
     setSendCryptoState({
       ...sendCryptoState,
       network: network,
-      networkFeeToken,
-    })
-  }
+      networkFeeToken
+    });
+    setShowListNetwork(false);
+  }, []);
 
   return (
     <DefaultBody>
@@ -159,16 +161,13 @@ const SendWalletScreen = () => {
               alignItems: 'center',
               paddingHorizontal: 10,
               paddingVertical: 15,
-
               borderRadius: 8,
               borderColor: network ? 'black' : Colors.neutral25
             }}
           >
             <Image
               source={
-                network
-                  ? { uri: network.logoUrl }
-                  : require('../../../../assets/icon/coin.png')
+                network ? { uri: network.logoUrl } : require('../../../../assets/icon/coin.png')
               }
               style={{
                 width: 20,
@@ -238,8 +237,7 @@ const SendWalletScreen = () => {
                   isSelected={n.slug === network?.slug}
                   onSetNetwork={onSetNetwork}
                 />
-              )
-              )}
+              ))}
             </View>
           )}
           {network && !showListNetwork && (
@@ -255,8 +253,7 @@ const SendWalletScreen = () => {
                     borderWidth: 1,
                     borderRadius: 8,
                     paddingHorizontal: width / 10,
-                    borderColor: Colors.grayText,
-                    height: 40
+                    borderColor: Colors.grayText
                   }}
                 />
                 <Image
@@ -283,8 +280,7 @@ const SendWalletScreen = () => {
                   style={{
                     borderWidth: 1,
                     borderRadius: 8,
-                    paddingHorizontal: width / 10,
-                    height: 40
+                    paddingHorizontal: width / 10
                   }}
                 />
                 <Image

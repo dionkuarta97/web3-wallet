@@ -37,7 +37,7 @@ const ActionBottomSheet = ({ onClose = () => {}, isOpen = false }: Props) => {
               width={'20%'}
               onPress={() => {
                 onClose();
-                sendMenu.onOpen();
+                // sendMenu.onOpen();
               }}
             >
               <View alignItems={'center'}>

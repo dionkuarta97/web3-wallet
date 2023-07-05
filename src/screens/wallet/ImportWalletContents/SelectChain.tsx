@@ -257,7 +257,6 @@ const SelectChain = ({ refInput, refInputPhrase }: Props) => {
             initBackgroundFetch(() => {
               createWallet(phrase.toLowerCase())
                 .then(async (val) => {
-                  const result = await detectBalance(val.address);
                   setWallet({
                     type: 'setWallets',
                     payload: [
@@ -268,8 +267,8 @@ const SelectChain = ({ refInput, refInputPhrase }: Props) => {
                         walletPhrase: val.mnemonic,
                         walletPrivateKey: val.privateKey,
                         createdAt: Date.now(),
-                        networks: result.tempNetworks,
-                        idrAsset: result.idrAsset,
+                        networks: [],
+                        idrAsset: 0,
                         isNew: true
                       }
                     ]
